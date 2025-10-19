@@ -2,6 +2,7 @@
 #include <iostream>
 #include <ft2build.h>
 #include FT_FREETYPE_H
+#include FT_TRUETYPE_TABLES_H
 
 const char* vertexShaderSource = R"(
 #version 330 core
@@ -24,15 +25,27 @@ out vec4 color;
 
 uniform sampler2D text;
 uniform vec3 textColor;
+uniform int isColorTexture;
 
 void main()
 {
-    float alpha = texture(text, TexCoords).r;
-    color = vec4(textColor, alpha);
+    vec4 sampled = texture(text, TexCoords);
+    
+    if (isColorTexture == 1) {
+        // For color emoji (BGRA format), use all channels directly
+        // The texture data is already in the correct format
+        color = sampled;
+        
+        // Apply gamma correction for better color reproduction
+        color.rgb = pow(color.rgb, vec3(1.0/2.2));
+    } else {
+        // For regular text, use red channel as alpha with textColor
+        color = vec4(textColor * sampled.r, sampled.r);
+    }
 }
 )";
 
-SimpleFont::SimpleFont() : VAO(0), VBO(0), shaderProgram(0), face(nullptr) {
+SimpleFont::SimpleFont() : VAO(0), VBO(0), shaderProgram(0), library(nullptr), face(nullptr), fallbackFace(nullptr), mainFontType(FontType::REGULAR) {
 }
 
 SimpleFont::~SimpleFont() {
@@ -48,9 +61,15 @@ SimpleFont::~SimpleFont() {
     if (VBO) glDeleteBuffers(1, &VBO);
     if (shaderProgram) glDeleteProgram(shaderProgram);
     
-    // Clean up FreeType face
+    // Clean up FreeType faces and library
     if (face) {
         FT_Done_Face((FT_Face)face);
+    }
+    if (fallbackFace) {
+        FT_Done_Face((FT_Face)fallbackFace);
+    }
+    if (library) {
+        FT_Done_FreeType((FT_Library)library);
     }
 }
 
@@ -63,15 +82,27 @@ bool SimpleFont::LoadFont(const std::string& fontPath, int fontSize) {
     }
 
     // Load font
-    FT_Face face;
-    if (FT_New_Face(ft, fontPath.c_str(), 0, &face)) {
+    FT_Face ftFace;
+    if (FT_New_Face(ft, fontPath.c_str(), 0, &ftFace)) {
         std::cout << "ERROR::FREETYPE: Failed to load font from " << fontPath << std::endl;
         FT_Done_FreeType(ft);
         return false;
     }
+    
+    // Store library and face for later Unicode character loading
+    this->library = ft;
+    this->face = ftFace;
 
-    // Set size
-    FT_Set_Pixel_Sizes(face, 0, fontSize);
+    // Detect font type and setup accordingly
+    if (IsColorEmojiFont(ftFace)) {
+        mainFontType = FontType::COLOR_EMOJI;
+        SetupColorFont(ftFace, fontSize);
+        std::cout << "Loaded color emoji font: " << fontPath << std::endl;
+    } else {
+        mainFontType = FontType::REGULAR;
+        SetupRegularFont(ftFace, fontSize);
+        std::cout << "Loaded regular font: " << fontPath << std::endl;
+    }
 
     // Disable byte-alignment restriction
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -79,16 +110,16 @@ bool SimpleFont::LoadFont(const std::string& fontPath, int fontSize) {
     // Load first 128 characters of ASCII set
     for (unsigned char c = 0; c < 128; c++) {
         // Load character glyph
-        if (FT_Load_Char(face, c, FT_LOAD_RENDER)) {
+        if (FT_Load_Char(ftFace, c, FT_LOAD_RENDER)) {
             std::cout << "ERROR::FREETYTPE: Failed to load Glyph " << (int)c << std::endl;
             continue;
         }
         
         // Skip characters with no bitmap (like spaces, control chars)
-        if (face->glyph->bitmap.width == 0 || face->glyph->bitmap.rows == 0) {
+        if (ftFace->glyph->bitmap.width == 0 || ftFace->glyph->bitmap.rows == 0) {
             // For space character, create a simple placeholder
             if (c == ' ') {
-                Character character = { 0, 0, 0, 0, 0, (int)face->glyph->advance.x };
+                Character character = { 0, 0, 0, 0, 0, (int)ftFace->glyph->advance.x, false };
                 characters.insert(std::pair<char, Character>(c, character));
             }
             continue;
@@ -102,12 +133,12 @@ bool SimpleFont::LoadFont(const std::string& fontPath, int fontSize) {
             GL_TEXTURE_2D,
             0,
             GL_RED,
-            face->glyph->bitmap.width,
-            face->glyph->bitmap.rows,
+            ftFace->glyph->bitmap.width,
+            ftFace->glyph->bitmap.rows,
             0,
             GL_RED,
             GL_UNSIGNED_BYTE,
-            face->glyph->bitmap.buffer
+            ftFace->glyph->bitmap.buffer
         );
         
         // Set texture options
@@ -119,19 +150,16 @@ bool SimpleFont::LoadFont(const std::string& fontPath, int fontSize) {
         // Store character for later use
         Character character = {
             texture,
-            (int)face->glyph->bitmap.width,
-            (int)face->glyph->bitmap.rows,
-            face->glyph->bitmap_left,
-            face->glyph->bitmap_top,
-            (int)face->glyph->advance.x
+            (int)ftFace->glyph->bitmap.width,
+            (int)ftFace->glyph->bitmap.rows,
+            ftFace->glyph->bitmap_left,
+            ftFace->glyph->bitmap_top,
+            (int)ftFace->glyph->advance.x,
+            false  // Regular ASCII characters are not color
         };
         characters.insert(std::pair<char, Character>(c, character));
     }
     glBindTexture(GL_TEXTURE_2D, 0);
-
-    // Clean up FreeType
-    FT_Done_Face(face);
-    FT_Done_FreeType(ft);
 
     // Create shaders and VAO/VBO
     if (!CreateShaders()) {
@@ -141,6 +169,31 @@ bool SimpleFont::LoadFont(const std::string& fontPath, int fontSize) {
     std::cout << "Font loaded successfully: " << fontPath << std::endl;
     return true;
 }
+
+bool SimpleFont::LoadFallbackFont(const std::string& fontPath, int fontSize) {
+    if (!library) {
+        std::cout << "ERROR::FREETYPE: Main font must be loaded first" << std::endl;
+        return false;
+    }
+    
+    FT_Library ft = (FT_Library)library;
+    FT_Face ftFace;
+    
+    if (FT_New_Face(ft, fontPath.c_str(), 0, &ftFace)) {
+        std::cout << "ERROR::FREETYPE: Failed to load fallback font from " << fontPath << std::endl;
+        return false;
+    }
+    
+    // Store fallback face
+    this->fallbackFace = ftFace;
+    
+    // Setup as regular font
+    SetupRegularFont(ftFace, fontSize);
+    
+    std::cout << "Loaded fallback font: " << fontPath << std::endl;
+    return true;
+}
+
 
 bool SimpleFont::CreateShaders() {
     // Compile vertex shader
@@ -219,19 +272,48 @@ void SimpleFont::RenderText(const std::string& text, float x, float y, float sca
     glActiveTexture(GL_TEXTURE0);
     glBindVertexArray(VAO);
 
-    // Enable blending
+    // Enable blending for proper alpha compositing
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    // Iterate through all characters
-    std::string::const_iterator c;
-    for (c = text.begin(); c != text.end(); c++) {
-        auto it = characters.find(*c);
-        if (it == characters.end()) {
-            continue; // Skip characters not found
+    // Convert UTF-8 text to Unicode codepoints
+    std::vector<uint32_t> codepoints = UTF8ToCodepoints(text);
+    
+    // Iterate through all codepoints
+    for (uint32_t codepoint : codepoints) {
+        Character ch;
+        bool found = false;
+        
+        // Check ASCII characters first (faster lookup)
+        if (codepoint < 128) {
+            auto it = characters.find((char)codepoint);
+            if (it != characters.end()) {
+                ch = it->second;
+                found = true;
+            }
         }
         
-        Character ch = it->second;
+        // Check Unicode characters
+        if (!found) {
+            auto it = unicodeCharacters.find(codepoint);
+            if (it != unicodeCharacters.end()) {
+                ch = it->second;
+                found = true;
+            } else {
+                // Try to load the character dynamically
+                LoadUnicodeCharacter(codepoint);
+                it = unicodeCharacters.find(codepoint);
+                if (it != unicodeCharacters.end()) {
+                    ch = it->second;
+                    found = true;
+                }
+            }
+        }
+        
+        if (!found) {
+            // Character not found, skip
+            continue;
+        }
 
         float xpos = x + ch.bearingX * scale;
         float ypos = y - (ch.height - ch.bearingY) * scale;
@@ -253,6 +335,9 @@ void SimpleFont::RenderText(const std::string& text, float x, float y, float sca
         // Render glyph texture over quad
         glBindTexture(GL_TEXTURE_2D, ch.textureID);
         
+        // Set whether this is a color texture or not
+        glUniform1i(glGetUniformLocation(shaderProgram, "isColorTexture"), ch.isColor ? 1 : 0);
+        
         // Update content of VBO memory
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
         glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
@@ -268,4 +353,165 @@ void SimpleFont::RenderText(const std::string& text, float x, float y, float sca
     glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);
     glDisable(GL_BLEND);
+}
+
+void SimpleFont::LoadUnicodeCharacter(uint32_t codepoint) {
+    if (!face) return;
+    
+    // Check if character is already loaded
+    if (unicodeCharacters.find(codepoint) != unicodeCharacters.end()) {
+        return;
+    }
+    
+    FT_Face ftFace = (FT_Face)face;
+    
+    // Simple approach - just load with FT_LOAD_RENDER
+    FT_Error error = FT_Load_Char(ftFace, codepoint, FT_LOAD_RENDER);
+    if (error) {
+        // If loading fails, try fallback font
+        if (fallbackFace) {
+            FT_Face fallbackFtFace = (FT_Face)fallbackFace;
+            error = FT_Load_Char(fallbackFtFace, codepoint, FT_LOAD_RENDER);
+            if (error) {
+                return; // Skip this character
+            }
+            ftFace = fallbackFtFace;
+        } else {
+            return; // Skip this character
+        }
+    }
+    
+    // Skip characters with no bitmap
+    if (ftFace->glyph->bitmap.width == 0 || ftFace->glyph->bitmap.rows == 0) {
+        // Create placeholder for space-like characters
+        Character character = { 0, 0, 0, 0, 0, (int)ftFace->glyph->advance.x, false };
+        unicodeCharacters[codepoint] = character;
+        return;
+    }
+    
+    // Generate texture
+    GLuint texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    
+    // Always create as grayscale texture (FreeType fallback)
+    glTexImage2D(
+        GL_TEXTURE_2D,
+        0,
+        GL_RED,
+        ftFace->glyph->bitmap.width,
+        ftFace->glyph->bitmap.rows,
+        0,
+        GL_RED,
+        GL_UNSIGNED_BYTE,
+        ftFace->glyph->bitmap.buffer
+    );
+    
+    // Set texture options
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    
+    // Store character
+    Character character = {
+        texture,
+        (int)ftFace->glyph->bitmap.width,
+        (int)ftFace->glyph->bitmap.rows,
+        ftFace->glyph->bitmap_left,
+        ftFace->glyph->bitmap_top,
+        (int)ftFace->glyph->advance.x,
+        false // Always grayscale for now
+    };
+    unicodeCharacters[codepoint] = character;
+    
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+
+
+std::vector<uint32_t> SimpleFont::UTF8ToCodepoints(const std::string& utf8) {
+    std::vector<uint32_t> codepoints;
+    
+    for (size_t i = 0; i < utf8.length(); ) {
+        uint32_t codepoint = 0;
+        uint8_t c = utf8[i];
+        
+        if (c < 0x80) {
+            // ASCII character
+            codepoint = c;
+            i++;
+        } else if ((c >> 5) == 0x06) {
+            // 2-byte sequence
+            if (i + 1 < utf8.length()) {
+                codepoint = ((c & 0x1f) << 6) | (utf8[i + 1] & 0x3f);
+                i += 2;
+            } else {
+                i++;
+            }
+        } else if ((c >> 4) == 0x0e) {
+            // 3-byte sequence
+            if (i + 2 < utf8.length()) {
+                codepoint = ((c & 0x0f) << 12) | ((utf8[i + 1] & 0x3f) << 6) | (utf8[i + 2] & 0x3f);
+                i += 3;
+            } else {
+                i++;
+            }
+        } else if ((c >> 3) == 0x1e) {
+            // 4-byte sequence (emojis are often here)
+            if (i + 3 < utf8.length()) {
+                codepoint = ((c & 0x07) << 18) | ((utf8[i + 1] & 0x3f) << 12) | ((utf8[i + 2] & 0x3f) << 6) | (utf8[i + 3] & 0x3f);
+                i += 4;
+            } else {
+                i++;
+            }
+        } else {
+            // Invalid sequence, skip
+            i++;
+            continue;
+        }
+        
+        if (codepoint > 0) {
+            codepoints.push_back(codepoint);
+        }
+    }
+    
+    return codepoints;
+}
+
+bool SimpleFont::IsColorEmojiFont(void* face) {
+    FT_Face ftFace = (FT_Face)face;
+    
+    // Check for CBDT table (Color Bitmap Data Table) - used by emoji fonts
+    static const FT_ULong CBDT_TAG = FT_MAKE_TAG('C', 'B', 'D', 'T');
+    FT_ULong length = 0;
+    FT_Error error = FT_Load_Sfnt_Table(ftFace, CBDT_TAG, 0, nullptr, &length);
+    
+    if (error == 0 && length > 0) {
+        return true;
+    }
+    
+    // Also check CBLC table (Color Bitmap Location Table)
+    static const FT_ULong CBLC_TAG = FT_MAKE_TAG('C', 'B', 'L', 'C');
+    error = FT_Load_Sfnt_Table(ftFace, CBLC_TAG, 0, nullptr, &length);
+    
+    return (error == 0 && length > 0);
+}
+
+void SimpleFont::SetupColorFont(void* face, int fontSize) {
+    FT_Face ftFace = (FT_Face)face;
+    
+    // Check for the correct way to size your fonts
+    if (FT_HAS_FIXED_SIZES(ftFace)) {
+        FT_Select_Size(ftFace, 0); // just use the first one
+        std::cout << "Selected emoji size: " << ftFace->available_sizes[0].width << "px" << std::endl;
+    } else {
+        // The usual way to set the size
+        FT_Set_Pixel_Sizes(ftFace, 0, fontSize);
+    }
+}
+
+void SimpleFont::SetupRegularFont(void* face, int fontSize) {
+    FT_Face ftFace = (FT_Face)face;
+    FT_Set_Pixel_Sizes(ftFace, 0, fontSize);
 }

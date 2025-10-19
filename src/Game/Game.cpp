@@ -68,10 +68,13 @@ bool Game::Initialize()
     helloActor->SetPosition(Vector2(100.0f, 200.0f));
     AddActor(std::move(helloActor));
     
-    auto secondActor = std::make_unique<TextActor>(this, "Test 123");
+    auto secondActor = std::make_unique<TextActor>(this, "Test 123📍📌📶🔔");
     secondActor->SetPosition(Vector2(100.0f, 250.0f));
     AddActor(std::move(secondActor));
 
+    auto thirdActor = std::make_unique<TextActor>(this, "Emoji Test: 😀🚀🌟🔥💧🍀🎉");
+    thirdActor->SetPosition(Vector2(100.0f, 300.0f));
+    AddActor(std::move(thirdActor));
     mTicksCount = SDL_GetTicks();
 
     return true;
