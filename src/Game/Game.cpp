@@ -7,6 +7,7 @@
 #include "../Actor/TextActor.hpp"
 #include "../Core/Renderer/Renderer.hpp"
 #include "../Core/TextRenderer/TextRenderer.hpp"
+#include "../Core/RenderUtils.hpp"
 #include <iostream>
 #include <algorithm>
 
@@ -63,7 +64,7 @@ bool Game::Initialize()
         SDL_Log("Warning: Failed to initialize text renderer");
     }
 
-    // Create text actors with simple ASCII text first
+    // Create text actors with different colors
     auto helloActor = std::make_unique<TextActor>(this, "Hello World!");
     helloActor->SetPosition(Vector2(100.0f, 200.0f));
     AddActor(std::move(helloActor));
@@ -75,6 +76,9 @@ bool Game::Initialize()
     auto thirdActor = std::make_unique<TextActor>(this, "Emoji Test: 😀🚀🌟🔥💧🍀🎉");
     thirdActor->SetPosition(Vector2(100.0f, 300.0f));
     AddActor(std::move(thirdActor));
+    
+    // Set different text color for variety
+    mTextRenderer->SetTextColor(0.8f, 1.0f, 0.8f); // Light green
     mTicksCount = SDL_GetTicks();
 
     return true;
@@ -161,9 +165,8 @@ void Game::GenerateOutput()
 {
     mRenderer->BeginFrame();
     
-    // Clear screen with dark background
-    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+    // Use common render utility for screen clearing
+    RenderUtils::ClearScreen(0.1f, 0.1f, 0.1f, 1.0f);
     
     // Render all actors
     for (auto& actor : mActors)

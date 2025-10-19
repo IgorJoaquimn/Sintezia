@@ -7,6 +7,10 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include FT_GLYPH_H
+#include "../../Font/FontManager.hpp"
+#include "../../Shader/ShaderProgram.hpp"
+#include "../../Math.h"
+#include "../RenderUtils.hpp"
 
 struct GlyphInfo {
     GLuint textureID;
@@ -16,10 +20,6 @@ struct GlyphInfo {
     bool isColor; // true for emoji, false for regular text
 };
 
-struct AtlasRegion {
-    int x, y, width, height;
-};
-
 class TextRenderer {
 public:
     TextRenderer();
@@ -27,28 +27,21 @@ public:
 
     bool Initialize();
     void RenderText(const std::string& text, float x, float y, float scale = 1.0f);
+    void SetTextColor(float r, float g, float b) { mTextColor = Vector3(r, g, b); }
 
 private:
-    FT_Library ftLibrary;
-    FT_Face textFace;     // Regular text font
-    FT_Face emojiFace;    // Emoji font
+    std::unique_ptr<FontManager> fontManager;
+    std::unique_ptr<ShaderProgram> textShader;
+    Vector3 mTextColor;
     
     // Glyph cache for both text and emojis
     std::unordered_map<uint32_t, GlyphInfo> glyphCache;
     
-    // Atlas for glyph textures
-    GLuint atlasTexture;
-    int atlasWidth, atlasHeight;
-    int currentX, currentY, rowHeight;
-    
     // OpenGL rendering resources
     GLuint VAO, VBO;
-    GLuint shaderProgram;
     
-    bool LoadFonts();
-    bool CreateShaders();
+    bool InitializeShaders();
     GlyphInfo LoadGlyph(uint32_t codepoint, FT_Face face, bool isEmoji);
-    bool CreateAtlas();
-    AtlasRegion AllocateAtlasRegion(int width, int height);
     uint32_t GetNextCodepoint(const std::string& text, size_t& pos);
+    bool IsEmojiCodepoint(uint32_t codepoint) const;
 };
