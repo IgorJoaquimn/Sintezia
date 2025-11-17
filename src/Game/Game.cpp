@@ -5,9 +5,11 @@
 #include "Game.hpp"
 #include "../Actor/Actor.hpp"
 #include "../Actor/TextActor.hpp"
+#include "../Actor/ItemActor.hpp"
 #include "../Core/Renderer/Renderer.hpp"
 #include "../Core/TextRenderer/TextRenderer.hpp"
 #include "../Core/RenderUtils.hpp"
+#include "../Crafting/Crafting.hpp"
 #include <iostream>
 #include <algorithm>
 
@@ -16,6 +18,7 @@ Game::Game()
     , mGLContext(nullptr)
     , mRenderer(nullptr)
     , mTextRenderer(nullptr)
+    , mCrafting(nullptr)
     , mTicksCount(0)
     , mIsRunning(true)
     , mUpdatingActors(false)
@@ -64,18 +67,56 @@ bool Game::Initialize()
         SDL_Log("Warning: Failed to initialize text renderer");
     }
 
-    // Create text actors with different colors
-    auto helloActor = std::make_unique<TextActor>(this, "Hello World!");
-    helloActor->SetPosition(Vector2(100.0f, 200.0f));
-    AddActor(std::move(helloActor));
+    // Initialize crafting system
+    mCrafting = std::make_unique<Crafting>();
     
-    auto secondActor = std::make_unique<TextActor>(this, "Test 123📍📌📶🔔");
-    secondActor->SetPosition(Vector2(100.0f, 250.0f));
-    AddActor(std::move(secondActor));
+    // Load items and recipes from JSON
+    if (!mCrafting->LoadItemsFromJson("assets/items.json"))
+    {
+        SDL_Log("Warning: Failed to load items");
+    }
+    
+    if (!mCrafting->LoadRecipesFromJson("assets/recipes.json"))
+    {
+        SDL_Log("Warning: Failed to load recipes");
+    }
 
-    auto thirdActor = std::make_unique<TextActor>(this, "Emoji Test: 😀🚀🌟🔥💧🍀🎉");
-    thirdActor->SetPosition(Vector2(100.0f, 300.0f));
-    AddActor(std::move(thirdActor));
+    // Get items with id 1 and 2
+    const Item* item1 = mCrafting->FindItemById(1);
+    const Item* item2 = mCrafting->FindItemById(2);
+    
+    if (item1 && item2)
+    {
+        // Display first item (Water) using ItemActor
+        auto actor1 = std::make_unique<ItemActor>(this, *item1);
+        actor1->SetPosition(Vector2(50.0f, 200.0f));
+        AddActor(std::move(actor1));
+        
+        // Display combination symbol
+        auto plusActor = std::make_unique<TextActor>(this, "+");
+        plusActor->SetPosition(Vector2(200.0f, 200.0f));
+        AddActor(std::move(plusActor));
+        
+        // Display second item (Fire) using ItemActor
+        auto actor2 = std::make_unique<ItemActor>(this, *item2);
+        actor2->SetPosition(Vector2(240.0f, 200.0f));
+        AddActor(std::move(actor2));
+        
+        // Combine the items
+        auto result = mCrafting->combine_items(*item1, *item2);
+        if (result)
+        {
+            // Display equals and result
+            auto equalsActor = std::make_unique<TextActor>(this, "=");
+            equalsActor->SetPosition(Vector2(370.0f, 200.0f));
+            AddActor(std::move(equalsActor));
+            
+            // Display result using ItemActor
+            auto resultActor = std::make_unique<ItemActor>(this, *result);
+            resultActor->SetPosition(Vector2(410.0f, 200.0f));
+            AddActor(std::move(resultActor));
+        }
+    }
     
     // Set different text color for variety
     mTextRenderer->SetTextColor(0.8f, 1.0f, 0.8f); // Light green
@@ -227,6 +268,11 @@ void Game::Shutdown()
     if (mTextRenderer)
     {
         mTextRenderer.reset();
+    }
+
+    if (mCrafting)
+    {
+        mCrafting.reset();
     }
 
     if (mRenderer)

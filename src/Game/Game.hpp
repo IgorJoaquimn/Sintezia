@@ -10,6 +10,7 @@
 #include "../Actor/Actor.hpp"
 #include "../Core/Renderer/Renderer.hpp"
 #include "../Core/TextRenderer/TextRenderer.hpp"
+#include "../Crafting/Crafting.hpp"
 
 class Game
 {
@@ -42,6 +43,7 @@ private:
     SDL_GLContext mGLContext;
     std::unique_ptr<Renderer> mRenderer;
     std::unique_ptr<TextRenderer> mTextRenderer;
+    std::unique_ptr<Crafting> mCrafting;
 
     // Track elapsed time since game start
     Uint32 mTicksCount;

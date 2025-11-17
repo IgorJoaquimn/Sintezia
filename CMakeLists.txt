@@ -38,6 +38,7 @@ set(SOURCES
     ${SRC_DIR}/Game/Game.cpp
     ${SRC_DIR}/Actor/Actor.cpp
     ${SRC_DIR}/Actor/TextActor.cpp
+    ${SRC_DIR}/Actor/ItemActor.cpp
     ${SRC_DIR}/Component/Component/Component.cpp
     ${SRC_DIR}/Shader/ShaderProgram.cpp
     ${SRC_DIR}/Font/FontManager.cpp
