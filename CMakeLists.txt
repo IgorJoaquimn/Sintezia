@@ -13,7 +13,7 @@ find_package(Freetype REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(OpenGL REQUIRED)
 
-# --- Add GLM using FetchContent ---
+# --- Add GLM and nlohmann_json using FetchContent ---
 include(FetchContent)
 FetchContent_Declare(
     glm
@@ -21,6 +21,14 @@ FetchContent_Declare(
     GIT_TAG 1.0.1
 )
 FetchContent_MakeAvailable(glm)
+
+# Add nlohmann_json for JSON support
+FetchContent_Declare(
+    nlohmann_json
+    GIT_REPOSITORY https://github.com/nlohmann/json.git
+    GIT_TAG v3.11.3
+)
+FetchContent_MakeAvailable(nlohmann_json)
 
 # --- Collect source files ---
 set(SRC_DIR ${CMAKE_SOURCE_DIR}/src)
@@ -35,6 +43,8 @@ set(SOURCES
     ${SRC_DIR}/Font/FontManager.cpp
     ${SRC_DIR}/Core/Renderer/Renderer.cpp
     ${SRC_DIR}/Core/TextRenderer/TextRenderer.cpp
+    ${SRC_DIR}/Crafting/Item.cpp
+    ${SRC_DIR}/Crafting/Crafting.cpp
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES})
@@ -56,6 +66,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     GLEW::glew
     OpenGL::GL
     glm
+    nlohmann_json::nlohmann_json
 )
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)

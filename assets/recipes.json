@@ -1,0 +1,54 @@
+{
+    "recipes": [
+        {
+            "item1_id": 1,
+            "item2_id": 2,
+            "result_id": 5
+        },
+        {
+            "item1_id": 2,
+            "item2_id": 3,
+            "result_id": 6
+        },
+        {
+            "item1_id": 1,
+            "item2_id": 3,
+            "result_id": 7
+        },
+        {
+            "item1_id": 3,
+            "item2_id": 4,
+            "result_id": 8
+        },
+        {
+            "item1_id": 1,
+            "item2_id": 4,
+            "result_id": 9
+        },
+        {
+            "item1_id": 2,
+            "item2_id": 4,
+            "result_id": 10
+        },
+        {
+            "item1_id": 5,
+            "item2_id": 4,
+            "result_id": 11
+        },
+        {
+            "item1_id": 6,
+            "item2_id": 1,
+            "result_id": 12
+        },
+        {
+            "item1_id": 7,
+            "item2_id": 2,
+            "result_id": 13
+        },
+        {
+            "item1_id": 11,
+            "item2_id": 11,
+            "result_id": 14
+        }
+    ]
+}

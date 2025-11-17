@@ -1,0 +1,74 @@
+{
+    "items": [
+        {
+            "id": 1,
+            "name": "Water",
+            "emoji": "💧"
+        },
+        {
+            "id": 2,
+            "name": "Fire",
+            "emoji": "🔥"
+        },
+        {
+            "id": 3,
+            "name": "Earth",
+            "emoji": "🌍"
+        },
+        {
+            "id": 4,
+            "name": "Air",
+            "emoji": "💨"
+        },
+        {
+            "id": 5,
+            "name": "Steam",
+            "emoji": "💨"
+        },
+        {
+            "id": 6,
+            "name": "Lava",
+            "emoji": "🌋"
+        },
+        {
+            "id": 7,
+            "name": "Mud",
+            "emoji": "🟤"
+        },
+        {
+            "id": 8,
+            "name": "Dust",
+            "emoji": "💨"
+        },
+        {
+            "id": 9,
+            "name": "Rain",
+            "emoji": "🌧️"
+        },
+        {
+            "id": 10,
+            "name": "Smoke",
+            "emoji": "💨"
+        },
+        {
+            "id": 11,
+            "name": "Cloud",
+            "emoji": "☁️"
+        },
+        {
+            "id": 12,
+            "name": "Stone",
+            "emoji": "🪨"
+        },
+        {
+            "id": 13,
+            "name": "Brick",
+            "emoji": "🧱"
+        },
+        {
+            "id": 14,
+            "name": "Storm",
+            "emoji": "⛈️"
+        }
+    ]
+}
