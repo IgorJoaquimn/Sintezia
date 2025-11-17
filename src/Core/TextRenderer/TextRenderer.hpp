@@ -28,6 +28,11 @@ public:
     bool Initialize();
     void RenderText(const std::string& text, float x, float y, float scale = 1.0f);
     void SetTextColor(float r, float g, float b) { mTextColor = Vector3(r, g, b); }
+    
+    // Calculate text dimensions
+    Vector2 MeasureText(const std::string& text, float scale = 1.0f);
+    float GetTextWidth(const std::string& text, float scale = 1.0f);
+    float GetTextHeight(const std::string& text, float scale = 1.0f);
 
 private:
     std::unique_ptr<FontManager> fontManager;

@@ -19,6 +19,11 @@ public:
     bool GetShowName() const { return mShowName; }
     bool GetShowEmoji() const { return mShowEmoji; }
     
+    // Get dimensions
+    Vector2 GetTextDimensions(float scale = 1.0f) const;
+    float GetTextWidth(float scale = 1.0f) const;
+    float GetTextHeight(float scale = 1.0f) const;
+    
 protected:
     void OnDraw(class TextRenderer* textRenderer) override;
     

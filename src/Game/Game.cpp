@@ -87,33 +87,53 @@ bool Game::Initialize()
     
     if (item1 && item2)
     {
+        float xPos = 50.0f;
+        float yPos = 200.0f;
+        float spacing = 20.0f; // Space between elements
+        
         // Display first item (Water) using ItemActor
         auto actor1 = std::make_unique<ItemActor>(this, *item1);
-        actor1->SetPosition(Vector2(50.0f, 200.0f));
+        actor1->SetPosition(Vector2(xPos, yPos));
         AddActor(std::move(actor1));
+        
+        // Calculate width of first item to position the "+"
+        float item1Width = mTextRenderer->GetTextWidth(item1->emoji + " " + item1->name);
+        xPos += item1Width + spacing;
         
         // Display combination symbol
         auto plusActor = std::make_unique<TextActor>(this, "+");
-        plusActor->SetPosition(Vector2(200.0f, 200.0f));
+        plusActor->SetPosition(Vector2(xPos, yPos));
         AddActor(std::move(plusActor));
+        
+        // Move past the "+"
+        float plusWidth = mTextRenderer->GetTextWidth("+");
+        xPos += plusWidth + spacing;
         
         // Display second item (Fire) using ItemActor
         auto actor2 = std::make_unique<ItemActor>(this, *item2);
-        actor2->SetPosition(Vector2(240.0f, 200.0f));
+        actor2->SetPosition(Vector2(xPos, yPos));
         AddActor(std::move(actor2));
+        
+        // Calculate width of second item to position the "="
+        float item2Width = mTextRenderer->GetTextWidth(item2->emoji + " " + item2->name);
+        xPos += item2Width + spacing;
         
         // Combine the items
         auto result = mCrafting->combine_items(*item1, *item2);
         if (result)
         {
-            // Display equals and result
+            // Display equals
             auto equalsActor = std::make_unique<TextActor>(this, "=");
-            equalsActor->SetPosition(Vector2(370.0f, 200.0f));
+            equalsActor->SetPosition(Vector2(xPos, yPos));
             AddActor(std::move(equalsActor));
+            
+            // Move past the "="
+            float equalsWidth = mTextRenderer->GetTextWidth("=");
+            xPos += equalsWidth + spacing;
             
             // Display result using ItemActor
             auto resultActor = std::make_unique<ItemActor>(this, *result);
-            resultActor->SetPosition(Vector2(410.0f, 200.0f));
+            resultActor->SetPosition(Vector2(xPos, yPos));
             AddActor(std::move(resultActor));
         }
     }

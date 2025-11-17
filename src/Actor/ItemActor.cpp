@@ -52,3 +52,30 @@ void ItemActor::OnDraw(class TextRenderer* textRenderer)
         textRenderer->RenderText(displayText, pos.x, pos.y, 1.0f);
     }
 }
+
+Vector2 ItemActor::GetTextDimensions(float scale) const
+{
+    std::string displayText = GetDisplayText();
+    
+    // Get the text renderer from game
+    auto* game = GetGame();
+    if (game && game->GetTextRenderer())
+    {
+        return game->GetTextRenderer()->MeasureText(displayText, scale);
+    }
+    
+    // Fallback: estimate
+    float width = displayText.length() * 12.0f * scale;
+    float height = 20.0f * scale;
+    return Vector2(width, height);
+}
+
+float ItemActor::GetTextWidth(float scale) const
+{
+    return GetTextDimensions(scale).x;
+}
+
+float ItemActor::GetTextHeight(float scale) const
+{
+    return GetTextDimensions(scale).y;
+}

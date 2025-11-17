@@ -233,3 +233,58 @@ void TextRenderer::RenderText(const std::string& text, float x, float y, float s
     RenderUtils::DisableBlending();
 }
 
+Vector2 TextRenderer::MeasureText(const std::string& text, float scale)
+{
+    float totalWidth = 0.0f;
+    float maxHeight = 0.0f;
+    
+    size_t pos = 0;
+    while (pos < text.length())
+    {
+        uint32_t codepoint = GetNextCodepoint(text, pos);
+        if (codepoint == 0) break;
+        
+        // Check glyph cache or load if needed
+        auto it = glyphCache.find(codepoint);
+        if (it == glyphCache.end())
+        {
+            bool isEmoji = IsEmojiCodepoint(codepoint);
+            FT_Face faceToUse = isEmoji ? fontManager->GetEmojiFace() : fontManager->GetTextFace();
+            GlyphInfo glyph = LoadGlyph(codepoint, faceToUse, isEmoji);
+            
+            if (isEmoji && glyph.textureID == 0 && fontManager->GetEmojiFace() != fontManager->GetTextFace())
+            {
+                glyph = LoadGlyph(codepoint, fontManager->GetTextFace(), false);
+            }
+            
+            it = glyphCache.emplace(codepoint, glyph).first;
+        }
+        
+        const GlyphInfo& glyph = it->second;
+        
+        // Calculate width
+        float emojiScale = glyph.isColor ? 0.35f : 1.0f;
+        float scaled = scale * emojiScale;
+        totalWidth += glyph.advance * scaled;
+        
+        // Track max height
+        float glyphHeight = glyph.height * scaled;
+        if (glyphHeight > maxHeight)
+        {
+            maxHeight = glyphHeight;
+        }
+    }
+    
+    return Vector2(totalWidth, maxHeight);
+}
+
+float TextRenderer::GetTextWidth(const std::string& text, float scale)
+{
+    return MeasureText(text, scale).x;
+}
+
+float TextRenderer::GetTextHeight(const std::string& text, float scale)
+{
+    return MeasureText(text, scale).y;
+}
+

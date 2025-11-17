@@ -25,6 +25,9 @@ public:
     // Actor functions
     void AddActor(std::unique_ptr<Actor> actor);
     void RemoveActor(Actor* actor);
+    
+    // Get text renderer for measurements
+    TextRenderer* GetTextRenderer() { return mTextRenderer.get(); }
 
     static const int WINDOW_WIDTH = 800;
     static const int WINDOW_HEIGHT = 600;
