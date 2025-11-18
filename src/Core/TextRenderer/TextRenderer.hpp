@@ -30,9 +30,9 @@ public:
     void SetTextColor(float r, float g, float b) { mTextColor = Vector3(r, g, b); }
     
     // Calculate text dimensions
-    Vector2 MeasureText(const std::string& text, float scale = 1.0f);
-    float GetTextWidth(const std::string& text, float scale = 1.0f);
-    float GetTextHeight(const std::string& text, float scale = 1.0f);
+    Vector2 MeasureText(const std::string& text, float scale = 1.0f) const;
+    float GetTextWidth(const std::string& text, float scale = 1.0f) const;
+    float GetTextHeight(const std::string& text, float scale = 1.0f) const;
 
 private:
     std::unique_ptr<FontManager> fontManager;
@@ -47,6 +47,6 @@ private:
     
     bool InitializeShaders();
     GlyphInfo LoadGlyph(uint32_t codepoint, FT_Face face, bool isEmoji);
-    uint32_t GetNextCodepoint(const std::string& text, size_t& pos);
+    uint32_t GetNextCodepoint(const std::string& text, size_t& pos) const;
     bool IsEmojiCodepoint(uint32_t codepoint) const;
 };

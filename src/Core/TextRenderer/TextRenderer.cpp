@@ -66,7 +66,7 @@ bool TextRenderer::IsEmojiCodepoint(uint32_t codepoint) const {
            (codepoint >= 0x1F1E0 && codepoint <= 0x1F1FF);   // Regional indicator symbols
 }
 
-uint32_t TextRenderer::GetNextCodepoint(const std::string& text, size_t& pos) {
+uint32_t TextRenderer::GetNextCodepoint(const std::string& text, size_t& pos) const {
     if (pos >= text.length()) return 0;
 
     uint8_t c = static_cast<uint8_t>(text[pos++]);
@@ -233,7 +233,7 @@ void TextRenderer::RenderText(const std::string& text, float x, float y, float s
     RenderUtils::DisableBlending();
 }
 
-Vector2 TextRenderer::MeasureText(const std::string& text, float scale)
+Vector2 TextRenderer::MeasureText(const std::string& text, float scale) const
 {
     float totalWidth = 0.0f;
     float maxHeight = 0.0f;
@@ -250,14 +250,14 @@ Vector2 TextRenderer::MeasureText(const std::string& text, float scale)
         {
             bool isEmoji = IsEmojiCodepoint(codepoint);
             FT_Face faceToUse = isEmoji ? fontManager->GetEmojiFace() : fontManager->GetTextFace();
-            GlyphInfo glyph = LoadGlyph(codepoint, faceToUse, isEmoji);
+            GlyphInfo glyph = const_cast<TextRenderer*>(this)->LoadGlyph(codepoint, faceToUse, isEmoji);
             
             if (isEmoji && glyph.textureID == 0 && fontManager->GetEmojiFace() != fontManager->GetTextFace())
             {
-                glyph = LoadGlyph(codepoint, fontManager->GetTextFace(), false);
+                glyph = const_cast<TextRenderer*>(this)->LoadGlyph(codepoint, fontManager->GetTextFace(), false);
             }
             
-            it = glyphCache.emplace(codepoint, glyph).first;
+            it = const_cast<TextRenderer*>(this)->glyphCache.emplace(codepoint, glyph).first;
         }
         
         const GlyphInfo& glyph = it->second;
@@ -278,12 +278,12 @@ Vector2 TextRenderer::MeasureText(const std::string& text, float scale)
     return Vector2(totalWidth, maxHeight);
 }
 
-float TextRenderer::GetTextWidth(const std::string& text, float scale)
+float TextRenderer::GetTextWidth(const std::string& text, float scale) const
 {
     return MeasureText(text, scale).x;
 }
 
-float TextRenderer::GetTextHeight(const std::string& text, float scale)
+float TextRenderer::GetTextHeight(const std::string& text, float scale) const
 {
     return MeasureText(text, scale).y;
 }

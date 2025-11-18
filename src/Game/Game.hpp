@@ -28,6 +28,7 @@ public:
     
     // Get text renderer for measurements
     TextRenderer* GetTextRenderer() { return mTextRenderer.get(); }
+    const TextRenderer* GetTextRenderer() const { return mTextRenderer.get(); }
 
     static const int WINDOW_WIDTH = 800;
     static const int WINDOW_HEIGHT = 600;
