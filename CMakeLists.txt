@@ -44,6 +44,7 @@ set(SOURCES
     ${SRC_DIR}/Font/FontManager.cpp
     ${SRC_DIR}/Core/Renderer/Renderer.cpp
     ${SRC_DIR}/Core/TextRenderer/TextRenderer.cpp
+    ${SRC_DIR}/Core/RectRenderer/RectRenderer.cpp
     ${SRC_DIR}/Crafting/Item.cpp
     ${SRC_DIR}/Crafting/Crafting.cpp
 )

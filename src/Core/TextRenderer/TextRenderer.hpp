@@ -25,7 +25,7 @@ public:
     TextRenderer();
     ~TextRenderer();
 
-    bool Initialize();
+    bool Initialize(float windowWidth = 800.0f, float windowHeight = 600.0f);
     void RenderText(const std::string& text, float x, float y, float scale = 1.0f);
     void SetTextColor(float r, float g, float b) { mTextColor = Vector3(r, g, b); }
     
@@ -38,6 +38,10 @@ private:
     std::unique_ptr<FontManager> fontManager;
     std::unique_ptr<ShaderProgram> textShader;
     Vector3 mTextColor;
+    
+    // Window dimensions for projection
+    float mWindowWidth;
+    float mWindowHeight;
     
     // Glyph cache for both text and emojis
     std::unordered_map<uint32_t, GlyphInfo> glyphCache;

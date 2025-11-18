@@ -6,6 +6,8 @@ TextRenderer::TextRenderer()
     : fontManager(std::make_unique<FontManager>()),
       textShader(std::make_unique<ShaderProgram>()),
       mTextColor(1.0f, 1.0f, 1.0f),
+      mWindowWidth(800.0f),
+      mWindowHeight(600.0f),
       VAO(0), VBO(0) {
 }
 
@@ -21,7 +23,10 @@ TextRenderer::~TextRenderer() {
     if (VBO) glDeleteBuffers(1, &VBO);
 }
 
-bool TextRenderer::Initialize() {
+bool TextRenderer::Initialize(float windowWidth, float windowHeight) {
+    mWindowWidth = windowWidth;
+    mWindowHeight = windowHeight;
+    
     if (!fontManager->Initialize()) {
         std::cerr << "ERROR: Could not initialize FontManager!" << std::endl;
         return false;
@@ -154,7 +159,7 @@ void TextRenderer::RenderText(const std::string& text, float x, float y, float s
     textShader->Use();
     
     // Use specific text projection matrix that handles coordinate system correctly
-    Matrix4 projection = RenderUtils::CreateTextProjection(800.0f, 600.0f);
+    Matrix4 projection = RenderUtils::CreateTextProjection(mWindowWidth, mWindowHeight);
     textShader->SetUniformMatrix4fv("projection", projection.GetAsFloatPtr());
     textShader->SetUniform3f("textColor", mTextColor.x, mTextColor.y, mTextColor.z);
     

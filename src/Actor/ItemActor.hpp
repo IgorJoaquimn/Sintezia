@@ -19,6 +19,13 @@ public:
     bool GetShowName() const { return mShowName; }
     bool GetShowEmoji() const { return mShowEmoji; }
     
+    // Background options
+    void SetShowBackground(bool show) { mShowBackground = show; }
+    void SetBackgroundColor(const Vector3& color) { mBackgroundColor = color; }
+    void SetBackgroundAlpha(float alpha) { mBackgroundAlpha = alpha; }
+    void SetPadding(float padding) { mPadding = padding; }
+    void SetBorderRadius(float radius) { mBorderRadius = radius; }
+    
     // Get dimensions
     Vector2 GetTextDimensions(float scale = 1.0f) const;
     float GetTextWidth(float scale = 1.0f) const;
@@ -31,6 +38,11 @@ private:
     Item mItem;
     bool mShowName;
     bool mShowEmoji;
+    bool mShowBackground;
+    Vector3 mBackgroundColor;
+    float mBackgroundAlpha;
+    float mPadding;
+    float mBorderRadius;
     
     std::string GetDisplayText() const;
 };

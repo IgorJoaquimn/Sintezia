@@ -57,6 +57,11 @@ void ShaderProgram::SetUniform1i(const std::string& name, int value) const {
     glUniform1i(location, value);
 }
 
+void ShaderProgram::SetUniform1f(const std::string& name, float value) const {
+    GLint location = glGetUniformLocation(programID, name.c_str());
+    glUniform1f(location, value);
+}
+
 GLuint ShaderProgram::CompileShader(const std::string& source, GLenum type) const {
     GLuint shader = glCreateShader(type);
     const char* src = source.c_str();

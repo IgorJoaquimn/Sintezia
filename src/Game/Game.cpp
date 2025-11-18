@@ -8,6 +8,7 @@
 #include "../Actor/ItemActor.hpp"
 #include "../Core/Renderer/Renderer.hpp"
 #include "../Core/TextRenderer/TextRenderer.hpp"
+#include "../Core/RectRenderer/RectRenderer.hpp"
 #include "../Core/RenderUtils.hpp"
 #include "../Crafting/Crafting.hpp"
 #include <iostream>
@@ -18,6 +19,7 @@ Game::Game()
     , mGLContext(nullptr)
     , mRenderer(nullptr)
     , mTextRenderer(nullptr)
+    , mRectRenderer(nullptr)
     , mCrafting(nullptr)
     , mTicksCount(0)
     , mIsRunning(true)
@@ -62,9 +64,16 @@ bool Game::Initialize()
 
     // Initialize text renderer
     mTextRenderer = std::make_unique<TextRenderer>();
-    if (!mTextRenderer->Initialize())
+    if (!mTextRenderer->Initialize(WINDOW_WIDTH, WINDOW_HEIGHT))
     {
         SDL_Log("Warning: Failed to initialize text renderer");
+    }
+    
+    // Initialize rect renderer
+    mRectRenderer = std::make_unique<RectRenderer>();
+    if (!mRectRenderer->Initialize(WINDOW_WIDTH, WINDOW_HEIGHT))
+    {
+        SDL_Log("Warning: Failed to initialize rect renderer");
     }
 
     // Initialize crafting system
@@ -90,14 +99,15 @@ bool Game::Initialize()
         float xPos = 50.0f;
         float yPos = 200.0f;
         float spacing = 20.0f; // Space between elements
+        float itemPadding = 25.0f; // Must match ItemActor padding
         
         // Display first item (Water) using ItemActor
         auto actor1 = std::make_unique<ItemActor>(this, *item1);
         actor1->SetPosition(Vector2(xPos, yPos));
         AddActor(std::move(actor1));
         
-        // Calculate width of first item to position the "+"
-        float item1Width = mTextRenderer->GetTextWidth(item1->emoji + " " + item1->name);
+        // Calculate width of first item including padding to position the "+"
+        float item1Width = mTextRenderer->GetTextWidth(item1->emoji + " " + item1->name) + (itemPadding * 2.0f);
         xPos += item1Width + spacing;
         
         // Display combination symbol
@@ -114,8 +124,8 @@ bool Game::Initialize()
         actor2->SetPosition(Vector2(xPos, yPos));
         AddActor(std::move(actor2));
         
-        // Calculate width of second item to position the "="
-        float item2Width = mTextRenderer->GetTextWidth(item2->emoji + " " + item2->name);
+        // Calculate width of second item including padding to position the "="
+        float item2Width = mTextRenderer->GetTextWidth(item2->emoji + " " + item2->name) + (itemPadding * 2.0f);
         xPos += item2Width + spacing;
         
         // Combine the items
@@ -288,6 +298,12 @@ void Game::Shutdown()
     if (mTextRenderer)
     {
         mTextRenderer.reset();
+    }
+
+    if (mRectRenderer)
+    {
+        mRectRenderer->Shutdown();
+        mRectRenderer.reset();
     }
 
     if (mCrafting)

@@ -10,6 +10,7 @@
 #include "../Actor/Actor.hpp"
 #include "../Core/Renderer/Renderer.hpp"
 #include "../Core/TextRenderer/TextRenderer.hpp"
+#include "../Core/RectRenderer/RectRenderer.hpp"
 #include "../Crafting/Crafting.hpp"
 
 class Game
@@ -29,9 +30,12 @@ public:
     // Get text renderer for measurements
     TextRenderer* GetTextRenderer() { return mTextRenderer.get(); }
     const TextRenderer* GetTextRenderer() const { return mTextRenderer.get(); }
+    
+    // Get rect renderer for backgrounds
+    RectRenderer* GetRectRenderer() { return mRectRenderer.get(); }
 
-    static const int WINDOW_WIDTH = 800;
-    static const int WINDOW_HEIGHT = 600;
+    static const int WINDOW_WIDTH = 1280;
+    static const int WINDOW_HEIGHT = 720;
 
 private:
     void ProcessInput();
@@ -47,6 +51,7 @@ private:
     SDL_GLContext mGLContext;
     std::unique_ptr<Renderer> mRenderer;
     std::unique_ptr<TextRenderer> mTextRenderer;
+    std::unique_ptr<RectRenderer> mRectRenderer;
     std::unique_ptr<Crafting> mCrafting;
 
     // Track elapsed time since game start
