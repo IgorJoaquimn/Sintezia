@@ -31,6 +31,19 @@ public:
     float GetTextWidth(float scale = 1.0f) const;
     float GetTextHeight(float scale = 1.0f) const;
     
+    // Drag functionality
+    void SetDraggable(bool draggable) { mDraggable = draggable; }
+    bool IsDraggable() const { return mDraggable; }
+    bool IsDragging() const { return mIsDragging; }
+    bool ContainsPoint(const Vector2& point) const;
+    void OnMouseDown(const Vector2& mousePos);
+    void OnMouseUp(const Vector2& mousePos);
+    void OnMouseMove(const Vector2& mousePos);
+    
+    // Collision detection
+    bool Intersects(const ItemActor* other) const;
+    Vector2 GetBounds() const; // Returns width and height
+    
 protected:
     void OnDraw(class TextRenderer* textRenderer) override;
     
@@ -43,6 +56,11 @@ private:
     float mBackgroundAlpha;
     float mPadding;
     float mBorderRadius;
+    
+    // Drag state
+    bool mDraggable;
+    bool mIsDragging;
+    Vector2 mDragOffset; // Offset from item position to mouse when drag started
     
     std::string GetDisplayText() const;
 };

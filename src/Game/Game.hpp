@@ -33,6 +33,12 @@ public:
     
     // Get rect renderer for backgrounds
     RectRenderer* GetRectRenderer() { return mRectRenderer.get(); }
+    
+    // Get crafting system
+    Crafting* GetCrafting() { return mCrafting.get(); }
+    
+    // Mouse state
+    const Vector2& GetMousePosition() const { return mMousePos; }
 
     static const int WINDOW_WIDTH = 1280;
     static const int WINDOW_HEIGHT = 720;
@@ -41,6 +47,7 @@ private:
     void ProcessInput();
     void UpdateGame();
     void GenerateOutput();
+    void CombineItems(class ItemActor* item1, class ItemActor* item2);
 
     // All the actors in the game
     std::vector<std::unique_ptr<Actor>> mActors;
@@ -60,4 +67,7 @@ private:
     // Track if we're updating actors right now
     bool mIsRunning;
     bool mUpdatingActors;
+    
+    // Mouse state
+    Vector2 mMousePos;
 };

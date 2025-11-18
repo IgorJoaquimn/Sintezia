@@ -24,6 +24,7 @@ Game::Game()
     , mTicksCount(0)
     , mIsRunning(true)
     , mUpdatingActors(false)
+    , mMousePos(Vector2::Zero)
 {
 }
 
@@ -99,57 +100,23 @@ bool Game::Initialize()
         float xPos = 50.0f;
         float yPos = 200.0f;
         float spacing = 20.0f; // Space between elements
-        float itemPadding = 25.0f; // Must match ItemActor padding
         
         // Display first item (Water) using ItemActor
         auto actor1 = std::make_unique<ItemActor>(this, *item1);
         actor1->SetPosition(Vector2(xPos, yPos));
         AddActor(std::move(actor1));
         
-        // Calculate width of first item including padding to position the "+"
-        float item1Width = mTextRenderer->GetTextWidth(item1->emoji + " " + item1->name) + (itemPadding * 2.0f);
-        xPos += item1Width + spacing;
-        
-        // Display combination symbol
-        auto plusActor = std::make_unique<TextActor>(this, "+");
-        plusActor->SetPosition(Vector2(xPos, yPos));
-        AddActor(std::move(plusActor));
-        
-        // Move past the "+"
-        float plusWidth = mTextRenderer->GetTextWidth("+");
-        xPos += plusWidth + spacing;
+        // Position second item next to it
+        xPos += 250.0f; // Simple spacing
         
         // Display second item (Fire) using ItemActor
         auto actor2 = std::make_unique<ItemActor>(this, *item2);
         actor2->SetPosition(Vector2(xPos, yPos));
         AddActor(std::move(actor2));
-        
-        // Calculate width of second item including padding to position the "="
-        float item2Width = mTextRenderer->GetTextWidth(item2->emoji + " " + item2->name) + (itemPadding * 2.0f);
-        xPos += item2Width + spacing;
-        
-        // Combine the items
-        auto result = mCrafting->combine_items(*item1, *item2);
-        if (result)
-        {
-            // Display equals
-            auto equalsActor = std::make_unique<TextActor>(this, "=");
-            equalsActor->SetPosition(Vector2(xPos, yPos));
-            AddActor(std::move(equalsActor));
-            
-            // Move past the "="
-            float equalsWidth = mTextRenderer->GetTextWidth("=");
-            xPos += equalsWidth + spacing;
-            
-            // Display result using ItemActor
-            auto resultActor = std::make_unique<ItemActor>(this, *result);
-            resultActor->SetPosition(Vector2(xPos, yPos));
-            AddActor(std::move(resultActor));
-        }
     }
     
     // Set different text color for variety
-    mTextRenderer->SetTextColor(0.8f, 1.0f, 0.8f); // Light green
+    mTextRenderer->SetTextColor(1.0f, 1.0f, 1.0f); // Light yellow
     mTicksCount = SDL_GetTicks();
 
     return true;
@@ -174,6 +141,79 @@ void Game::ProcessInput()
         {
             case SDL_QUIT:
                 Quit();
+                break;
+            case SDL_MOUSEBUTTONDOWN:
+                if (event.button.button == SDL_BUTTON_LEFT)
+                {
+                    mMousePos.x = static_cast<float>(event.button.x);
+                    mMousePos.y = static_cast<float>(event.button.y);
+                    
+                    // Iterate through actors in reverse order (top to bottom)
+                    for (auto it = mActors.rbegin(); it != mActors.rend(); ++it)
+                    {
+                        ItemActor* itemActor = dynamic_cast<ItemActor*>(it->get());
+                        if (itemActor && itemActor->IsDraggable())
+                        {
+                            itemActor->OnMouseDown(mMousePos);
+                            if (itemActor->IsDragging())
+                            {
+                                break; // Only drag the topmost item
+                            }
+                        }
+                    }
+                }
+                break;
+            case SDL_MOUSEBUTTONUP:
+                if (event.button.button == SDL_BUTTON_LEFT)
+                {
+                    mMousePos.x = static_cast<float>(event.button.x);
+                    mMousePos.y = static_cast<float>(event.button.y);
+                    
+                    // Track which item was just released for collision checking
+                    ItemActor* releasedItem = nullptr;
+                    
+                    for (auto& actor : mActors)
+                    {
+                        ItemActor* itemActor = dynamic_cast<ItemActor*>(actor.get());
+                        if (itemActor && itemActor->IsDragging())
+                        {
+                            releasedItem = itemActor;
+                        }
+                        if (itemActor)
+                        {
+                            itemActor->OnMouseUp(mMousePos);
+                        }
+                    }
+                    
+                    // Check for collision immediately after release
+                    if (releasedItem)
+                    {
+                        for (auto& actor : mActors)
+                        {
+                            ItemActor* otherItem = dynamic_cast<ItemActor*>(actor.get());
+                            if (otherItem && otherItem != releasedItem && 
+                                otherItem->GetState() == ActorState::Active &&
+                                releasedItem->Intersects(otherItem))
+                            {
+                                CombineItems(releasedItem, otherItem);
+                                break; // Only combine with one item
+                            }
+                        }
+                    }
+                }
+                break;
+            case SDL_MOUSEMOTION:
+                mMousePos.x = static_cast<float>(event.motion.x);
+                mMousePos.y = static_cast<float>(event.motion.y);
+                
+                for (auto& actor : mActors)
+                {
+                    ItemActor* itemActor = dynamic_cast<ItemActor*>(actor.get());
+                    if (itemActor && itemActor->IsDragging())
+                    {
+                        itemActor->OnMouseMove(mMousePos);
+                    }
+                }
                 break;
         }
     }
@@ -326,4 +366,35 @@ void Game::Shutdown()
 
     SDL_DestroyWindow(mWindow);
     SDL_Quit();
+}
+
+void Game::CombineItems(ItemActor* item1, ItemActor* item2)
+{
+    if (!item1 || !item2 || !mCrafting)
+        return;
+    
+    // Try to combine the items
+    auto result = mCrafting->combine_items(item1->GetItem(), item2->GetItem());
+    
+    if (result)
+    {
+        // Calculate position for the new item (midpoint between the two)
+        Vector2 pos1 = item1->GetPosition();
+        Vector2 pos2 = item2->GetPosition();
+        Vector2 newPos = Vector2((pos1.x + pos2.x) / 2.0f, (pos1.y + pos2.y) / 2.0f);
+        
+        // Create the result item actor
+        auto resultActor = std::make_unique<ItemActor>(this, *result);
+        resultActor->SetPosition(newPos);
+        AddActor(std::move(resultActor));
+        
+        // Mark the original items for destruction
+        item1->SetState(ActorState::Destroy);
+        item2->SetState(ActorState::Destroy);
+        
+        SDL_Log("Combined %s + %s = %s", 
+                item1->GetItem().name.c_str(), 
+                item2->GetItem().name.c_str(), 
+                result->name.c_str());
+    }
 }
