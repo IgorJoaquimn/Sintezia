@@ -8,7 +8,6 @@ project(${PROJECT_NAME})
 # --- Find required packages ---
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(SDL2 REQUIRED sdl2)
-pkg_check_modules(SDL2_TTF REQUIRED SDL2_ttf)
 find_package(Freetype REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(OpenGL REQUIRED)
@@ -39,6 +38,8 @@ set(SOURCES
     ${SRC_DIR}/Actor/Actor.cpp
     ${SRC_DIR}/Actor/TextActor.cpp
     ${SRC_DIR}/Actor/ItemActor.cpp
+    ${SRC_DIR}/Actor/Player.cpp
+    ${SRC_DIR}/Map/TileMap.cpp
     ${SRC_DIR}/Component/Component/Component.cpp
     ${SRC_DIR}/Shader/ShaderProgram.cpp
     ${SRC_DIR}/Font/FontManager.cpp
@@ -55,7 +56,6 @@ add_executable(${PROJECT_NAME} ${SOURCES})
 target_include_directories(${PROJECT_NAME} PRIVATE
     ${SRC_DIR}
     ${SDL2_INCLUDE_DIRS}
-    ${SDL2_TTF_INCLUDE_DIRS}
     ${FREETYPE_INCLUDE_DIRS}
     ${GLEW_INCLUDE_DIRS}
 )
@@ -63,7 +63,6 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 # --- Link all necessary libraries ---
 target_link_libraries(${PROJECT_NAME} PRIVATE
     ${SDL2_LIBRARIES}
-    ${SDL2_TTF_LIBRARIES}
     ${FREETYPE_LIBRARIES}
     GLEW::glew
     OpenGL::GL

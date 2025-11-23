@@ -39,10 +39,10 @@ bool FontManager::LoadFonts() {
 }
 
 bool FontManager::LoadTextFont() {
-    // Load text font - check multiple paths
+    // Load text font - check multiple paths (prioritize local assets)
     std::vector<std::string> textPaths = {
-        "assets/NotoSans-Regular.ttf",
-        "../assets/NotoSans-Regular.ttf",
+        "../assets/NotoSans-Regular.ttf",  // From build/ directory
+        "assets/NotoSans-Regular.ttf",      // From project root
         "/usr/share/fonts/truetype/noto/NotoSans-Regular.ttf"
     };
 
@@ -65,11 +65,11 @@ bool FontManager::LoadTextFont() {
 }
 
 bool FontManager::LoadEmojiFont() {
-    // Try to load emoji font - multiple paths
+    // Try to load emoji font - multiple paths (prioritize local assets)
     std::vector<std::string> emojiPaths = {
-        "/usr/share/fonts/truetype/noto/NotoColorEmoji.ttf",  // System font first
-        "assets/NotoColorEmoji-Regular.ttf",
-        "../assets/NotoColorEmoji-Regular.ttf",
+        "../assets/NotoColorEmoji-Regular.ttf",  // From build/ directory
+        "assets/NotoColorEmoji-Regular.ttf",      // From project root
+        "/usr/share/fonts/truetype/noto/NotoColorEmoji.ttf",  // System font
         "/System/Library/Fonts/Apple Color Emoji.ttc",
         "/usr/share/fonts/TTF/NotoColorEmoji.ttf"
     };

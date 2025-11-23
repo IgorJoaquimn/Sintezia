@@ -13,10 +13,15 @@
 #include "../Core/RectRenderer/RectRenderer.hpp"
 #include "../Crafting/Crafting.hpp"
 
+// Forward declarations
+class TileMap;
+class Player;
+
 class Game
 {
 public:
     Game();
+    ~Game();
 
     bool Initialize();
     void RunLoop();
@@ -36,6 +41,12 @@ public:
     
     // Get crafting system
     Crafting* GetCrafting() { return mCrafting.get(); }
+    
+    // Get player
+    Player* GetPlayer() { return mPlayer; }
+    
+    // Get tilemap
+    TileMap* GetTileMap() { return mTileMap.get(); }
     
     // Mouse state
     const Vector2& GetMousePosition() const { return mMousePos; }
@@ -60,6 +71,7 @@ private:
     std::unique_ptr<TextRenderer> mTextRenderer;
     std::unique_ptr<RectRenderer> mRectRenderer;
     std::unique_ptr<Crafting> mCrafting;
+    std::unique_ptr<TileMap> mTileMap;
 
     // Track elapsed time since game start
     Uint32 mTicksCount;
@@ -67,6 +79,9 @@ private:
     // Track if we're updating actors right now
     bool mIsRunning;
     bool mUpdatingActors;
+    
+    // Game objects
+    Player* mPlayer;
     
     // Mouse state
     Vector2 mMousePos;

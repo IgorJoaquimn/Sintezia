@@ -6,6 +6,8 @@
 #include "../Actor/Actor.hpp"
 #include "../Actor/TextActor.hpp"
 #include "../Actor/ItemActor.hpp"
+#include "../Actor/Player.hpp"
+#include "../Map/TileMap.hpp"
 #include "../Core/Renderer/Renderer.hpp"
 #include "../Core/TextRenderer/TextRenderer.hpp"
 #include "../Core/RectRenderer/RectRenderer.hpp"
@@ -21,11 +23,18 @@ Game::Game()
     , mTextRenderer(nullptr)
     , mRectRenderer(nullptr)
     , mCrafting(nullptr)
+    , mTileMap(nullptr)
     , mTicksCount(0)
     , mIsRunning(true)
     , mUpdatingActors(false)
+    , mPlayer(nullptr)
     , mMousePos(Vector2::Zero)
 {
+}
+
+Game::~Game()
+{
+    // Destructor defined here where TileMap is complete
 }
 
 bool Game::Initialize()
@@ -91,32 +100,16 @@ bool Game::Initialize()
         SDL_Log("Warning: Failed to load recipes");
     }
 
-    // Get items with id 1 and 2
-    const Item* item1 = mCrafting->FindItemById(1);
-    const Item* item2 = mCrafting->FindItemById(2);
+    // Create tile map (20x15 tiles, 64px each)
+    mTileMap = std::make_unique<TileMap>(20, 11, 64);
     
-    if (item1 && item2)
-    {
-        float xPos = 50.0f;
-        float yPos = 200.0f;
-        float spacing = 20.0f; // Space between elements
-        
-        // Display first item (Water) using ItemActor
-        auto actor1 = std::make_unique<ItemActor>(this, *item1);
-        actor1->SetPosition(Vector2(xPos, yPos));
-        AddActor(std::move(actor1));
-        
-        // Position second item next to it
-        xPos += 250.0f; // Simple spacing
-        
-        // Display second item (Fire) using ItemActor
-        auto actor2 = std::make_unique<ItemActor>(this, *item2);
-        actor2->SetPosition(Vector2(xPos, yPos));
-        AddActor(std::move(actor2));
-    }
-    
+    // Create player
+    auto player = std::make_unique<Player>(this);
+    mPlayer = player.get();
+    AddActor(std::move(player));
+
     // Set different text color for variety
-    mTextRenderer->SetTextColor(1.0f, 1.0f, 1.0f); // Light yellow
+    mTextRenderer->SetTextColor(1.0f, 1.0f, 1.0f); // White
     mTicksCount = SDL_GetTicks();
 
     return true;
@@ -142,95 +135,20 @@ void Game::ProcessInput()
             case SDL_QUIT:
                 Quit();
                 break;
-            case SDL_MOUSEBUTTONDOWN:
-                if (event.button.button == SDL_BUTTON_LEFT)
-                {
-                    mMousePos.x = static_cast<float>(event.button.x);
-                    mMousePos.y = static_cast<float>(event.button.y);
-                    
-                    // Iterate through actors in reverse order (top to bottom)
-                    for (auto it = mActors.rbegin(); it != mActors.rend(); ++it)
-                    {
-                        ItemActor* itemActor = dynamic_cast<ItemActor*>(it->get());
-                        if (itemActor && itemActor->IsDraggable())
-                        {
-                            itemActor->OnMouseDown(mMousePos);
-                            if (itemActor->IsDragging())
-                            {
-                                break; // Only drag the topmost item
-                            }
-                        }
-                    }
-                }
-                break;
-            case SDL_MOUSEBUTTONUP:
-                if (event.button.button == SDL_BUTTON_LEFT)
-                {
-                    mMousePos.x = static_cast<float>(event.button.x);
-                    mMousePos.y = static_cast<float>(event.button.y);
-                    
-                    // Track which item was just released for collision checking
-                    ItemActor* releasedItem = nullptr;
-                    
-                    for (auto& actor : mActors)
-                    {
-                        ItemActor* itemActor = dynamic_cast<ItemActor*>(actor.get());
-                        if (itemActor && itemActor->IsDragging())
-                        {
-                            releasedItem = itemActor;
-                        }
-                        if (itemActor)
-                        {
-                            itemActor->OnMouseUp(mMousePos);
-                        }
-                    }
-                    
-                    // Check for collision immediately after release
-                    if (releasedItem)
-                    {
-                        for (auto& actor : mActors)
-                        {
-                            ItemActor* otherItem = dynamic_cast<ItemActor*>(actor.get());
-                            if (otherItem && otherItem != releasedItem && 
-                                otherItem->GetState() == ActorState::Active &&
-                                releasedItem->Intersects(otherItem))
-                            {
-                                CombineItems(releasedItem, otherItem);
-                                break; // Only combine with one item
-                            }
-                        }
-                    }
-                }
-                break;
-            case SDL_MOUSEMOTION:
-                mMousePos.x = static_cast<float>(event.motion.x);
-                mMousePos.y = static_cast<float>(event.motion.y);
-                
-                for (auto& actor : mActors)
-                {
-                    ItemActor* itemActor = dynamic_cast<ItemActor*>(actor.get());
-                    if (itemActor && itemActor->IsDragging())
-                    {
-                        itemActor->OnMouseMove(mMousePos);
-                    }
-                }
-                break;
         }
     }
-
-    const Uint8* state = SDL_GetKeyboardState(nullptr);
-    if (state[SDL_SCANCODE_ESCAPE])
+    
+    // Process keyboard state for player movement
+    const Uint8* keyState = SDL_GetKeyboardState(nullptr);
+    if (keyState[SDL_SCANCODE_ESCAPE])
     {
         Quit();
     }
-
-    // Process input for all Actors
-    mUpdatingActors = true;
-    for (auto& actor : mActors)
+    
+    if (mPlayer)
     {
-        actor->ProcessInput(state);
+        mPlayer->ProcessInput(keyState);
     }
-    mUpdatingActors = false;
 }
 
 void Game::UpdateGame()
@@ -277,9 +195,15 @@ void Game::GenerateOutput()
     mRenderer->BeginFrame();
     
     // Use common render utility for screen clearing
-    RenderUtils::ClearScreen(0.1f, 0.1f, 0.1f, 1.0f);
+    RenderUtils::ClearScreen(0.2f, 0.5f, 0.3f, 1.0f); // Green-ish background
     
-    // Render all actors
+    // Draw tilemap first
+    if (mTileMap)
+    {
+        mTileMap->Draw(mTextRenderer.get());
+    }
+    
+    // Render all actors on top
     for (auto& actor : mActors)
     {
         if (actor->GetState() == ActorState::Active)
