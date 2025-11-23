@@ -7,6 +7,8 @@
 #include "../Actor/TextActor.hpp"
 #include "../Actor/ItemActor.hpp"
 #include "../Actor/Player.hpp"
+#include "../Actor/NPC.hpp"
+#include "../Actor/TestNPC.hpp"
 #include "../Map/TileMap.hpp"
 #include "../Core/Renderer/Renderer.hpp"
 #include "../Core/TextRenderer/TextRenderer.hpp"
@@ -30,6 +32,7 @@ Game::Game()
     , mIsRunning(true)
     , mUpdatingActors(false)
     , mPlayer(nullptr)
+    , mInteractingNPC(nullptr)
     , mMousePos(Vector2::Zero)
 {
 }
@@ -124,6 +127,11 @@ bool Game::Initialize()
     mPlayer = player.get();
     AddActor(std::move(player));
 
+    // Create test NPC
+    auto testNPC = std::make_unique<TestNPC>(this);
+    RegisterNPC(testNPC.get());
+    AddActor(std::move(testNPC));
+
     // Set different text color for variety
     mTextRenderer->SetTextColor(1.0f, 1.0f, 1.0f); // White
     mTicksCount = SDL_GetTicks();
@@ -158,12 +166,68 @@ void Game::ProcessInput()
     const Uint8* keyState = SDL_GetKeyboardState(nullptr);
     if (keyState[SDL_SCANCODE_ESCAPE])
     {
-        Quit();
+        // If interacting with NPC, escape ends interaction, else quits
+        if (mInteractingNPC && mInteractingNPC->IsInteracting())
+        {
+            // Let NPC handle escape (will be handled in HandleInteractionInput)
+        }
+        else
+        {
+            Quit();
+        }
     }
     
-    if (mPlayer)
+    // Check for NPC interaction
+    if (mInteractingNPC && mInteractingNPC->IsInteracting())
     {
-        mPlayer->ProcessInput(keyState);
+        // If interacting with an NPC, pass input to the NPC
+        mInteractingNPC->HandleInteractionInput(keyState);
+    }
+    else
+    {
+        // Static variable to track E key press
+        static bool eKeyPressed = false;
+
+        // Check for nearby NPCs and show interaction indicator
+        NPC* nearbyNPC = nullptr;
+        if (mPlayer)
+        {
+            for (NPC* npc : mNPCs)
+            {
+                if (npc->CanInteract(mPlayer->GetPosition()))
+                {
+                    nearbyNPC = npc;
+                    npc->ShowInteractionIndicator(mPlayer->GetPosition());
+                    break;
+                }
+                else
+                {
+                    npc->HideInteractionIndicator();
+                }
+            }
+        }
+
+        // Check for E key press to interact with nearby NPCs
+        if (keyState[SDL_SCANCODE_E] && !eKeyPressed)
+        {
+            eKeyPressed = true;
+
+            if (nearbyNPC)
+            {
+                nearbyNPC->StartInteraction();
+                mInteractingNPC = nearbyNPC;
+            }
+        }
+        else if (!keyState[SDL_SCANCODE_E])
+        {
+            eKeyPressed = false;
+        }
+
+        // Process player input only when not interacting
+        if (mPlayer)
+        {
+            mPlayer->ProcessInput(keyState);
+        }
     }
 }
 
@@ -306,6 +370,24 @@ void Game::Shutdown()
 
     SDL_DestroyWindow(mWindow);
     SDL_Quit();
+}
+
+void Game::RegisterNPC(NPC* npc)
+{
+    mNPCs.push_back(npc);
+}
+
+void Game::UnregisterNPC(NPC* npc)
+{
+    auto it = std::find(mNPCs.begin(), mNPCs.end(), npc);
+    if (it != mNPCs.end())
+    {
+        if (mInteractingNPC == npc)
+        {
+            mInteractingNPC = nullptr;
+        }
+        mNPCs.erase(it);
+    }
 }
 
 void Game::CombineItems(ItemActor* item1, ItemActor* item2)

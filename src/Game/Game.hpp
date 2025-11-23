@@ -17,6 +17,7 @@
 // Forward declarations
 class TileMap;
 class Player;
+class NPC;
 
 class Game
 {
@@ -52,6 +53,11 @@ public:
     // Get tilemap
     TileMap* GetTileMap() { return mTileMap.get(); }
     
+    // NPC management
+    void RegisterNPC(NPC* npc);
+    void UnregisterNPC(NPC* npc);
+    NPC* GetInteractingNPC() { return mInteractingNPC; }
+
     // Mouse state
     const Vector2& GetMousePosition() const { return mMousePos; }
 
@@ -88,6 +94,10 @@ private:
     // Game objects
     Player* mPlayer;
     
+    // NPC tracking
+    std::vector<NPC*> mNPCs;
+    NPC* mInteractingNPC;
+
     // Mouse state
     Vector2 mMousePos;
 };

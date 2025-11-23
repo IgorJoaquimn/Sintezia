@@ -98,6 +98,10 @@ void SpriteRenderer::DrawSprite(Texture* texture, const Vector2& position, const
                                  float rotation, const Vector3& color,
                                  bool flipHorizontal, bool flipVertical)
 {
+    // Enable blending for sprite transparency
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     mShader->Use();
     
     // Prepare transformations

@@ -40,6 +40,8 @@ set(SOURCES
     ${SRC_DIR}/Actor/TextActor.cpp
     ${SRC_DIR}/Actor/ItemActor.cpp
     ${SRC_DIR}/Actor/Player.cpp
+    ${SRC_DIR}/Actor/NPC.cpp
+    ${SRC_DIR}/Actor/TestNPC.cpp
     ${SRC_DIR}/Map/TileMap.cpp
     ${SRC_DIR}/Map/TiledParser.cpp
     ${SRC_DIR}/Component/Component.cpp
@@ -56,6 +58,7 @@ set(SOURCES
     ${SRC_DIR}/Core/Texture/SpriteRenderer.cpp
     ${SRC_DIR}/Crafting/Item.cpp
     ${SRC_DIR}/Crafting/Crafting.cpp
+    ${SRC_DIR}/UI/NPCDialogUI.cpp
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES})
