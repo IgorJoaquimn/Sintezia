@@ -1,9 +1,13 @@
 #pragma once
 #include "Actor.hpp"
 #include "../Math.h"
-#include "../Core/Texture/Texture.hpp"
 #include <SDL.h>
-#include <memory>
+
+// Forward declarations
+class PlayerInputComponent;
+class MovementComponent;
+class AnimationComponent;
+class SpriteComponent;
 
 enum class PlayerState
 {
@@ -17,31 +21,21 @@ public:
     Player(class Game* game);
     ~Player();
     
-    void ProcessInput(const Uint8* keyState);
+    void OnProcessInput(const Uint8* keyState) override;
     void OnUpdate(float deltaTime);
     void OnDraw(class TextRenderer* textRenderer) override;
-    
-    // Movement
-    void SetVelocity(const Vector2& velocity) { mVelocity = velocity; }
-    const Vector2& GetVelocity() const { return mVelocity; }
     
     // State
     PlayerState GetState() const { return mState; }
     
 private:
-    Vector2 mVelocity;
+    // Components
+    PlayerInputComponent* mInputComponent;
+    MovementComponent* mMovementComponent;
+    AnimationComponent* mAnimationComponent;
+    SpriteComponent* mSpriteComponent;
+    
     PlayerState mState;
-    float mSpeed;
-    
-    // Sprite sheet
-    std::unique_ptr<Texture> mSpriteSheet;
-    
-    // Animation
-    float mAnimTime;
-    int mAnimFrame;
-    
-    // Direction for sprite (0 = down, 1 = right, 2 = up, 3 = left)
-    int mDirection;
     
     // Sprite configuration for Player.tsx (32x32 tiles from Player.png)
     // Player.png is 192x320, which is 6 columns × 10 rows of 32x32 tiles
