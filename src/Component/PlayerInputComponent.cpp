@@ -6,6 +6,9 @@ PlayerInputComponent::PlayerInputComponent(Actor* owner, int updateOrder)
     , mVelocity(Vector2::Zero)
     , mDirection(0)
     , mIsMoving(false)
+    , mIsAttacking(false)
+    , mIsJumping(false)
+    , mIsCrouching(false)
     , mSpeed(DEFAULT_SPEED)
 {
 }
@@ -14,26 +17,48 @@ void PlayerInputComponent::ProcessInput(const uint8_t* keyState)
 {
     Vector2 velocity = Vector2::Zero;
     
-    // WASD movement
-    if (keyState[SDL_SCANCODE_W] || keyState[SDL_SCANCODE_UP])
+    // Reset actions
+    mIsAttacking = false;
+    mIsJumping = false;
+    mIsCrouching = false;
+
+    // Actions
+    if (keyState[SDL_SCANCODE_SPACE])
     {
-        velocity.y -= 1.0f;
-        mDirection = 2; // Up
+        mIsJumping = true;
     }
-    if (keyState[SDL_SCANCODE_S] || keyState[SDL_SCANCODE_DOWN])
+    if (keyState[SDL_SCANCODE_LCTRL] || keyState[SDL_SCANCODE_C])
     {
-        velocity.y += 1.0f;
-        mDirection = 0; // Down
+        mIsCrouching = true;
     }
-    if (keyState[SDL_SCANCODE_A] || keyState[SDL_SCANCODE_LEFT])
+    if (keyState[SDL_SCANCODE_Z] || keyState[SDL_SCANCODE_K])
     {
-        velocity.x -= 1.0f;
-        mDirection = 3; // Left
+        mIsAttacking = true;
     }
-    if (keyState[SDL_SCANCODE_D] || keyState[SDL_SCANCODE_RIGHT])
+    
+    // WASD movement (disable movement if crouching or attacking)
+    if (!mIsCrouching && !mIsAttacking)
     {
-        velocity.x += 1.0f;
-        mDirection = 1; // Right
+        if (keyState[SDL_SCANCODE_W] || keyState[SDL_SCANCODE_UP])
+        {
+            velocity.y -= 1.0f;
+            mDirection = 2; // Up
+        }
+        if (keyState[SDL_SCANCODE_S] || keyState[SDL_SCANCODE_DOWN])
+        {
+            velocity.y += 1.0f;
+            mDirection = 0; // Down
+        }
+        if (keyState[SDL_SCANCODE_A] || keyState[SDL_SCANCODE_LEFT])
+        {
+            velocity.x -= 1.0f;
+            mDirection = 3; // Left
+        }
+        if (keyState[SDL_SCANCODE_D] || keyState[SDL_SCANCODE_RIGHT])
+        {
+            velocity.x += 1.0f;
+            mDirection = 1; // Right
+        }
     }
     
     // Normalize diagonal movement

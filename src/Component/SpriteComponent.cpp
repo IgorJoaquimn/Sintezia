@@ -5,7 +5,7 @@
 
 SpriteComponent::SpriteComponent(Actor* owner, int updateOrder)
     : Component(owner, updateOrder)
-    , mTexture(std::make_unique<Texture>())
+    , mTexture(nullptr)
     , mSpriteWidth(32)
     , mSpriteHeight(32)
     , mCurrentRow(0)
@@ -21,12 +21,19 @@ SpriteComponent::~SpriteComponent()
 
 bool SpriteComponent::LoadSpriteSheet(const std::string& filepath)
 {
-    if (!mTexture->Load(filepath))
+    auto texture = std::make_shared<Texture>();
+    if (!texture->Load(filepath))
     {
         SDL_Log("Failed to load sprite sheet: %s", filepath.c_str());
         return false;
     }
+    mTexture = texture;
     return true;
+}
+
+void SpriteComponent::SetTexture(std::shared_ptr<Texture> texture)
+{
+    mTexture = texture;
 }
 
 void SpriteComponent::SetSpriteSize(int width, int height)
@@ -45,13 +52,20 @@ void SpriteComponent::Draw(SpriteRenderer* renderer)
 {
     if (!renderer || !mTexture) return;
     
-    // Calculate texture coordinates (assuming 192x320 sprite sheet for now)
-    float sheetWidth = 192.0f;
-    float sheetHeight = 320.0f;
+    // If sprite size is 0 or texture size, use full texture
+    float texW = static_cast<float>(mTexture->GetWidth());
+    float texH = static_cast<float>(mTexture->GetHeight());
     
-    Vector2 srcPos((mCurrentCol * mSpriteWidth) / sheetWidth, 
-                   (mCurrentRow * mSpriteHeight) / sheetHeight);
-    Vector2 srcSize(mSpriteWidth / sheetWidth, mSpriteHeight / sheetHeight);
+    // Default to full texture if sprite size is not set or matches texture
+    float spriteW = (mSpriteWidth > 0) ? static_cast<float>(mSpriteWidth) : texW;
+    float spriteH = (mSpriteHeight > 0) ? static_cast<float>(mSpriteHeight) : texH;
+    
+    // Calculate texture coordinates
+    // If using a grid, sheetWidth/Height would be the texture dimensions
+    
+    Vector2 srcPos((mCurrentCol * spriteW) / texW, 
+                   (mCurrentRow * spriteH) / texH);
+    Vector2 srcSize(spriteW / texW, spriteH / texH);
     
     // Draw position (centered on actor position)
     Vector2 pos = mOwner->GetPosition();

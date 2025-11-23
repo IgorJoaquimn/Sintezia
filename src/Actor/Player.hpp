@@ -3,16 +3,25 @@
 #include "../MathUtils.h"
 #include <SDL.h>
 
+#include <map>
+#include <string>
+#include <memory>
+#include <vector>
+
 // Forward declarations
 class PlayerInputComponent;
 class MovementComponent;
 class AnimationComponent;
 class SpriteComponent;
+class Texture;
 
 enum class PlayerState
 {
     Idle,
-    Walking
+    Walking,
+    Jumping,
+    Crouching,
+    Attacking
 };
 
 class Player : public Actor
@@ -29,6 +38,9 @@ public:
     PlayerState GetState() const { return mState; }
     
 private:
+    void LoadTextures();
+    std::shared_ptr<Texture> GetTextureForState(PlayerState state, int direction, int frame);
+
     // Components
     PlayerInputComponent* mInputComponent;
     MovementComponent* mMovementComponent;
@@ -36,12 +48,12 @@ private:
     SpriteComponent* mSpriteComponent;
     
     PlayerState mState;
+    float mAttackTimer;
     
-    // Sprite configuration for Player.tsx (32x32 tiles from Player.png)
-    // Player.png is 192x320, which is 6 columns × 10 rows of 32x32 tiles
-    static constexpr int SPRITE_WIDTH = 32;   // Each tile is 32 pixels wide
-    static constexpr int SPRITE_HEIGHT = 32;  // Each tile is 32 pixels tall
-    static constexpr int IDLE_FRAMES = 6;     // 6 frames for idle animation
-    static constexpr int WALK_FRAMES = 6;     // 6 frames for walk animation
+    // Textures
+    std::map<std::string, std::shared_ptr<Texture>> mTextures;
+
+    // Animation constants
     static constexpr float ANIM_SPEED = 8.0f; // Frames per second
+    static constexpr float ATTACK_DURATION = 0.3f; // Seconds
 };

@@ -27,8 +27,11 @@ public:
     // Getters
     Texture* GetTexture() const { return mTexture.get(); }
     
+    // Set texture directly
+    void SetTexture(std::shared_ptr<Texture> texture);
+
 private:
-    std::unique_ptr<Texture> mTexture;
+    std::shared_ptr<Texture> mTexture;
     int mSpriteWidth;
     int mSpriteHeight;
     int mCurrentRow;
