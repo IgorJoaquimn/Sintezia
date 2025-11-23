@@ -3,7 +3,7 @@
 // ----------------------------------------------------------------
 
 #include "Component.hpp"
-#include "../../Actor/Actor.hpp"
+#include "../Actor/Actor.hpp"
 
 Component::Component(Actor* owner, int updateOrder)
     : mOwner(owner)

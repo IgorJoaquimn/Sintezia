@@ -42,7 +42,7 @@ set(SOURCES
     ${SRC_DIR}/Actor/Player.cpp
     ${SRC_DIR}/Map/TileMap.cpp
     ${SRC_DIR}/Map/TiledParser.cpp
-    ${SRC_DIR}/Component/Component/Component.cpp
+    ${SRC_DIR}/Component/Component.cpp
     ${SRC_DIR}/Shader/ShaderProgram.cpp
     ${SRC_DIR}/Font/FontManager.cpp
     ${SRC_DIR}/Core/Renderer/Renderer.cpp

@@ -33,9 +33,8 @@ private:
     PlayerState mState;
     float mSpeed;
     
-    // Sprite sheets
-    std::unique_ptr<Texture> mIdleSheet;
-    std::unique_ptr<Texture> mWalkSheet;
+    // Sprite sheet
+    std::unique_ptr<Texture> mSpriteSheet;
     
     // Animation
     float mAnimTime;
@@ -48,8 +47,6 @@ private:
     // Player.png is 192x320, which is 6 columns × 10 rows of 32x32 tiles
     static constexpr int SPRITE_WIDTH = 32;   // Each tile is 32 pixels wide
     static constexpr int SPRITE_HEIGHT = 32;  // Each tile is 32 pixels tall
-    static constexpr int SPRITE_COLS = 6;     // 6 columns in sprite sheet
-    static constexpr int SPRITE_ROWS = 10;    // 10 rows in sprite sheet
     static constexpr int IDLE_FRAMES = 6;     // 6 frames for idle animation
     static constexpr int WALK_FRAMES = 6;     // 6 frames for walk animation
     static constexpr float ANIM_SPEED = 8.0f; // Frames per second
