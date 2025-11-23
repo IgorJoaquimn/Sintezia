@@ -83,10 +83,15 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # --- Post-build commands and asset copying ---
+# Copy shaders on every build
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
     ${CMAKE_SOURCE_DIR}/shaders $<TARGET_FILE_DIR:${PROJECT_NAME}>/shaders
 )
 
-# Copy assets folder (includes all subfolders)
-file(COPY assets DESTINATION ${CMAKE_BINARY_DIR})
+# Copy assets folder on every build (updates when files change)
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_SOURCE_DIR}/assets ${CMAKE_BINARY_DIR}/assets
+    COMMENT "Copying assets to build directory..."
+)
