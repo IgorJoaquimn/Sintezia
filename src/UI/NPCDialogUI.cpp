@@ -148,6 +148,70 @@ void NPCDialogUI::SelectCurrent()
     }
 }
 
+std::vector<std::string> NPCDialogUI::WrapText(const std::string& text, float maxWidth, float scale, TextRenderer* textRenderer)
+{
+    std::vector<std::string> lines;
+    if (!textRenderer || text.empty()) return lines;
+
+    std::string currentLine;
+    std::string word;
+
+    for (size_t i = 0; i <= text.length(); i++)
+    {
+        char c = (i < text.length()) ? text[i] : ' ';
+
+        if (c == ' ' || c == '\n' || i == text.length())
+        {
+            if (!word.empty())
+            {
+                std::string testLine = currentLine.empty() ? word : currentLine + " " + word;
+                float lineWidth = textRenderer->GetTextWidth(testLine, scale);
+
+                if (lineWidth > maxWidth && !currentLine.empty())
+                {
+                    // Current word doesn't fit, push current line and start new one
+                    lines.push_back(currentLine);
+                    currentLine = word;
+                }
+                else
+                {
+                    currentLine = testLine;
+                }
+                word.clear();
+            }
+
+            if (c == '\n' && i < text.length())
+            {
+                lines.push_back(currentLine);
+                currentLine.clear();
+            }
+        }
+        else
+        {
+            word += c;
+        }
+    }
+
+    if (!currentLine.empty())
+    {
+        lines.push_back(currentLine);
+    }
+
+    return lines;
+}
+
+void NPCDialogUI::RenderWrappedText(const std::string& text, float x, float y, float maxWidth, float scale, float lineSpacing, TextRenderer* textRenderer)
+{
+    if (!textRenderer) return;
+
+    std::vector<std::string> lines = WrapText(text, maxWidth, scale, textRenderer);
+
+    for (size_t i = 0; i < lines.size(); i++)
+    {
+        textRenderer->RenderText(lines[i], x, y + static_cast<float>(i) * lineSpacing, scale);
+    }
+}
+
 void NPCDialogUI::DrawBox(RectRenderer* rectRenderer, float x, float y, float width, float height, const Vector3& color, float alpha)
 {
     if (rectRenderer)
@@ -158,6 +222,11 @@ void NPCDialogUI::DrawGreetingUI(TextRenderer* textRenderer, RectRenderer* rectR
 {
     if (!textRenderer || !rectRenderer) return;
 
+    // Settings
+    float textScale = 0.5f;
+    float lineSpacing = 25.0f;
+    float padding = 25.0f;
+
     // Draw background box
     float boxWidth = 800.0f;
     float boxHeight = 200.0f;
@@ -166,39 +235,46 @@ void NPCDialogUI::DrawGreetingUI(TextRenderer* textRenderer, RectRenderer* rectR
 
     DrawBox(rectRenderer, boxX, boxY, boxWidth, boxHeight, Vector3(0.2f, 0.2f, 0.3f), 0.9f);
 
-    // Draw greeting text
-    float textX = boxX + 30.0f;
-    float textY = boxY + 30.0f;
+    // Draw greeting text with wrapping
+    float textX = boxX + padding;
+    float textY = boxY + padding + 10.0f;
+    float maxTextWidth = boxWidth - (padding * 2);
+
     textRenderer->SetTextColor(1.0f, 1.0f, 1.0f);
-    textRenderer->RenderText(mCurrentText, textX, textY, 1.0f);
+    RenderWrappedText(mCurrentText, textX, textY, maxTextWidth, textScale, lineSpacing, textRenderer);
 
     // Draw continue prompt
     std::string prompt = "Press SPACE to continue...";
-    float promptY = boxY + boxHeight - 50.0f;
+    float promptY = boxY + boxHeight - 35.0f;
     textRenderer->SetTextColor(0.7f, 0.7f, 0.7f);
-    textRenderer->RenderText(prompt, textX, promptY, 0.8f);
+    textRenderer->RenderText(prompt, textX, promptY, 0.4f);
 }
 
 void NPCDialogUI::DrawMainMenuUI(TextRenderer* textRenderer, RectRenderer* rectRenderer)
 {
     if (!textRenderer || !rectRenderer) return;
 
+    // Settings
+    float textScale = 0.5f;
+    float padding = 25.0f;
+    float lineHeight = 32.0f;
+
     // Draw background box
-    float boxWidth = 800.0f;
-    float boxHeight = 300.0f;
+    float boxWidth = 600.0f;
+    float boxHeight = 220.0f;
     float boxX = (Game::WINDOW_WIDTH - boxWidth) / 2.0f;
     float boxY = Game::WINDOW_HEIGHT - boxHeight - 50.0f;
 
     DrawBox(rectRenderer, boxX, boxY, boxWidth, boxHeight, Vector3(0.2f, 0.2f, 0.3f), 0.9f);
 
     // Draw title
-    float textX = boxX + 30.0f;
-    float textY = boxY + 30.0f;
+    float textX = boxX + padding;
+    float textY = boxY + padding + 10.0f;
     textRenderer->SetTextColor(1.0f, 1.0f, 1.0f);
-    textRenderer->RenderText("What would you like to do?", textX, textY, 1.0f);
+    textRenderer->RenderText("What would you like to do?", textX, textY, textScale);
 
     // Draw options
-    float optionY = textY + 60.0f;
+    float optionY = textY + 45.0f;
     for (size_t i = 0; i < mCurrentOptions.size(); i++)
     {
         std::string prefix = (i == static_cast<size_t>(mSelectedIndex)) ? "> " : "  ";
@@ -209,36 +285,47 @@ void NPCDialogUI::DrawMainMenuUI(TextRenderer* textRenderer, RectRenderer* rectR
         else
             textRenderer->SetTextColor(0.9f, 0.9f, 0.9f);
 
-        textRenderer->RenderText(prefix + mCurrentOptions[i], textX, optionY + i * 50.0f, 1.0f);
+        textRenderer->RenderText(prefix + mCurrentOptions[i], textX, optionY + static_cast<float>(i) * lineHeight, textScale);
     }
 
     // Draw controls
-    float controlsY = boxY + boxHeight - 50.0f;
+    float controlsY = boxY + boxHeight - 28.0f;
     textRenderer->SetTextColor(0.7f, 0.7f, 0.7f);
     textRenderer->RenderText("W/S: Navigate | SPACE: Select | ESC: Cancel",
-                           textX, controlsY, 0.7f);
+                           textX, controlsY, 0.4f);
 }
 
 void NPCDialogUI::DrawDialogMenuUI(TextRenderer* textRenderer, RectRenderer* rectRenderer)
 {
     if (!textRenderer || !rectRenderer) return;
 
+    // Settings
+    float textScale = 0.5f;
+    float padding = 25.0f;
+    float lineHeight = 35.0f;
+
+    // Calculate box height
+    float minHeight = 180.0f;
+    float contentHeight = static_cast<float>(mCurrentOptions.size()) * lineHeight;
+    float boxHeight = std::min(400.0f, minHeight + contentHeight);
+
     // Draw background box
-    float boxWidth = 800.0f;
-    float boxHeight = std::min(400.0f, 150.0f + mCurrentOptions.size() * 50.0f);
+    float boxWidth = 700.0f;
     float boxX = (Game::WINDOW_WIDTH - boxWidth) / 2.0f;
     float boxY = Game::WINDOW_HEIGHT - boxHeight - 50.0f;
 
     DrawBox(rectRenderer, boxX, boxY, boxWidth, boxHeight, Vector3(0.2f, 0.2f, 0.3f), 0.9f);
 
     // Draw title
-    float textX = boxX + 30.0f;
-    float textY = boxY + 30.0f;
+    float textX = boxX + padding;
+    float textY = boxY + padding + 10.0f;
     textRenderer->SetTextColor(1.0f, 1.0f, 1.0f);
-    textRenderer->RenderText("Choose a topic:", textX, textY, 1.0f);
+    textRenderer->RenderText("Choose a topic:", textX, textY, textScale);
 
-    // Draw dialog options
-    float optionY = textY + 60.0f;
+    // Draw dialog options with wrapping
+    float optionY = textY + 40.0f;
+    float maxTextWidth = boxWidth - (padding * 2) - 30.0f;
+
     for (size_t i = 0; i < mCurrentOptions.size(); i++)
     {
         std::string prefix = (i == static_cast<size_t>(mSelectedIndex)) ? "> " : "  ";
@@ -249,37 +336,64 @@ void NPCDialogUI::DrawDialogMenuUI(TextRenderer* textRenderer, RectRenderer* rec
         else
             textRenderer->SetTextColor(0.9f, 0.9f, 0.9f);
 
-        textRenderer->RenderText(prefix + mCurrentOptions[i], textX,
-                                optionY + i * 50.0f, 0.9f);
+        std::string fullText = prefix + mCurrentOptions[i];
+
+        // Check if text fits, if not wrap it
+        if (textRenderer->GetTextWidth(fullText, textScale) > maxTextWidth)
+        {
+            // Truncate with ellipsis for now (proper wrapping would require multi-line per option)
+            std::string truncated = prefix;
+            for (char c : mCurrentOptions[i])
+            {
+                std::string test = truncated + c + "...";
+                if (textRenderer->GetTextWidth(test, textScale) > maxTextWidth) break;
+                truncated += c;
+            }
+            fullText = truncated + "...";
+        }
+
+        textRenderer->RenderText(fullText, textX, optionY + static_cast<float>(i) * lineHeight, textScale);
     }
 
     // Draw controls
-    float controlsY = boxY + boxHeight - 50.0f;
+    float controlsY = boxY + boxHeight - 28.0f;
     textRenderer->SetTextColor(0.7f, 0.7f, 0.7f);
     textRenderer->RenderText("W/S: Navigate | SPACE: Select | ESC: Back",
-                           textX, controlsY, 0.7f);
+                           textX, controlsY, 0.4f);
 }
 
 void NPCDialogUI::DrawTradeMenuUI(TextRenderer* textRenderer, RectRenderer* rectRenderer)
 {
     if (!textRenderer || !rectRenderer) return;
 
+    // Settings
+    float textScale = 0.45f;
+    float padding = 25.0f;
+    float itemSpacing = 65.0f;
+    float lineSpacing = 20.0f;
+
+    // Calculate box height
+    float minHeight = 180.0f;
+    float contentHeight = static_cast<float>(mCurrentOptions.size()) * itemSpacing;
+    float boxHeight = std::min(500.0f, minHeight + contentHeight);
+
     // Draw background box
-    float boxWidth = 900.0f;
-    float boxHeight = std::min(500.0f, 200.0f + mCurrentOptions.size() * 80.0f);
+    float boxWidth = 850.0f;
     float boxX = (Game::WINDOW_WIDTH - boxWidth) / 2.0f;
     float boxY = Game::WINDOW_HEIGHT - boxHeight - 50.0f;
 
     DrawBox(rectRenderer, boxX, boxY, boxWidth, boxHeight, Vector3(0.2f, 0.2f, 0.3f), 0.9f);
 
     // Draw title
-    float textX = boxX + 30.0f;
-    float textY = boxY + 30.0f;
+    float textX = boxX + padding;
+    float textY = boxY + padding + 10.0f;
     textRenderer->SetTextColor(1.0f, 1.0f, 1.0f);
-    textRenderer->RenderText("Available Trades:", textX, textY, 1.0f);
+    textRenderer->RenderText("Available Trades:", textX, textY, textScale);
 
-    // Draw trade offers
-    float optionY = textY + 60.0f;
+    // Draw trade offers with wrapping
+    float optionY = textY + 40.0f;
+    float maxTextWidth = boxWidth - (padding * 2) - 30.0f;
+
     for (size_t i = 0; i < mCurrentOptions.size(); i++)
     {
         bool isSelected = (i == static_cast<size_t>(mSelectedIndex));
@@ -290,40 +404,54 @@ void NPCDialogUI::DrawTradeMenuUI(TextRenderer* textRenderer, RectRenderer* rect
         else
             textRenderer->SetTextColor(0.9f, 0.9f, 0.9f);
 
-        textRenderer->RenderText(prefix + mCurrentOptions[i], textX,
-                                optionY + i * 80.0f, 0.9f);
+        // Wrap text for trade description
+        std::vector<std::string> lines = WrapText(mCurrentOptions[i], maxTextWidth, textScale, textRenderer);
+
+        float currentY = optionY + static_cast<float>(i) * itemSpacing;
+        for (size_t lineIdx = 0; lineIdx < lines.size(); lineIdx++)
+        {
+            std::string lineText = (lineIdx == 0) ? prefix + lines[lineIdx] : "  " + lines[lineIdx];
+            textRenderer->RenderText(lineText, textX, currentY + static_cast<float>(lineIdx) * lineSpacing, textScale);
+        }
     }
 
     // Draw controls
-    float controlsY = boxY + boxHeight - 50.0f;
+    float controlsY = boxY + boxHeight - 28.0f;
     textRenderer->SetTextColor(0.7f, 0.7f, 0.7f);
     textRenderer->RenderText("W/S: Navigate | SPACE: Trade | ESC: Back",
-                           textX, controlsY, 0.7f);
+                           textX, controlsY, 0.4f);
 }
 
 void NPCDialogUI::DrawMessageUI(TextRenderer* textRenderer, RectRenderer* rectRenderer)
 {
     if (!textRenderer || !rectRenderer) return;
 
+    // Settings
+    float textScale = 0.5f;
+    float lineSpacing = 25.0f;
+    float padding = 25.0f;
+
     // Draw background box
     float boxWidth = 800.0f;
-    float boxHeight = 250.0f;
+    float boxHeight = 220.0f;
     float boxX = (Game::WINDOW_WIDTH - boxWidth) / 2.0f;
     float boxY = Game::WINDOW_HEIGHT - boxHeight - 50.0f;
 
     DrawBox(rectRenderer, boxX, boxY, boxWidth, boxHeight, Vector3(0.2f, 0.2f, 0.3f), 0.9f);
 
-    // Draw message text
-    float textX = boxX + 30.0f;
-    float textY = boxY + 30.0f;
+    // Draw message text with wrapping
+    float textX = boxX + padding;
+    float textY = boxY + padding + 10.0f;
+    float maxTextWidth = boxWidth - (padding * 2);
+
     textRenderer->SetTextColor(1.0f, 1.0f, 1.0f);
-    textRenderer->RenderText(mCurrentText, textX, textY, 0.9f);
+    RenderWrappedText(mCurrentText, textX, textY, maxTextWidth, textScale, lineSpacing, textRenderer);
 
     // Draw continue prompt
     std::string prompt = "Press SPACE to continue...";
-    float promptY = boxY + boxHeight - 50.0f;
+    float promptY = boxY + boxHeight - 35.0f;
     textRenderer->SetTextColor(0.7f, 0.7f, 0.7f);
-    textRenderer->RenderText(prompt, textX, promptY, 0.8f);
+    textRenderer->RenderText(prompt, textX, promptY, 0.4f);
 }
 
 // InteractionIndicator Implementation
@@ -357,23 +485,28 @@ void InteractionIndicator::Draw(TextRenderer* textRenderer, RectRenderer* rectRe
 
     // Draw a small box with "[E] Interact" text above the NPC
     std::string text = "[E] Interact";
-    float textScale = 0.8f;
+    float textScale = 0.4f;
+    float padding = 10.0f;
 
     // Calculate text dimensions
     Vector2 textSize = textRenderer->MeasureText(text, textScale);
 
     // Position above the NPC's head
-    float boxWidth = textSize.x + 20.0f;
-    float boxHeight = textSize.y + 10.0f;
-    float boxX = mScreenPosition.x - boxWidth / 2.0f;
-    float boxY = mScreenPosition.y - 100.0f; // Above the NPC
+    // Assume sprite render size is ~80px and position is center of sprite
+    float spriteRenderSize = 80.0f;
+    float topOfSprite = mScreenPosition.y - spriteRenderSize * 0.5f;
+
+    float boxWidth = textSize.x + (padding * 2);
+    float boxHeight = textSize.y + (padding * 1.2f);
+    float boxX = mScreenPosition.x - boxWidth * 0.5f;
+    float boxY = topOfSprite - 12.0f - boxHeight; // 12px gap above sprite
 
     // Draw background
-    rectRenderer->RenderRect(boxX, boxY, boxWidth, boxHeight, Vector3(0.1f, 0.1f, 0.2f), 0.8f);
+    rectRenderer->RenderRect(boxX, boxY, boxWidth, boxHeight, Vector3(0.1f, 0.1f, 0.2f), 0.85f);
 
-    // Draw text
+    // Draw text centered in box
     textRenderer->SetTextColor(1.0f, 1.0f, 1.0f);
-    textRenderer->RenderText(text, boxX + 10.0f, boxY + 5.0f, textScale);
+    textRenderer->RenderText(text, boxX + padding, boxY + (padding * 0.4f), textScale);
 }
 
 void InteractionIndicator::UpdateScreenPosition()

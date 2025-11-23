@@ -90,6 +90,10 @@ private:
     void DrawDialogMenuUI(TextRenderer* textRenderer, RectRenderer* rectRenderer);
     void DrawTradeMenuUI(TextRenderer* textRenderer, RectRenderer* rectRenderer);
     void DrawMessageUI(TextRenderer* textRenderer, RectRenderer* rectRenderer);
+
+    // Text wrapping utilities
+    std::vector<std::string> WrapText(const std::string& text, float maxWidth, float scale, TextRenderer* textRenderer);
+    void RenderWrappedText(const std::string& text, float x, float y, float maxWidth, float scale, float lineSpacing, TextRenderer* textRenderer);
 };
 
 // Interaction indicator UI - shows "[E] to interact" when player is near NPC
