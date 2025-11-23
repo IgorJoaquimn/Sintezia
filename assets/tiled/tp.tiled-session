@@ -3,10 +3,10 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "tilesets/Oak_Tree.tsx",
+    "activeFile": "maps/mapa_de_teste.tmx",
     "expandedProjectPaths": [
-        "tilesets",
         ".",
+        "tilesets",
         "maps"
     ],
     "file.lastUsedOpenFilter": "Todos os Ficheiros (*)",
@@ -83,11 +83,12 @@
         "tilesets/Oak_Tree.tsx"
     ],
     "project": "tp.tiled-project",
+    "property.type": "bool",
     "recentFiles": [
-        "maps/mapa_de_teste.tmx",
-        "tilesets/Beach_Tile.tsx",
-        "tilesets/Player.tsx",
         "tilesets/Oak_Tree.tsx",
+        "tilesets/Player.tsx",
+        "tilesets/Beach_Tile.tsx",
+        "maps/mapa_de_teste.tmx",
         "tilesets/Path_Tile.tsx",
         "tilesets/mapa_de_teste.tmx",
         "tilesets/player cute.tsx",

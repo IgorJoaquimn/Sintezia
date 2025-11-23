@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <memory>
+#include <vector>
 #include "../Core/Texture/Texture.hpp"
 
 // Tileset information from Tiled
@@ -15,6 +16,9 @@ struct TilesetInfo {
     int tileCount;
     int spacing;
     int margin;
+    int offsetX = 0;  // Tile rendering offset X
+    int offsetY = 0;  // Tile rendering offset Y
+    std::vector<bool> tileCollisions; // Per-tile collision (true = blocks movement)
 };
 
 // Parser for Tiled TSX (tileset) files

@@ -56,6 +56,7 @@ public:
     
     // Collision checking
     bool IsWalkable(const Vector2& position) const;
+    bool CheckCollision(const Vector2& position, float radius) const;
     TileType GetTileAt(const Vector2& position) const;
     
     // Getters

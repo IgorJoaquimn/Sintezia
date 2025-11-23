@@ -57,6 +57,18 @@ bool TiledParser::ParseTSX(const std::string& tsxPath, TilesetInfo& tileset)
             if (!val.empty()) tileset.margin = std::stoi(val);
         }
         
+        // Parse <tileoffset> tag
+        if (line.find("<tileoffset") != std::string::npos)
+        {
+            std::string val;
+            
+            val = ExtractAttribute(line, "x");
+            if (!val.empty()) tileset.offsetX = std::stoi(val);
+            
+            val = ExtractAttribute(line, "y");
+            if (!val.empty()) tileset.offsetY = std::stoi(val);
+        }
+        
         // Parse <image> tag
         if (line.find("<image") != std::string::npos)
         {
@@ -92,6 +104,49 @@ bool TiledParser::ParseTSX(const std::string& tsxPath, TilesetInfo& tileset)
         tileset.rows = (tileset.tileCount + tileset.columns - 1) / tileset.columns;
     }
     
+    // Initialize collision data (default: no collision)
+    tileset.tileCollisions.resize(tileset.tileCount, false);
+    
+    // Re-open file to parse tile properties
+    file.clear();
+    file.seekg(0);
+    
+    int currentTileId = -1;
+    while (std::getline(file, line))
+    {
+        // Check for <tile id="X">
+        if (line.find("<tile") != std::string::npos && line.find("id=") != std::string::npos)
+        {
+            std::string idStr = ExtractAttribute(line, "id");
+            if (!idStr.empty())
+            {
+                currentTileId = std::stoi(idStr);
+            }
+        }
+        
+        // Check for collision property
+        if (currentTileId >= 0 && currentTileId < tileset.tileCount)
+        {
+            if (line.find("<property") != std::string::npos && 
+                line.find("name=\"collision\"") != std::string::npos)
+            {
+                std::string value = ExtractAttribute(line, "value");
+                if (value == "true")
+                {
+                    tileset.tileCollisions[currentTileId] = true;
+                }
+            }
+        }
+        
+        // Reset tile ID when closing tag
+        if (line.find("</tile>") != std::string::npos)
+        {
+            currentTileId = -1;
+        }
+    }
+    
+    file.close();
+    
     // Load the texture
     tileset.texture = std::make_unique<Texture>();
     if (!tileset.texture->Load(tileset.imagePath))
@@ -104,6 +159,17 @@ bool TiledParser::ParseTSX(const std::string& tsxPath, TilesetInfo& tileset)
     std::cout << "  Image: " << tileset.imagePath << std::endl;
     std::cout << "  Tile size: " << tileset.tileWidth << "x" << tileset.tileHeight << std::endl;
     std::cout << "  Tiles: " << tileset.tileCount << " (" << tileset.columns << " columns)" << std::endl;
+    
+    // Count collision tiles
+    int collisionCount = 0;
+    for (bool hasCollision : tileset.tileCollisions)
+    {
+        if (hasCollision) collisionCount++;
+    }
+    if (collisionCount > 0)
+    {
+        std::cout << "  Collision tiles: " << collisionCount << std::endl;
+    }
     
     return true;
 }

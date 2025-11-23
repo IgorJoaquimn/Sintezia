@@ -258,6 +258,7 @@ void TileMap::Draw(SpriteRenderer* spriteRenderer)
             if (layer.data.empty()) continue;
             
             // Draw each tile in the layer
+            // Render in left-bottom order: start from top row, so bottom tiles draw last (on top)
             for (int y = 0; y < layer.height; y++)
             {
                 for (int x = 0; x < layer.width; x++)
@@ -302,18 +303,26 @@ void TileMap::Draw(SpriteRenderer* spriteRenderer)
                     float normalizedHeight = tileset->tileHeight / static_cast<float>(texHeight);
                     
                     // Calculate destination position on screen
-                    // Each grid cell is mTileSize, but tiles can be different sizes
+                    // In Tiled: (x, y) is the grid cell position, with (0,0) at top-left
                     float destX = x * mTileSize;
                     float destY = y * mTileSize;
                     
                     // Calculate display size based on the tileset's tile size
-                    // Scale proportionally: if tileset tile is 32px and base is 16px,
-                    // display at 2x the base display size
+                    // Scale factor: how much bigger/smaller the tileset tile is vs the map grid
+                    // Example: 64px tile in 16px grid = 4x scale factor
                     float scaleFactorX = static_cast<float>(tileset->tileWidth) / static_cast<float>(mMapData->tileWidth);
                     float scaleFactorY = static_cast<float>(tileset->tileHeight) / static_cast<float>(mMapData->tileHeight);
                     
+                    // Display size in screen pixels
                     float displayWidth = mTileSize * scaleFactorX;
                     float displayHeight = mTileSize * scaleFactorY;
+                    
+                    // Offset scale for converting Tiled pixels to display pixels
+                    float offsetScale = mTileSize / 16.0f;
+                    
+                    // Apply offsets from Tiled editor
+                    destX += tileset->offsetX * offsetScale;
+                    destY -= tileset->offsetY * offsetScale;
                     
                     // Draw the tile using sprite sheet rendering with normalized coordinates
                     spriteRenderer->DrawSprite(
@@ -387,4 +396,63 @@ TileType TileMap::GetTileAt(const Vector2& position) const
         return TileType::Floor;
     
     return mTiles[tileY][tileX].type;
+}
+
+
+bool TileMap::CheckCollision(const Vector2& position, float radius) const
+{
+
+    // If we have Tiled map data, check against collision tiles
+    if (mMapData && !mMapData->layers.empty())
+    {
+        // Check all four corners of the player's bounding box
+        Vector2 corners[4] = {
+            Vector2(position.x - radius, position.y - radius), // Top-left
+            Vector2(position.x + radius, position.y - radius), // Top-right
+            Vector2(position.x - radius, position.y + radius), // Bottom-left
+            Vector2(position.x + radius, position.y + radius)  // Bottom-right
+        };
+        
+
+        for (const auto& corner : corners)
+        {
+            int tileX = static_cast<int>(corner.x) / mTileSize;
+            int tileY = static_cast<int>(corner.y) / mTileSize;
+            
+            // Out of bounds = collision
+            if (tileX < 0 || tileX >= mMapData->mapWidth || tileY < 0 || tileY >= mMapData->mapHeight)
+                return true;
+            
+            // Check each layer for collision tiles
+            for (const auto& layer : mMapData->layers)
+            {
+                if (layer.data.empty()) continue;
+                
+                int index = tileY * layer.width + tileX;
+                if (index < 0 || index >= layer.data.size()) continue;
+                
+                int gid = layer.data[index];
+                if (gid == 0) continue; // Empty tile
+                
+                // Find the tileset for this GID
+                for (const auto& tileset : mMapData->tilesets)
+                {
+                    if (gid >= tileset.firstGid && gid < tileset.firstGid + tileset.tileCount)
+                    {
+                        int localId = gid - tileset.firstGid;
+                        if (localId < tileset.tileCollisions.size() && tileset.tileCollisions[localId])
+                        {
+                            return true; // This tile has collision
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        
+        return false; // No collision
+    }
+    
+    // Fallback to simple tile checking
+    return !IsWalkable(position);
 }

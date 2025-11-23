@@ -5,26 +5,13 @@
 #include <string>
 #include <memory>
 #include "../Math.h"
+#include "TiledParser.hpp"
 
 // Layer types in the tilemap
 enum class LayerType
 {
     Block,      // Tile layer with GIDs
     Object      // Object layer with entities
-};
-
-// Information about a tileset
-struct TilesetInfo {
-    int firstGid;           // First global ID
-    int tileWidth;          // Width of each tile
-    int tileHeight;         // Height of each tile
-    std::string imagePath;  // Path to tileset image
-    SDL_Texture* texture;   // Loaded texture
-    int columns;            // Number of columns in tileset
-    int rows;               // Number of rows in tileset
-    int tileCount;          // Total number of tiles
-    int spacing;            // Spacing between tiles
-    int margin;             // Margin around tileset
 };
 
 // Dynamic object in the map (NPCs, items, etc.)
