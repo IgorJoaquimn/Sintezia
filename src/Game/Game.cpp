@@ -11,6 +11,7 @@
 #include "../Core/Renderer/Renderer.hpp"
 #include "../Core/TextRenderer/TextRenderer.hpp"
 #include "../Core/RectRenderer/RectRenderer.hpp"
+#include "../Core/Texture/SpriteRenderer.hpp"
 #include "../Core/RenderUtils.hpp"
 #include "../Crafting/Crafting.hpp"
 #include <iostream>
@@ -22,6 +23,7 @@ Game::Game()
     , mRenderer(nullptr)
     , mTextRenderer(nullptr)
     , mRectRenderer(nullptr)
+    , mSpriteRenderer(nullptr)
     , mCrafting(nullptr)
     , mTileMap(nullptr)
     , mTicksCount(0)
@@ -85,6 +87,13 @@ bool Game::Initialize()
     {
         SDL_Log("Warning: Failed to initialize rect renderer");
     }
+    
+    // Initialize sprite renderer
+    mSpriteRenderer = std::make_unique<SpriteRenderer>();
+    if (!mSpriteRenderer->Initialize(WINDOW_WIDTH, WINDOW_HEIGHT))
+    {
+        SDL_Log("Warning: Failed to initialize sprite renderer");
+    }
 
     // Initialize crafting system
     mCrafting = std::make_unique<Crafting>();
@@ -100,8 +109,15 @@ bool Game::Initialize()
         SDL_Log("Warning: Failed to load recipes");
     }
 
-    // Create tile map (20x15 tiles, 64px each)
-    mTileMap = std::make_unique<TileMap>(20, 11, 64);
+    // Create tile map
+    // Window is 1200×800, map is 30×20 tiles: perfect fit at 40px per tile
+    mTileMap = std::make_unique<TileMap>(30, 20, 40);
+    
+    // Load your custom Tiled map
+    if (!mTileMap->LoadFromJSON("assets/maps/mapa_de_teste.json"))
+    {
+        SDL_Log("Warning: Failed to load custom map, using procedural generation");
+    }
     
     // Create player
     auto player = std::make_unique<Player>(this);
@@ -200,7 +216,7 @@ void Game::GenerateOutput()
     // Draw tilemap first
     if (mTileMap)
     {
-        mTileMap->Draw(mTextRenderer.get());
+        mTileMap->Draw(mSpriteRenderer.get());
     }
     
     // Render all actors on top

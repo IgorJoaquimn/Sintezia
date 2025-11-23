@@ -52,6 +52,11 @@ void ShaderProgram::SetUniform3f(const std::string& name, float x, float y, floa
     glUniform3f(location, x, y, z);
 }
 
+void ShaderProgram::SetUniform2f(const std::string& name, float x, float y) const {
+    GLint location = glGetUniformLocation(programID, name.c_str());
+    glUniform2f(location, x, y);
+}
+
 void ShaderProgram::SetUniform1i(const std::string& name, int value) const {
     GLint location = glGetUniformLocation(programID, name.c_str());
     glUniform1i(location, value);

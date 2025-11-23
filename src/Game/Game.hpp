@@ -11,6 +11,7 @@
 #include "../Core/Renderer/Renderer.hpp"
 #include "../Core/TextRenderer/TextRenderer.hpp"
 #include "../Core/RectRenderer/RectRenderer.hpp"
+#include "../Core/Texture/SpriteRenderer.hpp"
 #include "../Crafting/Crafting.hpp"
 
 // Forward declarations
@@ -39,6 +40,9 @@ public:
     // Get rect renderer for backgrounds
     RectRenderer* GetRectRenderer() { return mRectRenderer.get(); }
     
+    // Get sprite renderer
+    SpriteRenderer* GetSpriteRenderer() { return mSpriteRenderer.get(); }
+    
     // Get crafting system
     Crafting* GetCrafting() { return mCrafting.get(); }
     
@@ -51,8 +55,8 @@ public:
     // Mouse state
     const Vector2& GetMousePosition() const { return mMousePos; }
 
-    static const int WINDOW_WIDTH = 1280;
-    static const int WINDOW_HEIGHT = 720;
+    static const int WINDOW_WIDTH = 1200;  // 30 tiles × 40px = 1200px
+    static const int WINDOW_HEIGHT = 800;  // 20 tiles × 40px = 800px
 
 private:
     void ProcessInput();
@@ -70,6 +74,7 @@ private:
     std::unique_ptr<Renderer> mRenderer;
     std::unique_ptr<TextRenderer> mTextRenderer;
     std::unique_ptr<RectRenderer> mRectRenderer;
+    std::unique_ptr<SpriteRenderer> mSpriteRenderer;
     std::unique_ptr<Crafting> mCrafting;
     std::unique_ptr<TileMap> mTileMap;
 

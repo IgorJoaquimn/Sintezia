@@ -8,6 +8,7 @@ project(${PROJECT_NAME})
 # --- Find required packages ---
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(SDL2 REQUIRED sdl2)
+pkg_check_modules(SDL2_IMAGE REQUIRED SDL2_image)
 find_package(Freetype REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(OpenGL REQUIRED)
@@ -40,12 +41,15 @@ set(SOURCES
     ${SRC_DIR}/Actor/ItemActor.cpp
     ${SRC_DIR}/Actor/Player.cpp
     ${SRC_DIR}/Map/TileMap.cpp
+    ${SRC_DIR}/Map/TiledParser.cpp
     ${SRC_DIR}/Component/Component/Component.cpp
     ${SRC_DIR}/Shader/ShaderProgram.cpp
     ${SRC_DIR}/Font/FontManager.cpp
     ${SRC_DIR}/Core/Renderer/Renderer.cpp
     ${SRC_DIR}/Core/TextRenderer/TextRenderer.cpp
     ${SRC_DIR}/Core/RectRenderer/RectRenderer.cpp
+    ${SRC_DIR}/Core/Texture/Texture.cpp
+    ${SRC_DIR}/Core/Texture/SpriteRenderer.cpp
     ${SRC_DIR}/Crafting/Item.cpp
     ${SRC_DIR}/Crafting/Crafting.cpp
 )
@@ -56,6 +60,7 @@ add_executable(${PROJECT_NAME} ${SOURCES})
 target_include_directories(${PROJECT_NAME} PRIVATE
     ${SRC_DIR}
     ${SDL2_INCLUDE_DIRS}
+    ${SDL2_IMAGE_INCLUDE_DIRS}
     ${FREETYPE_INCLUDE_DIRS}
     ${GLEW_INCLUDE_DIRS}
 )
@@ -63,6 +68,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 # --- Link all necessary libraries ---
 target_link_libraries(${PROJECT_NAME} PRIVATE
     ${SDL2_LIBRARIES}
+    ${SDL2_IMAGE_LIBRARIES}
     ${FREETYPE_LIBRARIES}
     GLEW::glew
     OpenGL::GL
@@ -78,4 +84,5 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     ${CMAKE_SOURCE_DIR}/shaders $<TARGET_FILE_DIR:${PROJECT_NAME}>/shaders
 )
 
+# Copy assets folder (includes all subfolders)
 file(COPY assets DESTINATION ${CMAKE_BINARY_DIR})
