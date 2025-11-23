@@ -506,7 +506,7 @@ void InteractionIndicator::Draw(TextRenderer* textRenderer, RectRenderer* rectRe
 
     // Draw text centered in box
     textRenderer->SetTextColor(1.0f, 1.0f, 1.0f);
-    textRenderer->RenderText(text, boxX + padding, boxY + (padding * 0.4f), textScale);
+    textRenderer->RenderText(text, boxX + padding, boxY + (padding * 2), textScale);
 }
 
 void InteractionIndicator::UpdateScreenPosition()
