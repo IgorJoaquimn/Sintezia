@@ -156,29 +156,33 @@ void NPC::HandleInteractionInput(const uint8_t* keyState)
         mDialogUI->NavigateDown();
     }
 
-    // Handle selection
+    // Handle selection - SPACE or ENTER
     if (!mKeyPressed[3] && (keyState[SDL_SCANCODE_SPACE] || keyState[SDL_SCANCODE_RETURN]))
     {
         mKeyPressed[3] = true;
         mDialogUI->SelectCurrent();
     }
 
-    // Handle back/cancel
-    if (!mKeyPressed[4] && keyState[SDL_SCANCODE_ESCAPE])
+    // Handle back with A key - only works in submenus (not main menu)
+    if (!mKeyPressed[4] && keyState[SDL_SCANCODE_A])
     {
         mKeyPressed[4] = true;
 
-        // If in main menu or greeting, close dialog
-        if (mDialogUI->GetState() == DialogUIState::MainMenu ||
-            mDialogUI->GetState() == DialogUIState::Greeting)
+        // A only works in dialog/trade menus, goes back to main menu
+        if (mDialogUI->GetState() == DialogUIState::DialogMenu ||
+            mDialogUI->GetState() == DialogUIState::TradeMenu ||
+            mDialogUI->GetState() == DialogUIState::Message)
         {
-            EndInteraction();
-        }
-        else
-        {
-            // Otherwise go back to main menu
             mDialogUI->ShowMainMenu();
         }
+        // In main menu or greeting, A does nothing
+    }
+
+    // Handle ESC - always closes the entire dialog
+    if (!mKeyPressed[5] && keyState[SDL_SCANCODE_ESCAPE])
+    {
+        mKeyPressed[5] = true;
+        EndInteraction();
     }
 }
 
@@ -193,8 +197,10 @@ void NPC::UpdateKeyState(const uint8_t* keyState)
         mKeyPressed[2] = false;
     if (!keyState[SDL_SCANCODE_RETURN] && !keyState[SDL_SCANCODE_SPACE])
         mKeyPressed[3] = false;
-    if (!keyState[SDL_SCANCODE_ESCAPE])
+    if (!keyState[SDL_SCANCODE_A])
         mKeyPressed[4] = false;
+    if (!keyState[SDL_SCANCODE_ESCAPE])
+        mKeyPressed[5] = false;
 }
 
 void NPC::AddDialogOption(const std::string& text, const std::string& response)

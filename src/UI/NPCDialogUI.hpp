@@ -70,11 +70,13 @@ public:
 private:
     Game* mGame;
     DialogUIState mState;
+    DialogUIState mPreviousState;  // Track which menu we came from
     int mSelectedIndex;
 
     // Current display data
     std::string mCurrentText;
     std::vector<std::string> mCurrentOptions;
+    std::vector<std::string> mPreviousOptions;  // Store previous options to restore menu
 
     // Callbacks
     std::function<void(int)> mOnDialogSelected;

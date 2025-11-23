@@ -164,19 +164,7 @@ void Game::ProcessInput()
     
     // Process keyboard state for player movement
     const Uint8* keyState = SDL_GetKeyboardState(nullptr);
-    if (keyState[SDL_SCANCODE_ESCAPE])
-    {
-        // If interacting with NPC, escape ends interaction, else quits
-        if (mInteractingNPC && mInteractingNPC->IsInteracting())
-        {
-            // Let NPC handle escape (will be handled in HandleInteractionInput)
-        }
-        else
-        {
-            Quit();
-        }
-    }
-    
+
     // Check for NPC interaction
     if (mInteractingNPC && mInteractingNPC->IsInteracting())
     {

@@ -8,6 +8,7 @@
 NPCDialogUI::NPCDialogUI(Game* game)
     : mGame(game)
     , mState(DialogUIState::Hidden)
+    , mPreviousState(DialogUIState::Hidden)
     , mSelectedIndex(0)
     , mOnDialogSelected(nullptr)
     , mOnTradeSelected(nullptr)
@@ -69,6 +70,7 @@ void NPCDialogUI::ShowMainMenu()
 
 void NPCDialogUI::ShowDialogMenu(const std::vector<std::string>& options)
 {
+    mPreviousState = mState;  // Save current state
     mState = DialogUIState::DialogMenu;
     mCurrentOptions = options;
     mSelectedIndex = 0;
@@ -76,6 +78,7 @@ void NPCDialogUI::ShowDialogMenu(const std::vector<std::string>& options)
 
 void NPCDialogUI::ShowTradeMenu(const std::vector<std::string>& tradeDescriptions)
 {
+    mPreviousState = mState;  // Save current state
     mState = DialogUIState::TradeMenu;
     mCurrentOptions = tradeDescriptions;
     mSelectedIndex = 0;
@@ -83,6 +86,8 @@ void NPCDialogUI::ShowTradeMenu(const std::vector<std::string>& tradeDescription
 
 void NPCDialogUI::ShowMessage(const std::string& message)
 {
+    mPreviousState = mState;  // Save current state before showing message
+    mPreviousOptions = mCurrentOptions;  // Save current options to restore later
     mState = DialogUIState::Message;
     mCurrentText = message;
     mSelectedIndex = 0;
@@ -140,7 +145,26 @@ void NPCDialogUI::SelectCurrent()
             break;
 
         case DialogUIState::Message:
-            ShowMainMenu();
+            // Return to the previous menu (DialogMenu or TradeMenu)
+            if (mPreviousState == DialogUIState::DialogMenu)
+            {
+                // Restore dialog menu with previous options
+                mState = DialogUIState::DialogMenu;
+                mCurrentOptions = mPreviousOptions;
+                mSelectedIndex = 0;
+            }
+            else if (mPreviousState == DialogUIState::TradeMenu)
+            {
+                // Restore trade menu with previous options
+                mState = DialogUIState::TradeMenu;
+                mCurrentOptions = mPreviousOptions;
+                mSelectedIndex = 0;
+            }
+            else
+            {
+                // Fallback to main menu if we don't know where we came from
+                ShowMainMenu();
+            }
             break;
 
         default:
@@ -291,7 +315,7 @@ void NPCDialogUI::DrawMainMenuUI(TextRenderer* textRenderer, RectRenderer* rectR
     // Draw controls
     float controlsY = boxY + boxHeight - 28.0f;
     textRenderer->SetTextColor(0.7f, 0.7f, 0.7f);
-    textRenderer->RenderText("W/S: Navigate | SPACE: Select | ESC: Cancel",
+    textRenderer->RenderText("W/S: Navigate | SPACE: Select | ESC: Exit",
                            textX, controlsY, 0.4f);
 }
 
@@ -358,7 +382,7 @@ void NPCDialogUI::DrawDialogMenuUI(TextRenderer* textRenderer, RectRenderer* rec
     // Draw controls
     float controlsY = boxY + boxHeight - 28.0f;
     textRenderer->SetTextColor(0.7f, 0.7f, 0.7f);
-    textRenderer->RenderText("W/S: Navigate | SPACE: Select | ESC: Back",
+    textRenderer->RenderText("W/S: Navigate | SPACE: Select | A: Back | ESC: Exit",
                            textX, controlsY, 0.4f);
 }
 
@@ -418,7 +442,7 @@ void NPCDialogUI::DrawTradeMenuUI(TextRenderer* textRenderer, RectRenderer* rect
     // Draw controls
     float controlsY = boxY + boxHeight - 28.0f;
     textRenderer->SetTextColor(0.7f, 0.7f, 0.7f);
-    textRenderer->RenderText("W/S: Navigate | SPACE: Trade | ESC: Back",
+    textRenderer->RenderText("W/S: Navigate | SPACE: Trade | A: Back | ESC: Exit",
                            textX, controlsY, 0.4f);
 }
 
