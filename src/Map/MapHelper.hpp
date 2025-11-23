@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 #include <memory>
-#include "../Math.h"
+#include "../MathUtils.h"
 
 // Layer types in the tilemap
 enum class LayerType

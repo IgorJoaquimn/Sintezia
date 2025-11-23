@@ -9,7 +9,7 @@
 #include FT_GLYPH_H
 #include "../../Font/FontManager.hpp"
 #include "../../Shader/ShaderProgram.hpp"
-#include "../../Math.h"
+#include "../../MathUtils.h"
 #include "../RenderUtils.hpp"
 
 struct GlyphInfo {

@@ -34,7 +34,7 @@ FetchContent_MakeAvailable(nlohmann_json)
 set(SRC_DIR ${CMAKE_SOURCE_DIR}/src)
 set(SOURCES
     ${SRC_DIR}/main.cpp
-    ${SRC_DIR}/Math.cpp
+    ${SRC_DIR}/MathUtils.cpp
     ${SRC_DIR}/Game/Game.cpp
     ${SRC_DIR}/Actor/Actor.cpp
     ${SRC_DIR}/Actor/TextActor.cpp
@@ -70,6 +70,11 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 )
 
 # --- Link all necessary libraries ---
+target_link_directories(${PROJECT_NAME} PRIVATE
+    ${SDL2_LIBRARY_DIRS}
+    ${SDL2_IMAGE_LIBRARY_DIRS}
+)
+
 target_link_libraries(${PROJECT_NAME} PRIVATE
     ${SDL2_LIBRARIES}
     ${SDL2_IMAGE_LIBRARIES}

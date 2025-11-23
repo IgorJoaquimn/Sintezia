@@ -2,7 +2,7 @@
 #include <vector>
 #include <string>
 #include <memory>
-#include "../Math.h"
+#include "../MathUtils.h"
 #include "../Core/Texture/Texture.hpp"
 #include "TiledParser.hpp"
 

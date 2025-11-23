@@ -1,6 +1,6 @@
 #pragma once
 #include "Component.hpp"
-#include "../Math.h"
+#include "../MathUtils.h"
 #include <SDL.h>
 
 // Component that handles player keyboard input

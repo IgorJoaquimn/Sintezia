@@ -1,6 +1,6 @@
 #pragma once
 #include "Actor.hpp"
-#include "../Math.h"
+#include "../MathUtils.h"
 #include <SDL.h>
 
 // Forward declarations

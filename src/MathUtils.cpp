@@ -2,7 +2,7 @@
 // Math library implementation following the asteroids game architecture
 // ----------------------------------------------------------------
 
-#include "Math.h"
+#include "MathUtils.h"
 #include <limits>
 #include <cstring>
 
@@ -40,11 +40,11 @@ Vector2 Vector2::Transform(const Vector2& vec, const Matrix4& mat, float w)
 Vector3 Vector3::Transform(const Vector3& vec, const Matrix4& mat, float w)
 {
     Vector3 retVal;
-    retVal.x = vec.x * mat.mat[0][0] + vec.y * mat.mat[1][0] + 
+    retVal.x = vec.x * mat.mat[0][0] + vec.y * mat.mat[1][0] +
                vec.z * mat.mat[2][0] + w * mat.mat[3][0];
-    retVal.y = vec.x * mat.mat[0][1] + vec.y * mat.mat[1][1] + 
+    retVal.y = vec.x * mat.mat[0][1] + vec.y * mat.mat[1][1] +
                vec.z * mat.mat[2][1] + w * mat.mat[3][1];
-    retVal.z = vec.x * mat.mat[0][2] + vec.y * mat.mat[1][2] + 
+    retVal.z = vec.x * mat.mat[0][2] + vec.y * mat.mat[1][2] +
                vec.z * mat.mat[2][2] + w * mat.mat[3][2];
     return retVal;
 }
@@ -53,21 +53,21 @@ Vector3 Vector3::Transform(const Vector3& vec, const Matrix4& mat, float w)
 Vector3 Vector3::TransformWithPerspDiv(const Vector3& vec, const Matrix4& mat, float w)
 {
     Vector3 retVal;
-    retVal.x = vec.x * mat.mat[0][0] + vec.y * mat.mat[1][0] + 
+    retVal.x = vec.x * mat.mat[0][0] + vec.y * mat.mat[1][0] +
                vec.z * mat.mat[2][0] + w * mat.mat[3][0];
-    retVal.y = vec.x * mat.mat[0][1] + vec.y * mat.mat[1][1] + 
+    retVal.y = vec.x * mat.mat[0][1] + vec.y * mat.mat[1][1] +
                vec.z * mat.mat[2][1] + w * mat.mat[3][1];
-    retVal.z = vec.x * mat.mat[0][2] + vec.y * mat.mat[1][2] + 
+    retVal.z = vec.x * mat.mat[0][2] + vec.y * mat.mat[1][2] +
                vec.z * mat.mat[2][2] + w * mat.mat[3][2];
-    float transformedW = vec.x * mat.mat[0][3] + vec.y * mat.mat[1][3] + 
+    float transformedW = vec.x * mat.mat[0][3] + vec.y * mat.mat[1][3] +
                          vec.z * mat.mat[2][3] + w * mat.mat[3][3];
-    
+
     if (!Math::NearZero(Math::Abs(transformedW)))
     {
         transformedW = 1.0f / transformedW;
         retVal *= transformedW;
     }
-    
+
     return retVal;
 }
 
@@ -90,57 +90,57 @@ void Matrix4::Invert()
             }
         }
     }
-    
+
     // Forward elimination
     for (int i = 0; i < 4; i++)
     {
         int pivot = i;
         float pivotSize = mat[i][i];
-        
+
         if (pivotSize < 0)
         {
             pivotSize = -pivotSize;
         }
-        
+
         for (int j = i + 1; j < 4; j++)
         {
             float temp = mat[j][i];
-            
+
             if (temp < 0)
             {
                 temp = -temp;
             }
-            
+
             if (temp > pivotSize)
             {
                 pivot = j;
                 pivotSize = temp;
             }
         }
-        
+
         if (Math::NearZero(pivotSize))
         {
             // Cannot invert singular matrix
             return;
         }
-        
+
         if (pivot != i)
         {
             // Swap rows
             for (int j = 0; j < 4; j++)
             {
                 float temp;
-                
+
                 temp = mat[i][j];
                 mat[i][j] = mat[pivot][j];
                 mat[pivot][j] = temp;
-                
+
                 temp = inv[i][j];
                 inv[i][j] = inv[pivot][j];
                 inv[pivot][j] = temp;
             }
         }
-        
+
         // Multiply by 1 / pivot
         float oneOverPivot = 1.0f / mat[i][i];
         for (int j = 0; j < 4; j++)
@@ -148,7 +148,7 @@ void Matrix4::Invert()
             mat[i][j] *= oneOverPivot;
             inv[i][j] *= oneOverPivot;
         }
-        
+
         // Eliminate column
         for (int j = 0; j < 4; j++)
         {
@@ -163,7 +163,7 @@ void Matrix4::Invert()
             }
         }
     }
-    
+
     // Copy the inverse matrix over the original
     for (int i = 0; i < 4; i++)
     {
