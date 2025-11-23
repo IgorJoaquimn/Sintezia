@@ -6,7 +6,7 @@
 #include <SDL.h>
 #include <vector>
 #include <memory>
-#include "../Math.h"
+#include "../MathUtils.h"
 #include "../Actor/Actor.hpp"
 #include "../Core/Renderer/Renderer.hpp"
 #include "../Core/TextRenderer/TextRenderer.hpp"

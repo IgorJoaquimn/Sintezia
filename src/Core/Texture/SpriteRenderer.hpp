@@ -3,7 +3,7 @@
 #include <memory>
 #include "../../Shader/ShaderProgram.hpp"
 #include "Texture.hpp"
-#include "../../Math.h"
+#include "../../MathUtils.h"
 
 class SpriteRenderer
 {

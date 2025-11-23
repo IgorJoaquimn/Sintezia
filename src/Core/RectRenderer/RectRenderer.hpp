@@ -2,7 +2,7 @@
 #include <GL/glew.h>
 #include <memory>
 #include "../../Shader/ShaderProgram.hpp"
-#include "../../Math.h"
+#include "../../MathUtils.h"
 
 class RectRenderer {
 public:

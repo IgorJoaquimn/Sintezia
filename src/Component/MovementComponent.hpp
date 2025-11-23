@@ -1,6 +1,6 @@
 #pragma once
 #include "Component.hpp"
-#include "../Math.h"
+#include "../MathUtils.h"
 
 // Component that handles physics/movement updates
 class MovementComponent : public Component

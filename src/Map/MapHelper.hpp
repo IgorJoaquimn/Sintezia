@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 #include <memory>
-#include "../Math.h"
+#include "../MathUtils.h"
 #include "TiledParser.hpp"
 
 // Layer types in the tilemap

@@ -6,7 +6,7 @@
 #include <vector>
 #include <cstdint>
 #include <memory>
-#include "../Math.h"
+#include "../MathUtils.h"
 
 // Forward declarations
 class Game;

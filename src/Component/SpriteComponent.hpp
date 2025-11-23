@@ -1,7 +1,7 @@
 #pragma once
 #include "Component.hpp"
 #include "../Core/Texture/Texture.hpp"
-#include "../Math.h"
+#include "../MathUtils.h"
 #include <memory>
 #include <string>
 
