@@ -251,9 +251,9 @@ void NPCDialogUI::DrawGreetingUI(TextRenderer* textRenderer, RectRenderer* rectR
     float lineSpacing = 25.0f;
     float padding = 25.0f;
 
-    // Draw background box
+    // Draw background box - standardized size
     float boxWidth = 800.0f;
-    float boxHeight = 200.0f;
+    float boxHeight = 250.0f;
     float boxX = (Game::WINDOW_WIDTH - boxWidth) / 2.0f;
     float boxY = Game::WINDOW_HEIGHT - boxHeight - 50.0f;
 
@@ -283,9 +283,9 @@ void NPCDialogUI::DrawMainMenuUI(TextRenderer* textRenderer, RectRenderer* rectR
     float padding = 25.0f;
     float lineHeight = 32.0f;
 
-    // Draw background box
-    float boxWidth = 600.0f;
-    float boxHeight = 220.0f;
+    // Draw background box - standardized size
+    float boxWidth = 800.0f;
+    float boxHeight = 250.0f;
     float boxX = (Game::WINDOW_WIDTH - boxWidth) / 2.0f;
     float boxY = Game::WINDOW_HEIGHT - boxHeight - 50.0f;
 
@@ -328,13 +328,9 @@ void NPCDialogUI::DrawDialogMenuUI(TextRenderer* textRenderer, RectRenderer* rec
     float padding = 25.0f;
     float lineHeight = 35.0f;
 
-    // Calculate box height
-    float minHeight = 180.0f;
-    float contentHeight = static_cast<float>(mCurrentOptions.size()) * lineHeight;
-    float boxHeight = std::min(400.0f, minHeight + contentHeight);
-
-    // Draw background box
-    float boxWidth = 700.0f;
+    // Draw background box - standardized size
+    float boxWidth = 800.0f;
+    float boxHeight = 250.0f;
     float boxX = (Game::WINDOW_WIDTH - boxWidth) / 2.0f;
     float boxY = Game::WINDOW_HEIGHT - boxHeight - 50.0f;
 
@@ -396,13 +392,9 @@ void NPCDialogUI::DrawTradeMenuUI(TextRenderer* textRenderer, RectRenderer* rect
     float itemSpacing = 65.0f;
     float lineSpacing = 20.0f;
 
-    // Calculate box height
-    float minHeight = 180.0f;
-    float contentHeight = static_cast<float>(mCurrentOptions.size()) * itemSpacing;
-    float boxHeight = std::min(500.0f, minHeight + contentHeight);
-
-    // Draw background box
-    float boxWidth = 850.0f;
+    // Draw background box - standardized size
+    float boxWidth = 800.0f;
+    float boxHeight = 250.0f;
     float boxX = (Game::WINDOW_WIDTH - boxWidth) / 2.0f;
     float boxY = Game::WINDOW_HEIGHT - boxHeight - 50.0f;
 
@@ -455,9 +447,9 @@ void NPCDialogUI::DrawMessageUI(TextRenderer* textRenderer, RectRenderer* rectRe
     float lineSpacing = 25.0f;
     float padding = 25.0f;
 
-    // Draw background box
+    // Draw background box - standardized size
     float boxWidth = 800.0f;
-    float boxHeight = 220.0f;
+    float boxHeight = 250.0f;
     float boxX = (Game::WINDOW_WIDTH - boxWidth) / 2.0f;
     float boxY = Game::WINDOW_HEIGHT - boxHeight - 50.0f;
 
