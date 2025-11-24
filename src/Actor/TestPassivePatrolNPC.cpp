@@ -4,9 +4,15 @@
 TestPassivePatrolNPC::TestPassivePatrolNPC(Game* game)
     : PatrolNPC(game, false)  // false = not aggressive
 {
-    // Configure sprite to use the same Player sprite sheet
+    // Configure sprite to use Player sprite sheet
     LoadSpriteSheet("assets/third_party/Cute_Fantasy_Free/Player/Player.png");
     SetSpriteConfiguration(32, 32, 6, 6, 8.0f);
+
+    // Configure custom row mappings for Player.png sprite sheet
+    // Layout: 0=idle_down, 1=idle_right, 2=idle_up, 3=walk_down, 4=walk_right, 5=walk_up
+    // We'll reuse animations for left direction (flip right animations)
+    SetIdleRows(0, 1, 1, 2);  // idle: down, left(use right), right, up
+    SetWalkRows(3, 4, 4, 5);  // walk: down, left(use right), right, up
 
     // Set initial position and anchor
     SetPosition(Vector2(300.0f, 300.0f));

@@ -51,6 +51,12 @@ public:
     void LoadSpriteSheet(const std::string& filepath);
     void SetSpriteConfiguration(int width, int height, int idleFrames, int walkFrames, float animSpeed);
 
+    // Animation row mapping (for custom sprite sheet layouts)
+    // Set which rows correspond to idle animations for each direction
+    void SetIdleRows(int down, int left, int right, int up);
+    // Set which rows correspond to walk animations for each direction
+    void SetWalkRows(int down, int left, int right, int up);
+
     // State
     PatrolNPCState GetState() const { return mState; }
 
@@ -98,5 +104,9 @@ protected:
     // Animation state
     int mCurrentDirection;  // 0=down, 1=left, 2=right, 3=up
     bool mIsMoving;
+
+    // Custom animation row mappings (default assumes standard 8-row layout)
+    int mIdleRows[4];  // [down, left, right, up]
+    int mWalkRows[4];  // [down, left, right, up]
 };
 

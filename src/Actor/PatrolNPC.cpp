@@ -32,6 +32,12 @@ PatrolNPC::PatrolNPC(Game* game, bool isAggressive)
     , mCurrentDirection(0)
     , mIsMoving(false)
 {
+    // Initialize default animation row mappings (standard 8-row sprite sheet layout)
+    // Idle rows: down=0, left=1, right=2, up=3
+    mIdleRows[0] = 0; mIdleRows[1] = 1; mIdleRows[2] = 2; mIdleRows[3] = 3;
+    // Walk rows: down=4, left=5, right=6, up=7
+    mWalkRows[0] = 4; mWalkRows[1] = 5; mWalkRows[2] = 6; mWalkRows[3] = 7;
+
     // Create and add components
     mAnimationComponent = AddComponent<AnimationComponent>();
     mSpriteComponent = AddComponent<SpriteComponent>(200); // Higher update order for rendering
@@ -273,18 +279,26 @@ void PatrolNPC::OnDraw(TextRenderer* textRenderer)
     auto* spriteRenderer = mGame->GetSpriteRenderer();
     if (!spriteRenderer || !mSpriteComponent || !mAnimationComponent) return;
 
-    // Calculate sprite row based on state and direction
-    int row = mCurrentDirection;
+    // Get the appropriate row from custom mappings based on state and direction
+    int row;
     if (mIsMoving)
     {
-        row += 4;  // Walk animations are 4 rows below idle animations
+        row = mWalkRows[mCurrentDirection];
+    }
+    else
+    {
+        row = mIdleRows[mCurrentDirection];
     }
 
     int col = mAnimationComponent->GetCurrentFrame();
 
     // Configure sprite component for rendering
     mSpriteComponent->SetCurrentFrame(row, col);
-    mSpriteComponent->SetFlipHorizontal(false);
+
+    // Flip horizontally when facing left (direction 1)
+    // This allows reusing right-facing animations for left direction
+    bool shouldFlip = (mCurrentDirection == 1);
+    mSpriteComponent->SetFlipHorizontal(shouldFlip);
 
     // Draw the sprite
     mSpriteComponent->Draw(spriteRenderer);
@@ -322,5 +336,21 @@ void PatrolNPC::SetSpriteConfiguration(int width, int height, int idleFrames, in
         mAnimationComponent->SetFrameCount(idleFrames);
         mAnimationComponent->SetAnimSpeed(animSpeed);
     }
+}
+
+void PatrolNPC::SetIdleRows(int down, int left, int right, int up)
+{
+    mIdleRows[0] = down;
+    mIdleRows[1] = left;
+    mIdleRows[2] = right;
+    mIdleRows[3] = up;
+}
+
+void PatrolNPC::SetWalkRows(int down, int left, int right, int up)
+{
+    mWalkRows[0] = down;
+    mWalkRows[1] = left;
+    mWalkRows[2] = right;
+    mWalkRows[3] = up;
 }
 
