@@ -52,6 +52,8 @@ set(SOURCES
     ${SRC_DIR}/Component/MovementComponent.cpp
     ${SRC_DIR}/Component/AnimationComponent.cpp
     ${SRC_DIR}/Component/SpriteComponent.cpp
+    ${SRC_DIR}/Component/HealthComponent.cpp
+    ${SRC_DIR}/Component/AttackComponent.cpp
     ${SRC_DIR}/Shader/ShaderProgram.cpp
     ${SRC_DIR}/Font/FontManager.cpp
     ${SRC_DIR}/Core/Renderer/Renderer.cpp

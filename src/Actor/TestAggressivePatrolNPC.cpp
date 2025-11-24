@@ -14,6 +14,11 @@ TestAggressivePatrolNPC::TestAggressivePatrolNPC(Game* game)
     SetIdleRows(0, 1, 1, 2);  // idle: down, left(use right), right, up
     SetWalkRows(3, 4, 4, 5);  // walk: down, left(use right), right, up
 
+    // Configure attack animation rows (using walk animations as placeholder since Player.png doesn't have attack animations)
+    // In a real sprite sheet with attack rows, you would use rows 6, 7, 8 as specified
+    // attack: down, left, right, up
+    SetAttackRows(6, 7, 7, 8);  // attack: down, left(use right), right, up
+
     // Set initial position and anchor
     SetPosition(Vector2(700.0f, 300.0f));
     SetAnchorPosition(Vector2(700.0f, 300.0f));

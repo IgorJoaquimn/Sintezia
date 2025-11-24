@@ -53,6 +53,9 @@ public:
     // Get tilemap
     TileMap* GetTileMap() { return mTileMap.get(); }
     
+    // Get all actors (for collision/interaction checks)
+    const std::vector<std::unique_ptr<Actor>>& GetActors() const { return mActors; }
+
     // NPC management
     void RegisterNPC(DialogNPC* npc);
     void UnregisterNPC(DialogNPC* npc);

@@ -8,6 +8,8 @@
 class AnimationComponent;
 class SpriteComponent;
 class MovementComponent;
+class HealthComponent;
+class AttackComponent;
 
 // Represents a waypoint in the NPC's patrol loop
 struct Waypoint
@@ -56,6 +58,8 @@ public:
     void SetIdleRows(int down, int left, int right, int up);
     // Set which rows correspond to walk animations for each direction
     void SetWalkRows(int down, int left, int right, int up);
+    // Set which rows correspond to attack animations for each direction
+    void SetAttackRows(int down, int left, int right, int up);
 
     // State
     PatrolNPCState GetState() const { return mState; }
@@ -93,6 +97,8 @@ protected:
     AnimationComponent* mAnimationComponent;
     SpriteComponent* mSpriteComponent;
     MovementComponent* mMovementComponent;
+    HealthComponent* mHealthComponent;
+    AttackComponent* mAttackComponent;
 
     // Sprite configuration
     int mSpriteWidth;
@@ -104,9 +110,11 @@ protected:
     // Animation state
     int mCurrentDirection;  // 0=down, 1=left, 2=right, 3=up
     bool mIsMoving;
+    bool mIsAttackAnimPlaying;
 
     // Custom animation row mappings (default assumes standard 8-row layout)
     int mIdleRows[4];  // [down, left, right, up]
     int mWalkRows[4];  // [down, left, right, up]
+    int mAttackRows[4]; // [down, left, right, up]
 };
 

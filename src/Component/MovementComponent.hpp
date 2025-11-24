@@ -14,12 +14,17 @@ public:
     void SetVelocity(const Vector2& velocity) { mVelocity = velocity; }
     const Vector2& GetVelocity() const { return mVelocity; }
     
+    // Apply an impulse (for knockback, etc.)
+    void ApplyImpulse(const Vector2& impulse);
+
     // Enable/disable bounds checking
     void SetBoundsChecking(bool enabled) { mUseBounds = enabled; }
     void SetBounds(float minX, float minY, float maxX, float maxY);
     
 private:
     Vector2 mVelocity;
+    Vector2 mImpulseVelocity;  // Additional velocity from impulses (knockback)
+    float mImpulseDecay;        // How fast impulse decays (friction)
     bool mUseBounds;
     float mMinX, mMinY, mMaxX, mMaxY;
 };

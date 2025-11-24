@@ -6,6 +6,8 @@
 #include "../Component/AnimationComponent.hpp"
 #include "../Component/SpriteComponent.hpp"
 #include "../Component/MovementComponent.hpp"
+#include "../Component/HealthComponent.hpp"
+#include "../Component/AttackComponent.hpp"
 #include <cmath>
 #include <algorithm>
 
@@ -24,6 +26,8 @@ PatrolNPC::PatrolNPC(Game* game, bool isAggressive)
     , mAnimationComponent(nullptr)
     , mSpriteComponent(nullptr)
     , mMovementComponent(nullptr)
+    , mHealthComponent(nullptr)
+    , mAttackComponent(nullptr)
     , mSpriteWidth(32)
     , mSpriteHeight(32)
     , mIdleFrames(6)
@@ -31,17 +35,61 @@ PatrolNPC::PatrolNPC(Game* game, bool isAggressive)
     , mAnimSpeed(8.0f)
     , mCurrentDirection(0)
     , mIsMoving(false)
+    , mIsAttackAnimPlaying(false)
 {
     // Initialize default animation row mappings (standard 8-row sprite sheet layout)
     // Idle rows: down=0, left=1, right=2, up=3
     mIdleRows[0] = 0; mIdleRows[1] = 1; mIdleRows[2] = 2; mIdleRows[3] = 3;
     // Walk rows: down=4, left=5, right=6, up=7
     mWalkRows[0] = 4; mWalkRows[1] = 5; mWalkRows[2] = 6; mWalkRows[3] = 7;
+    // Attack rows: down=6, left=7, right=7, up=8 (as specified)
+    mAttackRows[0] = 6; mAttackRows[1] = 7; mAttackRows[2] = 7; mAttackRows[3] = 8;
 
     // Create and add components
     mAnimationComponent = AddComponent<AnimationComponent>();
     mSpriteComponent = AddComponent<SpriteComponent>(200); // Higher update order for rendering
     mMovementComponent = AddComponent<MovementComponent>();
+    mHealthComponent = AddComponent<HealthComponent>();
+
+    // Configure health component
+    mHealthComponent->SetMaxHealth(50.0f);
+    mHealthComponent->SetCurrentHealth(50.0f);
+    mHealthComponent->SetDeathCallback([this]() {
+        // NPC death - mark for destruction
+        SetState(ActorState::Destroy);
+    });
+
+    // Only add attack component if aggressive
+    if (isAggressive)
+    {
+        mAttackComponent = AddComponent<AttackComponent>();
+
+        // Configure attack component
+        AttackConfig attackConfig;
+        attackConfig.damage = 15.0f;
+        attackConfig.cooldown = 1.5f;
+        attackConfig.range = 50.0f;
+        attackConfig.knockback = 100.0f;
+        attackConfig.attackDownRow = mAttackRows[0];
+        attackConfig.attackRightRow = mAttackRows[2];
+        attackConfig.attackUpRow = mAttackRows[3];
+        attackConfig.attackFrameCount = 6;
+        attackConfig.attackDuration = 0.4f;
+        mAttackComponent->SetAttackConfig(attackConfig);
+
+        // Set attack callbacks
+        mAttackComponent->SetAttackStartCallback([this](int direction) {
+            mIsAttackAnimPlaying = true;
+            if (mAnimationComponent) {
+                mAnimationComponent->SetFrameCount(mAttackComponent->GetAttackConfig().attackFrameCount);
+                mAnimationComponent->ResetAnimation();
+            }
+        });
+
+        mAttackComponent->SetAttackEndCallback([this]() {
+            mIsAttackAnimPlaying = false;
+        });
+    }
 
     // Configure animation component with default values
     mAnimationComponent->SetFrameCount(mIdleFrames);
@@ -152,6 +200,27 @@ void PatrolNPC::UpdateChasing(float deltaTime)
     {
         mState = PatrolNPCState::Returning;
         return;
+    }
+
+    // Try to attack if in range and has attack component
+    if (mAttackComponent && mAttackComponent->CanAttack())
+    {
+        float attackRange = mAttackComponent->GetAttackConfig().range;
+        if (distanceToPlayer <= attackRange)
+        {
+            // Determine attack direction based on player position
+            Vector2 toPlayer = playerPos - npcPos;
+            toPlayer.Normalize();
+            int attackDir = GetDirectionRow(toPlayer);
+
+            // Trigger attack
+            mAttackComponent->StartAttack(attackDir);
+
+            // Stop moving during attack
+            mMovementComponent->SetVelocity(Vector2::Zero);
+            mIsMoving = false;
+            return;
+        }
     }
 
     // Chase the player
@@ -281,23 +350,41 @@ void PatrolNPC::OnDraw(TextRenderer* textRenderer)
 
     // Get the appropriate row from custom mappings based on state and direction
     int row;
-    if (mIsMoving)
+    bool shouldFlip = false;
+
+    if (mIsAttackAnimPlaying && mAttackComponent)
+    {
+        // Playing attack animation
+        int attackDir = mAttackComponent->GetAttackDirection();
+
+        // Map direction to attack row using [down, left, right, up] pattern
+        if (attackDir == 0) // Down
+            row = mAttackRows[0];
+        else if (attackDir == 1) // Left
+        {
+            row = mAttackRows[1];
+            shouldFlip = true; // Flip if left uses different row
+        }
+        else if (attackDir == 2) // Right
+            row = mAttackRows[2];
+        else // Up (attackDir == 3)
+            row = mAttackRows[3];
+    }
+    else if (mIsMoving)
     {
         row = mWalkRows[mCurrentDirection];
+        shouldFlip = (mCurrentDirection == 1);
     }
     else
     {
         row = mIdleRows[mCurrentDirection];
+        shouldFlip = (mCurrentDirection == 1);
     }
 
     int col = mAnimationComponent->GetCurrentFrame();
 
     // Configure sprite component for rendering
     mSpriteComponent->SetCurrentFrame(row, col);
-
-    // Flip horizontally when facing left (direction 1)
-    // This allows reusing right-facing animations for left direction
-    bool shouldFlip = (mCurrentDirection == 1);
     mSpriteComponent->SetFlipHorizontal(shouldFlip);
 
     // Draw the sprite
@@ -352,5 +439,19 @@ void PatrolNPC::SetWalkRows(int down, int left, int right, int up)
     mWalkRows[1] = left;
     mWalkRows[2] = right;
     mWalkRows[3] = up;
+}
+
+void PatrolNPC::SetAttackRows(int down, int left, int right, int up)
+{
+    mAttackRows[0] = down;
+    mAttackRows[1] = left;
+    mAttackRows[2] = right;
+    mAttackRows[3] = up;
+
+    // Update attack component configuration if it exists
+    if (mAttackComponent)
+    {
+        mAttackComponent->SetAttackAnimationRows(down, right, up);
+    }
 }
 
