@@ -71,28 +71,41 @@ void AttackComponent::PerformAttack()
     Vector2 ownerPos = mOwner->GetPosition();
     Vector2 attackDir;
 
-    // Determine attack direction vector
+    // Determine attack direction vector (matches PlayerInputComponent: 0=Down, 1=Right, 2=Up, 3=Left)
     switch (mAttackDirection)
     {
         case 0: attackDir = Vector2(0.0f, 1.0f); break;   // Down
-        case 1: attackDir = Vector2(-1.0f, 0.0f); break;  // Left
-        case 2: attackDir = Vector2(1.0f, 0.0f); break;   // Right
-        case 3: attackDir = Vector2(0.0f, -1.0f); break;  // Up
+        case 1: attackDir = Vector2(1.0f, 0.0f); break;   // Right
+        case 2: attackDir = Vector2(0.0f, -1.0f); break;  // Up
+        case 3: attackDir = Vector2(-1.0f, 0.0f); break;  // Left
         default: attackDir = Vector2(0.0f, 1.0f); break;
     }
+
+    SDL_Log("Attack triggered! Direction: %d, Found %zu targets in range %.1f",
+            mAttackDirection, targets.size(), mConfig.range);
 
     // Apply damage and knockback to all targets
     for (Actor* target : targets)
     {
         Vector2 targetPos = target->GetPosition();
         Vector2 toTarget = targetPos - ownerPos;
+        float distance = toTarget.Length();
         toTarget.Normalize();
 
         // Check if target is roughly in the attack direction
         float dot = Vector2::Dot(attackDir, toTarget);
-        if (dot > 0.5f) // Target is in front (roughly 60 degree cone)
+
+        SDL_Log("  Target at distance %.1f, dot product: %.2f (attackDir=(%.2f,%.2f), toTarget=(%.2f,%.2f))",
+                distance, dot, attackDir.x, attackDir.y, toTarget.x, toTarget.y);
+
+        if (dot > 0.0f) // Target is in front (90 degree cone)
         {
+            SDL_Log("  -> HIT! Applying damage");
             ApplyDamageAndKnockback(target, toTarget);
+        }
+        else
+        {
+            SDL_Log("  -> MISS! Target not in attack cone");
         }
     }
 }

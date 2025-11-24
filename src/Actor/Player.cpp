@@ -43,7 +43,7 @@ Player::Player(Game* game)
     AttackConfig attackConfig;
     attackConfig.damage = 20.0f;
     attackConfig.cooldown = 0.5f;
-    attackConfig.range = 60.0f;
+    attackConfig.range = 100.0f;
     attackConfig.knockback = 280.0f;
     attackConfig.attackDuration = ATTACK_DURATION;
     // Player uses individual textures, not sprite sheet rows, so these won't be used

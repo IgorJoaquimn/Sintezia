@@ -41,7 +41,7 @@ public:
     void Update(float deltaTime) override;
 
     // Attack control
-    void StartAttack(int direction); // direction: 0=down, 1=left, 2=right, 3=up
+    void StartAttack(int direction); // direction: 0=down, 1=right, 2=up, 3=left
     bool IsAttacking() const { return mIsAttacking; }
     bool CanAttack() const { return !mIsAttacking && mCooldownTimer <= 0.0f; }
 
