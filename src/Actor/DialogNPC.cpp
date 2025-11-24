@@ -1,4 +1,4 @@
-#include "NPC.hpp"
+#include "DialogNPC.hpp"
 #include "../Game/Game.hpp"
 #include "../Core/TextRenderer/TextRenderer.hpp"
 #include "../Core/RectRenderer/RectRenderer.hpp"
@@ -12,7 +12,7 @@
 #include <SDL.h>
 #include <GL/glew.h>
 
-NPC::NPC(Game* game)
+DialogNPC::DialogNPC(Game* game)
     : Actor(game)
     , mGreeting("Hello!")
     , mDialogUI(std::make_unique<NPCDialogUI>(game))
@@ -47,16 +47,16 @@ NPC::NPC(Game* game)
     mDialogUI->SetOnTradeSelected([this](int index) { OnTradeOptionSelected(index); });
 }
 
-NPC::~NPC()
+DialogNPC::~DialogNPC()
 {
 }
 
-void NPC::OnUpdate(float deltaTime)
+void DialogNPC::OnUpdate(float deltaTime)
 {
     // NPCs are currently stationary, but this can be extended for moving NPCs
 }
 
-void NPC::OnDraw(TextRenderer* textRenderer)
+void DialogNPC::OnDraw(TextRenderer* textRenderer)
 {
     auto* spriteRenderer = mGame->GetSpriteRenderer();
     auto* rectRenderer = mGame->GetRectRenderer();
@@ -94,13 +94,13 @@ void NPC::OnDraw(TextRenderer* textRenderer)
     }
 }
 
-bool NPC::CanInteract(const Vector2& playerPos, float interactionRange) const
+bool DialogNPC::CanInteract(const Vector2& playerPos, float interactionRange) const
 {
     float distance = (GetPosition() - playerPos).Length();
     return distance <= interactionRange;
 }
 
-void NPC::StartInteraction()
+void DialogNPC::StartInteraction()
 {
     if (!IsInteracting())
     {
@@ -109,7 +109,7 @@ void NPC::StartInteraction()
     }
 }
 
-void NPC::EndInteraction()
+void DialogNPC::EndInteraction()
 {
     if (mDialogUI)
     {
@@ -117,12 +117,12 @@ void NPC::EndInteraction()
     }
 }
 
-bool NPC::IsInteracting() const
+bool DialogNPC::IsInteracting() const
 {
     return mDialogUI && mDialogUI->IsVisible();
 }
 
-void NPC::ShowInteractionIndicator(const Vector2& playerPos)
+void DialogNPC::ShowInteractionIndicator(const Vector2& playerPos)
 {
     if (mInteractionIndicator && !IsInteracting())
     {
@@ -130,7 +130,7 @@ void NPC::ShowInteractionIndicator(const Vector2& playerPos)
     }
 }
 
-void NPC::HideInteractionIndicator()
+void DialogNPC::HideInteractionIndicator()
 {
     if (mInteractionIndicator)
     {
@@ -138,7 +138,7 @@ void NPC::HideInteractionIndicator()
     }
 }
 
-void NPC::HandleInteractionInput(const uint8_t* keyState)
+void DialogNPC::HandleInteractionInput(const uint8_t* keyState)
 {
     if (!IsInteracting() || !mDialogUI) return;
 
@@ -186,7 +186,7 @@ void NPC::HandleInteractionInput(const uint8_t* keyState)
     }
 }
 
-void NPC::UpdateKeyState(const uint8_t* keyState)
+void DialogNPC::UpdateKeyState(const uint8_t* keyState)
 {
     // Reset key states when keys are released
     if (!keyState[SDL_SCANCODE_SPACE] && !keyState[SDL_SCANCODE_RETURN])
@@ -203,17 +203,17 @@ void NPC::UpdateKeyState(const uint8_t* keyState)
         mKeyPressed[5] = false;
 }
 
-void NPC::AddDialogOption(const std::string& text, const std::string& response)
+void DialogNPC::AddDialogOption(const std::string& text, const std::string& response)
 {
     mDialogOptions.emplace_back(text, response);
 }
 
-void NPC::AddTradeOffer(const TradeOffer& offer)
+void DialogNPC::AddTradeOffer(const TradeOffer& offer)
 {
     mTradeOffers.push_back(offer);
 }
 
-void NPC::LoadSpriteSheet(const std::string& filepath)
+void DialogNPC::LoadSpriteSheet(const std::string& filepath)
 {
     if (mSpriteComponent)
     {
@@ -221,7 +221,7 @@ void NPC::LoadSpriteSheet(const std::string& filepath)
     }
 }
 
-void NPC::SetSpriteConfiguration(int width, int height, int idleFrames, int walkFrames, float animSpeed)
+void DialogNPC::SetSpriteConfiguration(int width, int height, int idleFrames, int walkFrames, float animSpeed)
 {
     mSpriteWidth = width;
     mSpriteHeight = height;
@@ -243,7 +243,7 @@ void NPC::SetSpriteConfiguration(int width, int height, int idleFrames, int walk
 }
 
 // UI Callback Handlers
-void NPC::OnTalkSelected()
+void DialogNPC::OnTalkSelected()
 {
     if (!mDialogOptions.empty())
     {
@@ -260,7 +260,7 @@ void NPC::OnTalkSelected()
     }
 }
 
-void NPC::OnTradeMenuSelected()
+void DialogNPC::OnTradeMenuSelected()
 {
     if (!mTradeOffers.empty())
     {
@@ -322,12 +322,12 @@ void NPC::OnTradeMenuSelected()
     }
 }
 
-void NPC::OnLeaveSelected()
+void DialogNPC::OnLeaveSelected()
 {
     EndInteraction();
 }
 
-void NPC::OnDialogOptionSelected(int index)
+void DialogNPC::OnDialogOptionSelected(int index)
 {
     if (index >= 0 && index < static_cast<int>(mDialogOptions.size()))
     {
@@ -335,7 +335,7 @@ void NPC::OnDialogOptionSelected(int index)
     }
 }
 
-void NPC::OnTradeOptionSelected(int index)
+void DialogNPC::OnTradeOptionSelected(int index)
 {
     if (index >= 0 && index < static_cast<int>(mTradeOffers.size()))
     {

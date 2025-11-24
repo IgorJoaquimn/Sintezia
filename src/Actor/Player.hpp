@@ -31,7 +31,7 @@ public:
     ~Player();
     
     void OnProcessInput(const Uint8* keyState) override;
-    void OnUpdate(float deltaTime);
+    void OnUpdate(float deltaTime) override;
     void OnDraw(class TextRenderer* textRenderer) override;
     
     // State

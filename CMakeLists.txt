@@ -40,8 +40,11 @@ set(SOURCES
     ${SRC_DIR}/Actor/TextActor.cpp
     ${SRC_DIR}/Actor/ItemActor.cpp
     ${SRC_DIR}/Actor/Player.cpp
-    ${SRC_DIR}/Actor/NPC.cpp
-    ${SRC_DIR}/Actor/TestNPC.cpp
+    ${SRC_DIR}/Actor/DialogNPC.cpp
+    ${SRC_DIR}/Actor/TestShopkeeperNPC.cpp
+    ${SRC_DIR}/Actor/PatrolNPC.cpp
+    ${SRC_DIR}/Actor/TestPassivePatrolNPC.cpp
+    ${SRC_DIR}/Actor/TestAggressivePatrolNPC.cpp
     ${SRC_DIR}/Map/TileMap.cpp
     ${SRC_DIR}/Map/TiledParser.cpp
     ${SRC_DIR}/Component/Component.cpp

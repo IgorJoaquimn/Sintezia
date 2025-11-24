@@ -1,8 +1,8 @@
-#include "TestNPC.hpp"
+#include "TestShopkeeperNPC.hpp"
 #include "../Game/Game.hpp"
 
-TestNPC::TestNPC(Game* game)
-    : NPC(game)
+TestShopkeeperNPC::TestShopkeeperNPC(Game* game)
+    : DialogNPC(game)
 {
     // Set position (can be adjusted as needed)
     SetPosition(Vector2(400.0f, 400.0f));
@@ -41,7 +41,7 @@ TestNPC::TestNPC(Game* game)
     AddTradeOffer(trade2);
 }
 
-TestNPC::~TestNPC()
+TestShopkeeperNPC::~TestShopkeeperNPC()
 {
 }
 

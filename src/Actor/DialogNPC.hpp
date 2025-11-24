@@ -49,11 +49,11 @@ struct TradeOffer
 };
 
 
-class NPC : public Actor
+class DialogNPC : public Actor
 {
 public:
-    NPC(class Game* game);
-    virtual ~NPC();
+    DialogNPC(class Game* game);
+    virtual ~DialogNPC();
 
     void OnUpdate(float deltaTime) override;
     void OnDraw(class TextRenderer* textRenderer) override;
