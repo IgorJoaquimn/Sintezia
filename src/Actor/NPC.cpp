@@ -285,6 +285,33 @@ void NPC::OnTradeMenuSelected()
                        std::to_string(trade.reward.quantity);
             }
 
+            // Add requirements info
+            if (!trade.requirements.empty())
+            {
+                desc += "\n  For: ";
+                for (size_t i = 0; i < trade.requirements.size(); i++)
+                {
+                    const Item* reqItem = crafting ? crafting->FindItemById(trade.requirements[i].itemId) : nullptr;
+
+                    if (reqItem)
+                    {
+                        desc += reqItem->emoji + " " + reqItem->name + " x" +
+                               std::to_string(trade.requirements[i].quantity);
+                    }
+                    else
+                    {
+                        desc += "Item #" + std::to_string(trade.requirements[i].itemId) + " x" +
+                               std::to_string(trade.requirements[i].quantity);
+                    }
+
+                    // Add comma if not the last item
+                    if (i < trade.requirements.size() - 1)
+                    {
+                        desc += ", ";
+                    }
+                }
+            }
+
             tradeDescs.push_back(desc);
         }
         mDialogUI->ShowTradeMenu(tradeDescs);
