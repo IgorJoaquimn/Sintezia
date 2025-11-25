@@ -8,6 +8,8 @@
 #include "../../../Component/SpriteComponent.hpp"
 #include "../../../Crafting/Crafting.hpp"
 #include "../../../Crafting/Item.hpp"
+#include "../../../Actor/Player.hpp"
+#include "../../../Game/Inventory.hpp"
 #include <cmath>
 #include <algorithm>
 #include <SDL.h>
@@ -298,10 +300,102 @@ void DialogNPC::OnTradeOptionSelected(int index)
 {
     if (index >= 0 && index < static_cast<int>(mTradeOffers.size()))
     {
-        // For now, just show a confirmation message
-        // In a full implementation, this would check player inventory
-        // and execute the trade
-        mDialogUI->ShowMessage("Trade executed! (Inventory system not yet implemented)");
+        const TradeOffer& trade = mTradeOffers[index];
+        
+        // Get player and inventory
+        Player* player = mGame->GetPlayer();
+        if (!player)
+        {
+            mDialogUI->ShowMessage("Error: Player not found!");
+            return;
+        }
+        
+        Inventory* inventory = player->GetInventory();
+        if (!inventory)
+        {
+            mDialogUI->ShowMessage("Error: Inventory not found!");
+            return;
+        }
+        
+        // Check if player has all required items
+        bool hasAllItems = true;
+        std::string missingItems;
+        auto* crafting = mGame->GetCrafting();
+        
+        for (const auto& req : trade.requirements)
+        {
+            if (!inventory->HasItem(req.itemId, req.quantity))
+            {
+                hasAllItems = false;
+                const Item* item = crafting ? crafting->FindItemById(req.itemId) : nullptr;
+                
+                if (!missingItems.empty())
+                    missingItems += ", ";
+                    
+                if (item)
+                {
+                    missingItems += item->emoji + " " + item->name + " x" + std::to_string(req.quantity);
+                }
+                else
+                {
+                    missingItems += "Item #" + std::to_string(req.itemId) + " x" + std::to_string(req.quantity);
+                }
+            }
+        }
+        
+        // If player doesn't have all items, show error message
+        if (!hasAllItems)
+        {
+            mDialogUI->ShowMessage("You don't have the required items!\nMissing: " + missingItems);
+            return;
+        }
+        
+        // Remove required items from inventory
+        for (const auto& req : trade.requirements)
+        {
+            inventory->RemoveItem(req.itemId, req.quantity);
+        }
+        
+        // Add reward item to inventory
+        const Item* rewardItem = crafting ? crafting->FindItemById(trade.reward.itemId) : nullptr;
+        if (rewardItem)
+        {
+            bool success = inventory->AddItem(*rewardItem, trade.reward.quantity);
+            
+            if (success)
+            {
+                std::string successMsg = "Trade successful!\nYou received: " +
+                                        rewardItem->emoji + " " + rewardItem->name +
+                                        " x" + std::to_string(trade.reward.quantity);
+                mDialogUI->ShowMessage(successMsg);
+            }
+            else
+            {
+                // Inventory full - refund the items
+                for (const auto& req : trade.requirements)
+                {
+                    const Item* reqItem = crafting->FindItemById(req.itemId);
+                    if (reqItem)
+                    {
+                        inventory->AddItem(*reqItem, req.quantity);
+                    }
+                }
+                mDialogUI->ShowMessage("Your inventory is full! Trade cancelled.");
+            }
+        }
+        else
+        {
+            // Invalid reward item - refund
+            for (const auto& req : trade.requirements)
+            {
+                const Item* reqItem = crafting->FindItemById(req.itemId);
+                if (reqItem)
+                {
+                    inventory->AddItem(*reqItem, req.quantity);
+                }
+            }
+            mDialogUI->ShowMessage("Error: Invalid reward item! Trade cancelled.");
+        }
     }
 }
 

@@ -18,6 +18,7 @@
 #include "../Core/Texture/SpriteRenderer.hpp"
 #include "../Core/RenderUtils.hpp"
 #include "../Crafting/Crafting.hpp"
+#include "Inventory.hpp"
 #include <algorithm>
 
 Game::Game()
@@ -124,6 +125,24 @@ bool Game::Initialize()
     auto player = std::make_unique<Player>(this);
     mPlayer = player.get(); // Safe: player ownership transferred to mActors, pointer valid for game lifetime
     AddActor(std::move(player));
+    
+    // Give player some starting items for testing trades
+    if (mPlayer && mPlayer->GetInventory() && mCrafting)
+    {
+        // Add some basic elements that the shopkeeper wants
+        const Item* water = mCrafting->FindItemById(1);  // Water
+        const Item* fire = mCrafting->FindItemById(2);   // Fire
+        const Item* earth = mCrafting->FindItemById(3);  // Earth
+        
+        if (water)
+            mPlayer->GetInventory()->AddItem(*water, 5);  // 5 water
+        if (fire)
+            mPlayer->GetInventory()->AddItem(*fire, 5);   // 5 fire
+        if (earth)
+            mPlayer->GetInventory()->AddItem(*earth, 3);  // 3 earth
+            
+        SDL_Log("Added starting items to player inventory");
+    }
 
     // Create test shopkeeper NPC (dialog NPC with trading)
     auto testShopkeeperNPC = std::make_unique<TestShopkeeperNPC>(this);
