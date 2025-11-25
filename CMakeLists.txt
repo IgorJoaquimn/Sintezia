@@ -36,6 +36,7 @@ set(SOURCES
     ${SRC_DIR}/main.cpp
     ${SRC_DIR}/MathUtils.cpp
     ${SRC_DIR}/Game/Game.cpp
+    ${SRC_DIR}/Game/Inventory.cpp
     ${SRC_DIR}/Actor/Actor.cpp
     ${SRC_DIR}/Actor/TextActor.cpp
     ${SRC_DIR}/Actor/ItemActor.cpp
@@ -64,6 +65,7 @@ set(SOURCES
     ${SRC_DIR}/Crafting/Item.cpp
     ${SRC_DIR}/Crafting/Crafting.cpp
     ${SRC_DIR}/UI/NPCDialogUI.cpp
+    ${SRC_DIR}/UI/InventoryUI.cpp
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES})

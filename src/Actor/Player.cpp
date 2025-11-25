@@ -1,5 +1,7 @@
 #include "Player.hpp"
 #include "../Game/Game.hpp"
+#include "../Game/Inventory.hpp"
+#include "../UI/InventoryUI.hpp"
 #include "../Core/Texture/SpriteRenderer.hpp"
 #include "../Component/PlayerInputComponent.hpp"
 #include "../Component/MovementComponent.hpp"
@@ -20,6 +22,8 @@ Player::Player(Game* game)
     , mAttackComponent(nullptr)
     , mAttackTimer(0.0f)
     , mLastDirection(0)
+    , mInventory(std::make_unique<Inventory>(20))  // 20 inventory slots
+    , mInventoryUI(nullptr)
 {
     SetPosition(Vector2(640.0f, 360.0f)); // Center of screen
     
@@ -65,6 +69,10 @@ Player::Player(Game* game)
     // Configure animation component
     mAnimationComponent->SetFrameCount(1); // Default to 1 frame, updated in OnProcessInput
     mAnimationComponent->SetAnimSpeed(ANIM_SPEED);
+    
+    // Create inventory UI
+    mInventoryUI = std::make_unique<InventoryUI>(game, mInventory.get());
+    mInventoryUI->SetPosition(Vector2(200.0f, 150.0f));
     
     // Load all textures
     LoadTextures();
@@ -137,6 +145,18 @@ void Player::LoadTextures()
 
 void Player::OnProcessInput(const Uint8* keyState)
 {
+    // Handle inventory UI input first (if visible, it consumes input)
+    if (mInventoryUI)
+    {
+        mInventoryUI->HandleInput(keyState);
+        
+        // If inventory is visible, don't process game input
+        if (mInventoryUI->IsVisible())
+        {
+            return;
+        }
+    }
+
     // Input component handles this via Actor::ProcessInput
     // Just need to update state based on input component
     if (mInputComponent)
@@ -198,6 +218,12 @@ void Player::OnProcessInput(const Uint8* keyState)
 
 void Player::OnUpdate(float deltaTime)
 {
+    // Update inventory UI
+    if (mInventoryUI)
+    {
+        mInventoryUI->Update(deltaTime);
+    }
+
     // Handle attack timer
     if (mState == PlayerState::Attacking)
     {
@@ -309,4 +335,33 @@ void Player::OnDraw(TextRenderer* textRenderer)
         
         mSpriteComponent->Draw(spriteRenderer);
     }
+
+    // Draw inventory UI on top of player
+    if (mInventoryUI)
+    {
+        auto* rectRenderer = mGame->GetRectRenderer();
+        mInventoryUI->Draw(textRenderer, rectRenderer);
+    }
+}
+
+bool Player::PickupItem(const Item& item, int quantity)
+{
+    if (!mInventory)
+        return false;
+    
+    return mInventory->AddItem(item, quantity);
+}
+
+bool Player::UseItem(int itemId)
+{
+    if (!mInventory)
+        return false;
+    
+    // Check if player has the item
+    if (!mInventory->HasItem(itemId, 1))
+        return false;
+    
+    // TODO: Implement item usage logic based on item type
+    // For now, just remove one from inventory
+    return mInventory->RemoveItem(itemId, 1);
 }

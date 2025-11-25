@@ -16,6 +16,8 @@ class SpriteComponent;
 class HealthComponent;
 class AttackComponent;
 class Texture;
+class Inventory;
+class InventoryUI;
 
 enum class PlayerState
 {
@@ -39,6 +41,15 @@ public:
     // State
     PlayerState GetState() const { return mState; }
     
+    // Inventory access
+    Inventory* GetInventory() { return mInventory.get(); }
+    const Inventory* GetInventory() const { return mInventory.get(); }
+    InventoryUI* GetInventoryUI() { return mInventoryUI.get(); }
+    
+    // Item interaction
+    bool PickupItem(const class Item& item, int quantity = 1);
+    bool UseItem(int itemId);
+    
 private:
     void LoadTextures();
     std::shared_ptr<Texture> GetTextureForState(PlayerState state, int direction, int frame);
@@ -54,6 +65,10 @@ private:
     PlayerState mState;
     float mAttackTimer;
     int mLastDirection;
+
+    // Inventory system
+    std::unique_ptr<Inventory> mInventory;
+    std::unique_ptr<InventoryUI> mInventoryUI;
 
     // Textures
     std::map<std::string, std::shared_ptr<Texture>> mTextures;
