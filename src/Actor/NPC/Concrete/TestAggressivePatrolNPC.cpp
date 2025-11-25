@@ -7,15 +7,10 @@ TestAggressivePatrolNPC::TestAggressivePatrolNPC(Game* game)
     // Configure sprite to use Skeleton sprite sheet from tsx
     LoadSpriteSheetFromTSX("assets/tiled/tilesets/Skeleton.tsx");
 
-    // Configure custom row mappings for Skeleton.png sprite sheet
-    // Layout: 0=idle_down, 1=idle_right, 2=idle_up, 3=walk_down, 4=walk_right, 5=walk_up
-    // We'll reuse animations for left direction (flip right animations)
-    SetIdleRows(0, 1, 1, 2);  // idle: down, left(use right), right, up
-    SetWalkRows(3, 4, 4, 5);  // walk: down, left(use right), right, up
-
-    // Configure attack animation rows
-    // attack: down, left, right, up
-    SetAttackRows(6, 7, 7, 8);  // attack: down, left(use right), right, up
+    // Skeleton sprite layout (column-based, now default):
+    // Columns: 0=Down, 1=Up, 2=Left, 3=Right
+    // Rows 0-3: Walk animation frames (4 frames total)
+    // All defaults are now set for column-based animation
 
     // Set initial position and anchor
     SetPosition(Vector2(700.0f, 300.0f));

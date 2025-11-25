@@ -51,9 +51,6 @@ public:
     bool UseItem(int itemId);
     
 private:
-    void LoadTextures();
-    std::shared_ptr<Texture> GetTextureForState(PlayerState state, int direction, int frame);
-
     // Components
     PlayerInputComponent* mInputComponent;
     MovementComponent* mMovementComponent;
@@ -69,9 +66,6 @@ private:
     // Inventory system
     std::unique_ptr<Inventory> mInventory;
     std::unique_ptr<InventoryUI> mInventoryUI;
-
-    // Textures
-    std::map<std::string, std::shared_ptr<Texture>> mTextures;
 
     // Animation constants
     static constexpr float ANIM_SPEED = 8.0f; // Frames per second

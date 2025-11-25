@@ -7,15 +7,10 @@ TestPassivePatrolNPC::TestPassivePatrolNPC(Game* game)
     // Configure sprite to use Cavegirl sprite sheet from tsx
     LoadSpriteSheetFromTSX("assets/tiled/tilesets/Cavegirl.tsx");
 
-    // Cavegirl sprite layout (column-based):
+    // Cavegirl sprite layout (column-based, now default):
     // Columns: 0=Down, 1=Up, 2=Left, 3=Right
     // Rows 0-3: Walk animation frames (4 frames total)
-    // Row 4: Attack, Row 5: Death
-    // All 4 rows (0-3) are used for walking animation
-    SetIdleRows(0, 0, 0, 0);     // Idle uses row 0 (first frame of walk)
-    SetWalkRows(0, 0, 0, 0);     // Walk starts at row 0 (cycles through 0-3)
-    SetUseColumnBasedDirection(true);  // Direction is in columns, not rows
-    SetUseHorizontalFlip(false);       // No flipping needed
+    // All defaults are now set for column-based animation
 
     // Set initial position and anchor
     SetPosition(Vector2(300.0f, 300.0f));

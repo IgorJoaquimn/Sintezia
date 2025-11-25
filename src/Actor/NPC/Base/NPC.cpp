@@ -13,17 +13,18 @@ NPC::NPC(Game* game)
     , mMovementComponent(nullptr)
     , mSpriteWidth(16)
     , mSpriteHeight(16)
-    , mIdleFrames(6)
-    , mWalkFrames(6)
+    , mIdleFrames(1)
+    , mWalkFrames(4)
     , mAnimSpeed(8.0f)
     , mCurrentDirection(0)
     , mIsMoving(false)
-    , mUseHorizontalFlip(true)
-    , mUseColumnBasedDirection(false)
+    , mUseHorizontalFlip(false)
+    , mUseColumnBasedDirection(true)
 {
-    // Initialize default animation row mappings
-    mIdleRows[0] = 0; mIdleRows[1] = 1; mIdleRows[2] = 2; mIdleRows[3] = 3;
-    mWalkRows[0] = 4; mWalkRows[1] = 5; mWalkRows[2] = 6; mWalkRows[3] = 7;
+    // Initialize default animation row mappings for column-based sprites
+    // For column-based: each direction is a column, idle=row0, walk=rows0-3
+    mIdleRows[0] = 0; mIdleRows[1] = 0; mIdleRows[2] = 0; mIdleRows[3] = 0;
+    mWalkRows[0] = 0; mWalkRows[1] = 0; mWalkRows[2] = 0; mWalkRows[3] = 0;
 
     // Create and add components
     mAnimationComponent = AddComponent<AnimationComponent>();
@@ -67,7 +68,7 @@ void NPC::SetSpriteConfiguration(int width, int height, int idleFrames, int walk
     if (mSpriteComponent)
     {
         mSpriteComponent->SetSpriteSize(width, height);
-        mSpriteComponent->SetRenderSize(80.0f);
+        mSpriteComponent->SetRenderSize(64.0f);
     }
 
     if (mAnimationComponent)

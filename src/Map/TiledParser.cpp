@@ -155,11 +155,6 @@ bool TiledParser::ParseTSX(const std::string& tsxPath, TilesetInfo& tileset)
         return false;
     }
     
-    std::cout << "Loaded TSX tileset: " << tsxPath << std::endl;
-    std::cout << "  Image: " << tileset.imagePath << std::endl;
-    std::cout << "  Tile size: " << tileset.tileWidth << "x" << tileset.tileHeight << std::endl;
-    std::cout << "  Tiles: " << tileset.tileCount << " (" << tileset.columns << " columns)" << std::endl;
-    
     // Count collision tiles
     int collisionCount = 0;
     for (bool hasCollision : tileset.tileCollisions)

@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.10" tiledversion="1.11.2" name="Skeleton" tilewidth="32" tileheight="32" tilecount="60" columns="6">
- <image source="../../third_party/Cute_Fantasy_Free/Enemies/Skeleton.png" width="192" height="320"/>
+<tileset version="1.10" tiledversion="1.11.2" name="Skeleton" tilewidth="16" tileheight="16" tilecount="28" columns="4">
+ <image source="../../third_party/Ninja Adventure - Asset Pack/Actor/Characters/Skeleton/SpriteSheet.png" width="64" height="112"/>
 </tileset>
