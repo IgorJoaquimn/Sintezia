@@ -11,6 +11,7 @@
 #include "../Actor/NPC/Concrete/TestShopkeeperNPC.hpp"
 #include "../Actor/NPC/Concrete/TestPassivePatrolNPC.hpp"
 #include "../Actor/NPC/Concrete/TestAggressivePatrolNPC.hpp"
+#include "../Actor/NPC/Concrete/CatNPC.hpp"
 #include "../Map/TileMap.hpp"
 #include "../Core/Renderer/Renderer.hpp"
 #include "../Core/TextRenderer/TextRenderer.hpp"
@@ -156,6 +157,11 @@ bool Game::Initialize()
     // Create test aggressive patrol NPC (patrols and chases player)
     auto testAggressivePatrolNPC = std::make_unique<TestAggressivePatrolNPC>(this);
     AddActor(std::move(testAggressivePatrolNPC));
+
+    // Create cat NPC (friendly dialog NPC with simple animation)
+    auto catNPC = std::make_unique<CatNPC>(this);
+    RegisterNPC(catNPC.get());
+    AddActor(std::move(catNPC));
 
     // Set different text color for variety
     mTextRenderer->SetTextColor(1.0f, 1.0f, 1.0f); // White
