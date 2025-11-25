@@ -7,6 +7,10 @@
 #include "../Actor/TextActor.hpp"
 #include "../Actor/ItemActor.hpp"
 #include "../Actor/Player.hpp"
+#include "../Actor/DialogNPC.hpp"
+#include "../Actor/TestShopkeeperNPC.hpp"
+#include "../Actor/TestPassivePatrolNPC.hpp"
+#include "../Actor/TestAggressivePatrolNPC.hpp"
 #include "../Map/TileMap.hpp"
 #include "../Core/Renderer/Renderer.hpp"
 #include "../Core/TextRenderer/TextRenderer.hpp"
@@ -14,7 +18,6 @@
 #include "../Core/Texture/SpriteRenderer.hpp"
 #include "../Core/RenderUtils.hpp"
 #include "../Crafting/Crafting.hpp"
-#include <iostream>
 #include <algorithm>
 
 Game::Game()
@@ -30,14 +33,12 @@ Game::Game()
     , mIsRunning(true)
     , mUpdatingActors(false)
     , mPlayer(nullptr)
+    , mInteractingNPC(nullptr)
     , mMousePos(Vector2::Zero)
 {
 }
 
-Game::~Game()
-{
-    // Destructor defined here where TileMap is complete
-}
+Game::~Game() = default;
 
 bool Game::Initialize()
 {
@@ -121,8 +122,21 @@ bool Game::Initialize()
     
     // Create player
     auto player = std::make_unique<Player>(this);
-    mPlayer = player.get();
+    mPlayer = player.get(); // Safe: player ownership transferred to mActors, pointer valid for game lifetime
     AddActor(std::move(player));
+
+    // Create test shopkeeper NPC (dialog NPC with trading)
+    auto testShopkeeperNPC = std::make_unique<TestShopkeeperNPC>(this);
+    RegisterNPC(testShopkeeperNPC.get());
+    AddActor(std::move(testShopkeeperNPC));
+
+    // Create test passive patrol NPC (patrols in a loop)
+    auto testPassivePatrolNPC = std::make_unique<TestPassivePatrolNPC>(this);
+    AddActor(std::move(testPassivePatrolNPC));
+
+    // Create test aggressive patrol NPC (patrols and chases player)
+    auto testAggressivePatrolNPC = std::make_unique<TestAggressivePatrolNPC>(this);
+    AddActor(std::move(testAggressivePatrolNPC));
 
     // Set different text color for variety
     mTextRenderer->SetTextColor(1.0f, 1.0f, 1.0f); // White
@@ -151,27 +165,78 @@ void Game::ProcessInput()
             case SDL_QUIT:
                 Quit();
                 break;
+            default:
+                // Ignore other events
+                break;
         }
     }
     
     // Process keyboard state for player movement
     const Uint8* keyState = SDL_GetKeyboardState(nullptr);
-    if (keyState[SDL_SCANCODE_ESCAPE])
+
+    // Check for NPC interaction
+    if (mInteractingNPC && mInteractingNPC->IsInteracting())
     {
-        Quit();
+        // If interacting with an NPC, pass input to the NPC
+        mInteractingNPC->HandleInteractionInput(keyState);
     }
-    
-    if (mPlayer)
+    else
     {
-        mPlayer->ProcessInput(keyState);
+        // Static variable to track E key press
+        static bool eKeyPressed = false;
+
+        // Check for nearby NPCs and show interaction indicator
+        DialogNPC* nearbyNPC = nullptr;
+        if (mPlayer)
+        {
+            for (DialogNPC* npc : mNPCs)
+            {
+                if (npc->CanInteract(mPlayer->GetPosition()))
+                {
+                    nearbyNPC = npc;
+                    npc->ShowInteractionIndicator(mPlayer->GetPosition());
+                    break;
+                }
+                else
+                {
+                    npc->HideInteractionIndicator();
+                }
+            }
+        }
+
+        // Check for E key press to interact with nearby NPCs
+        if (keyState[SDL_SCANCODE_E] && !eKeyPressed)
+        {
+            eKeyPressed = true;
+
+            if (nearbyNPC)
+            {
+                nearbyNPC->StartInteraction();
+                mInteractingNPC = nearbyNPC;
+            }
+        }
+        else if (!keyState[SDL_SCANCODE_E])
+        {
+            eKeyPressed = false;
+        }
+
+        // Process player input only when not interacting
+        if (mPlayer)
+        {
+            mPlayer->ProcessInput(keyState);
+        }
     }
 }
 
 void Game::UpdateGame()
 {
-    while (!SDL_TICKS_PASSED(SDL_GetTicks(), mTicksCount + 16));
+    // Wait until 16ms have passed (frame limiting)
+    while (!SDL_TICKS_PASSED(SDL_GetTicks(), mTicksCount + 16))
+    {
+        // Busy wait
+    }
 
-    float deltaTime = (SDL_GetTicks() - mTicksCount) / 1000.0f;
+    float deltaTime = static_cast<float>(SDL_GetTicks() - mTicksCount) / 1000.0f;
     if (deltaTime > 0.05f)
     {
         deltaTime = 0.05f;
@@ -306,6 +371,24 @@ void Game::Shutdown()
 
     SDL_DestroyWindow(mWindow);
     SDL_Quit();
+}
+
+void Game::RegisterNPC(DialogNPC* npc)
+{
+    mNPCs.push_back(npc);
+}
+
+void Game::UnregisterNPC(DialogNPC* npc)
+{
+    auto it = std::find(mNPCs.begin(), mNPCs.end(), npc);
+    if (it != mNPCs.end())
+    {
+        if (mInteractingNPC == npc)
+        {
+            mInteractingNPC = nullptr;
+        }
+        mNPCs.erase(it);
+    }
 }
 
 void Game::CombineItems(ItemActor* item1, ItemActor* item2)

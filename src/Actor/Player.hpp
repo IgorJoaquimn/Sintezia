@@ -13,6 +13,8 @@ class PlayerInputComponent;
 class MovementComponent;
 class AnimationComponent;
 class SpriteComponent;
+class HealthComponent;
+class AttackComponent;
 class Texture;
 
 enum class PlayerState
@@ -31,7 +33,7 @@ public:
     ~Player();
     
     void OnProcessInput(const Uint8* keyState) override;
-    void OnUpdate(float deltaTime);
+    void OnUpdate(float deltaTime) override;
     void OnDraw(class TextRenderer* textRenderer) override;
     
     // State
@@ -46,10 +48,13 @@ private:
     MovementComponent* mMovementComponent;
     AnimationComponent* mAnimationComponent;
     SpriteComponent* mSpriteComponent;
-    
+    HealthComponent* mHealthComponent;
+    AttackComponent* mAttackComponent;
+
     PlayerState mState;
     float mAttackTimer;
-    
+    int mLastDirection;
+
     // Textures
     std::map<std::string, std::shared_ptr<Texture>> mTextures;
 

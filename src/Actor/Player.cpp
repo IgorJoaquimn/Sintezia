@@ -5,6 +5,8 @@
 #include "../Component/MovementComponent.hpp"
 #include "../Component/AnimationComponent.hpp"
 #include "../Component/SpriteComponent.hpp"
+#include "../Component/HealthComponent.hpp"
+#include "../Component/AttackComponent.hpp"
 #include "../Core/Texture/Texture.hpp"
 
 Player::Player(Game* game)
@@ -14,7 +16,10 @@ Player::Player(Game* game)
     , mMovementComponent(nullptr)
     , mAnimationComponent(nullptr)
     , mSpriteComponent(nullptr)
+    , mHealthComponent(nullptr)
+    , mAttackComponent(nullptr)
     , mAttackTimer(0.0f)
+    , mLastDirection(0)
 {
     SetPosition(Vector2(640.0f, 360.0f)); // Center of screen
     
@@ -23,7 +28,40 @@ Player::Player(Game* game)
     mMovementComponent = AddComponent<MovementComponent>();
     mAnimationComponent = AddComponent<AnimationComponent>();
     mSpriteComponent = AddComponent<SpriteComponent>(200); // Higher update order for rendering
-    
+    mHealthComponent = AddComponent<HealthComponent>();
+    mAttackComponent = AddComponent<AttackComponent>();
+
+    // Configure health component
+    mHealthComponent->SetMaxHealth(100.0f);
+    mHealthComponent->SetCurrentHealth(100.0f);
+    mHealthComponent->SetDeathCallback([this]() {
+        // Player death - quit game
+        mGame->Quit();
+    });
+
+    // Configure attack component
+    AttackConfig attackConfig;
+    attackConfig.damage = 20.0f;
+    attackConfig.cooldown = 0.5f;
+    attackConfig.range = 100.0f;
+    attackConfig.knockback = 280.0f;
+    attackConfig.attackDuration = ATTACK_DURATION;
+    // Player uses individual textures, not sprite sheet rows, so these won't be used
+    mAttackComponent->SetAttackConfig(attackConfig);
+
+    // Set attack callbacks
+    mAttackComponent->SetAttackStartCallback([this](int direction) {
+        mState = PlayerState::Attacking;
+        mAttackTimer = ATTACK_DURATION;
+        if (mMovementComponent) mMovementComponent->SetVelocity(Vector2::Zero);
+    });
+
+    mAttackComponent->SetAttackEndCallback([this]() {
+        if (mState == PlayerState::Attacking) {
+            mState = PlayerState::Idle;
+        }
+    });
+
     // Configure animation component
     mAnimationComponent->SetFrameCount(1); // Default to 1 frame, updated in OnProcessInput
     mAnimationComponent->SetAnimSpeed(ANIM_SPEED);
@@ -102,18 +140,23 @@ void Player::OnProcessInput(const Uint8* keyState)
     // Just need to update state based on input component
     if (mInputComponent)
     {
+        // Update last direction when moving
+        if (mInputComponent->IsMoving())
+        {
+            mLastDirection = mInputComponent->GetDirection();
+        }
+
         // Handle Attack State (Priority)
         if (mState == PlayerState::Attacking)
         {
-            // Attack is handled in OnUpdate via timer
+            // Attack is handled by AttackComponent
             return;
         }
 
-        if (mInputComponent->IsAttacking())
+        if (mInputComponent->IsAttacking() && mAttackComponent && mAttackComponent->CanAttack())
         {
-            mState = PlayerState::Attacking;
-            mAttackTimer = ATTACK_DURATION;
-            if (mMovementComponent) mMovementComponent->SetVelocity(Vector2::Zero);
+            // Start attack in the current facing direction
+            mAttackComponent->StartAttack(mLastDirection);
             return;
         }
 

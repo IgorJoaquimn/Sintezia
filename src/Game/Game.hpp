@@ -17,6 +17,7 @@
 // Forward declarations
 class TileMap;
 class Player;
+class DialogNPC;
 
 class Game
 {
@@ -52,6 +53,14 @@ public:
     // Get tilemap
     TileMap* GetTileMap() { return mTileMap.get(); }
     
+    // Get all actors (for collision/interaction checks)
+    const std::vector<std::unique_ptr<Actor>>& GetActors() const { return mActors; }
+
+    // NPC management
+    void RegisterNPC(DialogNPC* npc);
+    void UnregisterNPC(DialogNPC* npc);
+    DialogNPC* GetInteractingNPC() { return mInteractingNPC; }
+
     // Mouse state
     const Vector2& GetMousePosition() const { return mMousePos; }
 
@@ -88,6 +97,10 @@ private:
     // Game objects
     Player* mPlayer;
     
+    // NPC tracking
+    std::vector<DialogNPC*> mNPCs;
+    DialogNPC* mInteractingNPC;
+
     // Mouse state
     Vector2 mMousePos;
 };

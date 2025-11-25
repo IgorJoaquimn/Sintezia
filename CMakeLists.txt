@@ -40,6 +40,11 @@ set(SOURCES
     ${SRC_DIR}/Actor/TextActor.cpp
     ${SRC_DIR}/Actor/ItemActor.cpp
     ${SRC_DIR}/Actor/Player.cpp
+    ${SRC_DIR}/Actor/DialogNPC.cpp
+    ${SRC_DIR}/Actor/TestShopkeeperNPC.cpp
+    ${SRC_DIR}/Actor/PatrolNPC.cpp
+    ${SRC_DIR}/Actor/TestPassivePatrolNPC.cpp
+    ${SRC_DIR}/Actor/TestAggressivePatrolNPC.cpp
     ${SRC_DIR}/Map/TileMap.cpp
     ${SRC_DIR}/Map/TiledParser.cpp
     ${SRC_DIR}/Component/Component.cpp
@@ -47,6 +52,8 @@ set(SOURCES
     ${SRC_DIR}/Component/MovementComponent.cpp
     ${SRC_DIR}/Component/AnimationComponent.cpp
     ${SRC_DIR}/Component/SpriteComponent.cpp
+    ${SRC_DIR}/Component/HealthComponent.cpp
+    ${SRC_DIR}/Component/AttackComponent.cpp
     ${SRC_DIR}/Shader/ShaderProgram.cpp
     ${SRC_DIR}/Font/FontManager.cpp
     ${SRC_DIR}/Core/Renderer/Renderer.cpp
@@ -56,6 +63,7 @@ set(SOURCES
     ${SRC_DIR}/Core/Texture/SpriteRenderer.cpp
     ${SRC_DIR}/Crafting/Item.cpp
     ${SRC_DIR}/Crafting/Crafting.cpp
+    ${SRC_DIR}/UI/NPCDialogUI.cpp
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES})
