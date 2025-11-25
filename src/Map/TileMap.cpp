@@ -6,7 +6,9 @@
 #include <fstream>
 #include <sstream>
 #include <nlohmann/json.hpp>
-
+#include <SDL.h>
+#include <algorithm>
+#include <cctype>
 using json = nlohmann::json;
 
 TileMap::TileMap(int width, int height, int tileSize)
@@ -383,7 +385,7 @@ bool TileMap::IsWalkable(const Vector2& position) const
     
     if (tileX < 0 || tileX >= mWidth || tileY < 0 || tileY >= mHeight)
         return false;
-    
+
     return mTiles[tileY][tileX].walkable;
 }
 
@@ -443,6 +445,14 @@ bool TileMap::CheckCollision(const Vector2& position, float radius) const
                         if (localId < tileset.tileCollisions.size() && tileset.tileCollisions[localId])
                         {
                             return true; // This tile has collision
+                        }
+
+                        std::string imgPath = tileset.imagePath;
+                        std::string lowered = imgPath;
+                        std::transform(lowered.begin(), lowered.end(), lowered.begin(), [](unsigned char c){ return std::tolower(c); });
+                        if (lowered.find("water") != std::string::npos)
+                        {
+                            return true;
                         }
                         break;
                     }
