@@ -65,31 +65,31 @@ void Player::LoadTextures()
     };
 
     // Idle
-    load("idle_front", "character-0.png");
-    load("idle_back", "character-9.png");
-    load("idle_left", "character-10.png");
-    load("idle_right", "character-11.png");
+    load("idle_front", "idle.png");
+    load("idle_back", "idle-back.png");
+    load("idle_left", "idle-left.png");
+    load("idle_right", "idle-right.png");
 
         // Walk
-    load("walk_back_1", "character-1.png");
-    load("walk_back_2", "character-2.png");
-    load("walk_right_1", "character-3.png");
-    load("walk_right_2", "character-16.png");
-    load("walk_down_run_1", "character-17.png");
-    load("walk_down_run_2", "character-20.png");
-    load("walk_down_1", "character-7.png"); // Keeping these just in case
-    load("walk_down_2", "character-8.png");
+    load("walk_back_1", "run-back-1.png");
+    load("walk_back_2", "run-back-2.png");
+    load("walk_right_1", "run-right-1.png");
+    load("walk_right_2", "run-right-2.png");
+    load("walk_left_1", "run-left-1.png");
+    load("walk_left_2", "run-left-2.png");
+    load("walk_down_1", "run-1.png");
+    load("walk_down_2", "run-2.png");
 
     // Jump
     load("jump_back", "character-12.png");
-    load("jump_left", "character-13.png");
-    load("jump_right", "character-14.png");
+    load("jump_left", "jump-left.png");
+    load("jump_right", "jump-right.png");
 
     // Crouch (Abaixar)
-    load("crouch_back", "character-18.png");
-    load("crouch_left", "character-7.png");  // Reusing down_left
-    load("crouch_right", "character-8.png"); // Reusing down_right
-    load("crouch_front", "character-19.png");
+    load("crouch_back", "down-back.png");
+    load("crouch_left", "down-left.png");  
+    load("crouch_right", "down-right.png");
+    load("crouch_front", "down.png");
 
     // Attack
     load("attack_left", "character-4.png");
@@ -215,13 +215,13 @@ std::shared_ptr<Texture> Player::GetTextureForState(PlayerState state, int direc
         {
             case 0: // Down
                 // Alternate between Run Front 1 and Run Front 2
-                return (animFrame == 0) ? mTextures["walk_down_run_1"] : mTextures["walk_down_run_2"];
+                return (animFrame == 0) ? mTextures["walk_down_1"] : mTextures["walk_down_2"];
             case 1: // Right
                 return (animFrame == 0) ? mTextures["walk_right_1"] : mTextures["walk_right_2"];
             case 2: // Up
                 return (animFrame == 0) ? mTextures["walk_back_1"] : mTextures["walk_back_2"];
             case 3: // Left - Use Right textures and flip
-                return (animFrame == 0) ? mTextures["walk_right_1"] : mTextures["walk_right_2"];
+                return (animFrame == 0) ? mTextures["walk_left_1"] : mTextures["walk_left_2"];
         }
     }
     
@@ -260,8 +260,8 @@ void Player::OnDraw(TextRenderer* textRenderer)
         // Attack Left has its own texture
         // Jump Left has its own texture
         // Crouch Left uses Down Left (character-7) which is its own texture
-        bool flip = (mState == PlayerState::Walking && direction == 3);
-        mSpriteComponent->SetFlipHorizontal(flip);
+        // bool flip = (mState == PlayerState::Walking && direction == 3);
+        // mSpriteComponent->SetFlipHorizontal(flip);
         
         mSpriteComponent->Draw(spriteRenderer);
     }
