@@ -119,7 +119,8 @@ void Player::LoadTextures()
     load("walk_down_2", "run-2.png");
 
     // Jump
-    load("jump_back", "character-12.png");
+    load("jump_front", "jump.png");
+    load("jump_back", "jump-back.png");
     load("jump_left", "jump-left.png");
     load("jump_right", "jump-right.png");
 
@@ -224,7 +225,7 @@ std::shared_ptr<Texture> Player::GetTextureForState(PlayerState state, int direc
     {
         switch (direction)
         {
-            case 0: return mTextures["idle_front"]; // No jump front, use idle
+            case 0: return mTextures["jump_front"];
             case 1: return mTextures["jump_right"];
             case 2: return mTextures["jump_back"];
             case 3: return mTextures["jump_left"];
