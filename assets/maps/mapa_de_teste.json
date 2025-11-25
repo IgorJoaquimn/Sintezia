@@ -50,27 +50,27 @@
  "tilesets":[
         {
          "firstgid":1,
-         "source":"Beach_Tile.tsx"
+         "source":"../tiled/tilesets/Beach_Tile.tsx"
         }, 
         {
          "firstgid":16,
-         "source":"Water_Middle.tsx"
+         "source":"../tiled/tilesets/Water_Middle.tsx"
         }, 
         {
          "firstgid":17,
-         "source":"Cliff_Tile.tsx"
+         "source":"../tiled/tilesets/Cliff_Tile.tsx"
         }, 
         {
          "firstgid":35,
-         "source":"Path_Middle.tsx"
+         "source":"../tiled/tilesets/Path_Middle.tsx"
         }, 
         {
          "firstgid":36,
-         "source":"Water_Tile.tsx"
+         "source":"../tiled/tilesets/Water_Tile.tsx"
         }, 
         {
          "firstgid":54,
-         "source":"FarmLand_Tile.tsx"
+         "source":"../tiled/tilesets/FarmLand_Tile.tsx"
         }],
  "tilewidth":16,
  "type":"map",

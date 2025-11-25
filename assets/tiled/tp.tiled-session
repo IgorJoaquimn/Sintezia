@@ -3,7 +3,7 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "maps/mapa_de_teste.tmx",
+    "activeFile": "tilesets/Oak_Tree.tsx",
     "expandedProjectPaths": [
         ".",
         "tilesets",
@@ -26,8 +26,8 @@
             "scale": 2.5471874999999997,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 240.06870322659793,
-                "y": 149.96932891669732
+                "x": 239.87240829346092,
+                "y": 159.98037050668628
             }
         },
         "player cute.tsx": {
@@ -42,7 +42,19 @@
             "scaleInDock": 1,
             "scaleInEditor": 1
         },
+        "tilesets/Cliff_Tile.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "tilesets/FarmLand_Tile.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
         "tilesets/Oak_Tree.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "tilesets/Path_Middle.tsx": {
             "scaleInDock": 1,
             "scaleInEditor": 1
         },
@@ -51,6 +63,18 @@
             "scaleInEditor": 1
         },
         "tilesets/Player.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "tilesets/Skeleton.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "tilesets/Water_Middle.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "tilesets/Water_Tile.tsx": {
             "scaleInDock": 1,
             "scaleInEditor": 1
         },
@@ -80,22 +104,30 @@
         "maps/mapa_de_teste.tmx",
         "tilesets/Beach_Tile.tsx",
         "tilesets/Player.tsx",
-        "tilesets/Oak_Tree.tsx"
+        "tilesets/Oak_Tree.tsx",
+        "tilesets/Skeleton.tsx",
+        "tilesets/Cliff_Tile.tsx",
+        "tilesets/FarmLand_Tile.tsx",
+        "tilesets/Water_Tile.tsx",
+        "tilesets/Water_Middle.tsx",
+        "tilesets/Path_Tile.tsx",
+        "tilesets/Path_Middle.tsx"
     ],
     "project": "tp.tiled-project",
     "property.type": "bool",
     "recentFiles": [
-        "tilesets/Oak_Tree.tsx",
-        "tilesets/Player.tsx",
-        "tilesets/Beach_Tile.tsx",
         "maps/mapa_de_teste.tmx",
+        "tilesets/Beach_Tile.tsx",
+        "tilesets/Player.tsx",
+        "tilesets/Path_Middle.tsx",
         "tilesets/Path_Tile.tsx",
-        "tilesets/mapa_de_teste.tmx",
-        "tilesets/player cute.tsx",
-        "player cute.tsx",
-        "Path_Tile.tsx",
-        "Beach_Tile.tsx",
-        "player.tsx"
+        "tilesets/Water_Middle.tsx",
+        "tilesets/Water_Tile.tsx",
+        "tilesets/FarmLand_Tile.tsx",
+        "tilesets/Cliff_Tile.tsx",
+        "tilesets/Skeleton.tsx",
+        "tilesets/Oak_Tree.tsx",
+        "tilesets/mapa_de_teste.tmx"
     ],
     "tileset.lastUsedFormat": "tsx",
     "tileset.tileSize": {

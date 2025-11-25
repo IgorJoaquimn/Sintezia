@@ -45,9 +45,7 @@ bool Texture::Load(const std::string& fileName)
     // Use nearest-neighbor filtering for crisp pixel art (no blur)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    
-    std::cout << "Loaded texture: " << fileName << " (" << mWidth << "x" << mHeight << ")" << std::endl;
-    
+        
     return true;
 }
 
