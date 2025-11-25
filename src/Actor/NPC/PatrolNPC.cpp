@@ -10,6 +10,7 @@
 #include "../../Component/AttackComponent.hpp"
 #include <cmath>
 #include <algorithm>
+#include <fstream>
 
 PatrolNPC::PatrolNPC(Game* game, bool isAggressive)
     : Actor(game)
@@ -402,6 +403,89 @@ void PatrolNPC::LoadSpriteSheet(const std::string& filepath)
     {
         mSpriteComponent->LoadSpriteSheet(filepath);
     }
+}
+
+void PatrolNPC::LoadSpriteSheetFromTSX(const std::string& tsxPath)
+{
+    // Parse TSX file to get image path and tile dimensions
+    std::ifstream file(tsxPath);
+    if (!file.is_open())
+    {
+        SDL_Log("Failed to open TSX file: %s", tsxPath.c_str());
+        return;
+    }
+
+    std::string line;
+    std::string imagePath;
+    int tileWidth = 32, tileHeight = 32, columns = 6;
+
+    while (std::getline(file, line))
+    {
+        // Parse tileset tag for dimensions
+        if (line.find("<tileset") != std::string::npos)
+        {
+            size_t pos = line.find("tilewidth=\"");
+            if (pos != std::string::npos)
+            {
+                pos += 11;
+                size_t endPos = line.find("\"", pos);
+                tileWidth = std::stoi(line.substr(pos, endPos - pos));
+            }
+
+            pos = line.find("tileheight=\"");
+            if (pos != std::string::npos)
+            {
+                pos += 12;
+                size_t endPos = line.find("\"", pos);
+                tileHeight = std::stoi(line.substr(pos, endPos - pos));
+            }
+
+            pos = line.find("columns=\"");
+            if (pos != std::string::npos)
+            {
+                pos += 9;
+                size_t endPos = line.find("\"", pos);
+                columns = std::stoi(line.substr(pos, endPos - pos));
+            }
+        }
+
+        // Parse image tag for source
+        if (line.find("<image") != std::string::npos)
+        {
+            size_t pos = line.find("source=\"");
+            if (pos != std::string::npos)
+            {
+                pos += 8;
+                size_t endPos = line.find("\"", pos);
+                imagePath = line.substr(pos, endPos - pos);
+            }
+        }
+    }
+    file.close();
+
+    if (imagePath.empty())
+    {
+        SDL_Log("No image source found in TSX file: %s", tsxPath.c_str());
+        return;
+    }
+
+    // Resolve relative path
+    std::string basePath = tsxPath.substr(0, tsxPath.find_last_of("/\\") + 1);
+    std::string fullPath = basePath + imagePath;
+
+    // Clean up ../ in path
+    while (fullPath.find("../") != std::string::npos)
+    {
+        size_t pos = fullPath.find("../");
+        if (pos == 0) break;
+        size_t slashBefore = fullPath.rfind("/", pos - 2);
+        if (slashBefore == std::string::npos) break;
+        fullPath = fullPath.substr(0, slashBefore + 1) + fullPath.substr(pos + 3);
+    }
+
+    // Load the sprite sheet
+    LoadSpriteSheet(fullPath);
+    SetSpriteConfiguration(tileWidth, tileHeight, columns, columns, 8.0f);
 }
 
 void PatrolNPC::SetSpriteConfiguration(int width, int height, int idleFrames, int walkFrames, float animSpeed)

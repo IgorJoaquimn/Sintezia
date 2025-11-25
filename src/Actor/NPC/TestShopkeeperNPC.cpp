@@ -7,9 +7,8 @@ TestShopkeeperNPC::TestShopkeeperNPC(Game* game)
     // Set position (can be adjusted as needed)
     SetPosition(Vector2(400.0f, 400.0f));
 
-    // Configure sprite to use the same Player sprite sheet
-    LoadSpriteSheet("assets/third_party/Cute_Fantasy_Free/Player/Player.png");
-    SetSpriteConfiguration(32, 32, 6, 6, 8.0f);
+    // Configure sprite to use the same Player sprite sheet from tsx
+    LoadSpriteSheetFromTSX("assets/tiled/tilesets/Player.tsx");
 
     // Set greeting
     SetGreeting("Greetings, traveler! Welcome to my humble shop. How may I assist you today?");
