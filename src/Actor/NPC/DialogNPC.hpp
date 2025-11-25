@@ -77,7 +77,7 @@ public:
     void AddTradeOffer(const TradeOffer& offer);
 
     // Sprite configuration (similar to Player)
-    void LoadSpriteSheet(const std::string& filepath);
+    void LoadSpriteSheetFromTSX(const std::string& tsxPath);
     void SetSpriteConfiguration(int width, int height, int idleFrames, int walkFrames, float animSpeed);
 
 protected:

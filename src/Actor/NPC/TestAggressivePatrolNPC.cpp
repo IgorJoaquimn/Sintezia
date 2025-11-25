@@ -4,9 +4,8 @@
 TestAggressivePatrolNPC::TestAggressivePatrolNPC(Game* game)
     : PatrolNPC(game, true)  // true = aggressive
 {
-    // Configure sprite to use Skeleton sprite sheet
-    LoadSpriteSheet("assets/third_party/Cute_Fantasy_Free/Enemies/Skeleton.png");
-    SetSpriteConfiguration(32, 32, 6, 6, 8.0f);
+    // Configure sprite to use Skeleton sprite sheet from tsx
+    LoadSpriteSheetFromTSX("assets/tiled/tilesets/Skeleton.tsx");
 
     // Configure custom row mappings for Skeleton.png sprite sheet
     // Layout: 0=idle_down, 1=idle_right, 2=idle_up, 3=walk_down, 4=walk_right, 5=walk_up

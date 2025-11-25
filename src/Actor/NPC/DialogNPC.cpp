@@ -1,5 +1,6 @@
 #include "DialogNPC.hpp"
 #include "../../Game/Game.hpp"
+#include "../../Map/TiledParser.hpp"
 #include "../../Core/TextRenderer/TextRenderer.hpp"
 #include "../../Core/RectRenderer/RectRenderer.hpp"
 #include "../../Core/Texture/SpriteRenderer.hpp"
@@ -213,12 +214,21 @@ void DialogNPC::AddTradeOffer(const TradeOffer& offer)
     mTradeOffers.push_back(offer);
 }
 
-void DialogNPC::LoadSpriteSheet(const std::string& filepath)
+void DialogNPC::LoadSpriteSheetFromTSX(const std::string& tsxPath)
 {
+    TilesetInfo tileset;
+    if (!TiledParser::ParseTSX(tsxPath, tileset))
+    {
+        SDL_Log("Failed to load TSX file: %s", tsxPath.c_str());
+        return;
+    }
+
+    // Load the sprite sheet and configure
     if (mSpriteComponent)
     {
-        mSpriteComponent->LoadSpriteSheet(filepath);
+        mSpriteComponent->LoadSpriteSheet(tileset.imagePath);
     }
+    SetSpriteConfiguration(tileset.tileWidth, tileset.tileHeight, tileset.columns, tileset.columns, 8.0f);
 }
 
 void DialogNPC::SetSpriteConfiguration(int width, int height, int idleFrames, int walkFrames, float animSpeed)

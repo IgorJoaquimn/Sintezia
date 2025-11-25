@@ -50,7 +50,7 @@ public:
     void SetMaxChaseDistance(float distance) { mMaxChaseDistance = distance; }
 
     // Sprite configuration
-    void LoadSpriteSheet(const std::string& filepath);
+    void LoadSpriteSheetFromTSX(const std::string& tsxPath);
     void SetSpriteConfiguration(int width, int height, int idleFrames, int walkFrames, float animSpeed);
 
     // Animation row mapping (for custom sprite sheet layouts)

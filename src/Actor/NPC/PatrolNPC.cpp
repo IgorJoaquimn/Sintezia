@@ -1,6 +1,7 @@
 #include "PatrolNPC.hpp"
 #include "../../Game/Game.hpp"
 #include "../Player.hpp"
+#include "../../Map/TiledParser.hpp"
 #include "../../Core/TextRenderer/TextRenderer.hpp"
 #include "../../Core/Texture/SpriteRenderer.hpp"
 #include "../../Component/AnimationComponent.hpp"
@@ -396,12 +397,21 @@ void PatrolNPC::AddWaypoint(const Vector2& position, float waitTime)
     mWaypoints.emplace_back(position, waitTime);
 }
 
-void PatrolNPC::LoadSpriteSheet(const std::string& filepath)
+void PatrolNPC::LoadSpriteSheetFromTSX(const std::string& tsxPath)
 {
+    TilesetInfo tileset;
+    if (!TiledParser::ParseTSX(tsxPath, tileset))
+    {
+        SDL_Log("Failed to load TSX file: %s", tsxPath.c_str());
+        return;
+    }
+
+    // Load the sprite sheet and configure
     if (mSpriteComponent)
     {
-        mSpriteComponent->LoadSpriteSheet(filepath);
+        mSpriteComponent->LoadSpriteSheet(tileset.imagePath);
     }
+    SetSpriteConfiguration(tileset.tileWidth, tileset.tileHeight, tileset.columns, tileset.columns, 8.0f);
 }
 
 void PatrolNPC::SetSpriteConfiguration(int width, int height, int idleFrames, int walkFrames, float animSpeed)
