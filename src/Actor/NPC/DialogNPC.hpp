@@ -1,7 +1,7 @@
 #pragma once
-#include "Actor.hpp"
-#include "../MathUtils.h"
-#include "../UI/NPCDialogUI.hpp"
+#include "../Actor.hpp"
+#include "../../MathUtils.h"
+#include "../../UI/NPCDialogUI.hpp"
 #include <SDL.h>
 #include <string>
 #include <vector>

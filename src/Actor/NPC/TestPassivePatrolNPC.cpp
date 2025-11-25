@@ -1,5 +1,5 @@
 #include "TestPassivePatrolNPC.hpp"
-#include "../Game/Game.hpp"
+#include "../../Game/Game.hpp"
 
 TestPassivePatrolNPC::TestPassivePatrolNPC(Game* game)
     : PatrolNPC(game, false)  // false = not aggressive

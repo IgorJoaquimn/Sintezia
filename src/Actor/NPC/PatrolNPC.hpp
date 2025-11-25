@@ -1,6 +1,6 @@
 #pragma once
-#include "Actor.hpp"
-#include "../MathUtils.h"
+#include "../Actor.hpp"
+#include "../../MathUtils.h"
 #include <vector>
 #include <SDL.h>
 

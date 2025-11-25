@@ -1,5 +1,5 @@
 #include "TestShopkeeperNPC.hpp"
-#include "../Game/Game.hpp"
+#include "../../Game/Game.hpp"
 
 TestShopkeeperNPC::TestShopkeeperNPC(Game* game)
     : DialogNPC(game)

@@ -1,13 +1,13 @@
 #include "PatrolNPC.hpp"
-#include "../Game/Game.hpp"
-#include "../Actor/Player.hpp"
-#include "../Core/TextRenderer/TextRenderer.hpp"
-#include "../Core/Texture/SpriteRenderer.hpp"
-#include "../Component/AnimationComponent.hpp"
-#include "../Component/SpriteComponent.hpp"
-#include "../Component/MovementComponent.hpp"
-#include "../Component/HealthComponent.hpp"
-#include "../Component/AttackComponent.hpp"
+#include "../../Game/Game.hpp"
+#include "../Player.hpp"
+#include "../../Core/TextRenderer/TextRenderer.hpp"
+#include "../../Core/Texture/SpriteRenderer.hpp"
+#include "../../Component/AnimationComponent.hpp"
+#include "../../Component/SpriteComponent.hpp"
+#include "../../Component/MovementComponent.hpp"
+#include "../../Component/HealthComponent.hpp"
+#include "../../Component/AttackComponent.hpp"
 #include <cmath>
 #include <algorithm>
 
