@@ -1,5 +1,5 @@
 #pragma once
-#include "../Actor.hpp"
+#include "NPC.hpp"
 #include "../../MathUtils.h"
 #include "../../UI/NPCDialogUI.hpp"
 #include <SDL.h>
@@ -8,8 +8,6 @@
 #include <memory>
 
 // Forward declarations
-class AnimationComponent;
-class SpriteComponent;
 class Item;
 class InteractionIndicator;
 
@@ -49,7 +47,7 @@ struct TradeOffer
 };
 
 
-class DialogNPC : public Actor
+class DialogNPC : public NPC
 {
 public:
     DialogNPC(class Game* game);
@@ -76,10 +74,6 @@ public:
     void AddDialogOption(const std::string& text, const std::string& response);
     void AddTradeOffer(const TradeOffer& offer);
 
-    // Sprite configuration (similar to Player)
-    void LoadSpriteSheetFromTSX(const std::string& tsxPath);
-    void SetSpriteConfiguration(int width, int height, int idleFrames, int walkFrames, float animSpeed);
-
 protected:
     // NPC data
     std::string mGreeting;
@@ -89,17 +83,6 @@ protected:
     // UI Components
     std::unique_ptr<NPCDialogUI> mDialogUI;
     std::unique_ptr<InteractionIndicator> mInteractionIndicator;
-
-    // Components
-    AnimationComponent* mAnimationComponent;
-    SpriteComponent* mSpriteComponent;
-
-    // Sprite configuration
-    int mSpriteWidth;
-    int mSpriteHeight;
-    int mIdleFrames;
-    int mWalkFrames;
-    float mAnimSpeed;
 
     // Input handling helpers
     bool mKeyPressed[10];  // Track key states to prevent repeated input

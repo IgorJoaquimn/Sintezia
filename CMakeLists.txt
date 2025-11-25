@@ -41,6 +41,7 @@ set(SOURCES
     ${SRC_DIR}/Actor/TextActor.cpp
     ${SRC_DIR}/Actor/ItemActor.cpp
     ${SRC_DIR}/Actor/Player.cpp
+    ${SRC_DIR}/Actor/NPC/NPC.cpp
     ${SRC_DIR}/Actor/NPC/DialogNPC.cpp
     ${SRC_DIR}/Actor/NPC/TestShopkeeperNPC.cpp
     ${SRC_DIR}/Actor/NPC/PatrolNPC.cpp

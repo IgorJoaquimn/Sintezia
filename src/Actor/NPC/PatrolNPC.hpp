@@ -1,13 +1,10 @@
 #pragma once
-#include "../Actor.hpp"
+#include "NPC.hpp"
 #include "../../MathUtils.h"
 #include <vector>
 #include <SDL.h>
 
 // Forward declarations
-class AnimationComponent;
-class SpriteComponent;
-class MovementComponent;
 class HealthComponent;
 class AttackComponent;
 
@@ -28,7 +25,7 @@ enum class PatrolNPCState
     Returning       // Returning to anchor position after losing aggro
 };
 
-class PatrolNPC : public Actor
+class PatrolNPC : public NPC
 {
 public:
     PatrolNPC(class Game* game, bool isAggressive = false);
@@ -49,16 +46,7 @@ public:
     void SetChaseSpeed(float speed) { mChaseSpeed = speed; }
     void SetMaxChaseDistance(float distance) { mMaxChaseDistance = distance; }
 
-    // Sprite configuration
-    void LoadSpriteSheetFromTSX(const std::string& tsxPath);
-    void SetSpriteConfiguration(int width, int height, int idleFrames, int walkFrames, float animSpeed);
-
-    // Animation row mapping (for custom sprite sheet layouts)
-    // Set which rows correspond to idle animations for each direction
-    void SetIdleRows(int down, int left, int right, int up);
-    // Set which rows correspond to walk animations for each direction
-    void SetWalkRows(int down, int left, int right, int up);
-    // Set which rows correspond to attack animations for each direction
+    // Animation row mapping for attack animations
     void SetAttackRows(int down, int left, int right, int up);
 
     // State
@@ -73,7 +61,6 @@ protected:
     // Helper methods
     void MoveTowards(const Vector2& target, float speed, float deltaTime);
     void UpdateAnimation(const Vector2& velocity);
-    int GetDirectionRow(const Vector2& velocity) const;
     bool IsPlayerInRange(float range) const;
 
     // NPC state
@@ -94,27 +81,15 @@ protected:
     float mMaxChaseDistance;   // Max distance from NPC to chase player before giving up
 
     // Components
-    AnimationComponent* mAnimationComponent;
-    SpriteComponent* mSpriteComponent;
-    MovementComponent* mMovementComponent;
     HealthComponent* mHealthComponent;
     AttackComponent* mAttackComponent;
-
-    // Sprite configuration
-    int mSpriteWidth;
-    int mSpriteHeight;
-    int mIdleFrames;
-    int mWalkFrames;
-    float mAnimSpeed;
 
     // Animation state
     int mCurrentDirection;  // 0=down, 1=left, 2=right, 3=up
     bool mIsMoving;
     bool mIsAttackAnimPlaying;
 
-    // Custom animation row mappings (default assumes standard 8-row layout)
-    int mIdleRows[4];  // [down, left, right, up]
-    int mWalkRows[4];  // [down, left, right, up]
+    // Attack animation row mappings
     int mAttackRows[4]; // [down, left, right, up]
 };
 

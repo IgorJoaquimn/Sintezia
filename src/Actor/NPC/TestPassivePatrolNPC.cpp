@@ -4,14 +4,18 @@
 TestPassivePatrolNPC::TestPassivePatrolNPC(Game* game)
     : PatrolNPC(game, false)  // false = not aggressive
 {
-    // Configure sprite to use Player sprite sheet from tsx
-    LoadSpriteSheetFromTSX("assets/tiled/tilesets/Player.tsx");
+    // Configure sprite to use Cavegirl sprite sheet from tsx
+    LoadSpriteSheetFromTSX("assets/tiled/tilesets/Cavegirl.tsx");
 
-    // Configure custom row mappings for Player.png sprite sheet
-    // Layout: 0=idle_down, 1=idle_right, 2=idle_up, 3=walk_down, 4=walk_right, 5=walk_up
-    // We'll reuse animations for left direction (flip right animations)
-    SetIdleRows(0, 1, 1, 2);  // idle: down, left(use right), right, up
-    SetWalkRows(3, 4, 4, 5);  // walk: down, left(use right), right, up
+    // Cavegirl sprite layout (column-based):
+    // Columns: 0=Down, 1=Up, 2=Left, 3=Right
+    // Rows 0-3: Walk animation frames (4 frames total)
+    // Row 4: Attack, Row 5: Death
+    // All 4 rows (0-3) are used for walking animation
+    SetIdleRows(0, 0, 0, 0);     // Idle uses row 0 (first frame of walk)
+    SetWalkRows(0, 0, 0, 0);     // Walk starts at row 0 (cycles through 0-3)
+    SetUseColumnBasedDirection(true);  // Direction is in columns, not rows
+    SetUseHorizontalFlip(false);       // No flipping needed
 
     // Set initial position and anchor
     SetPosition(Vector2(300.0f, 300.0f));

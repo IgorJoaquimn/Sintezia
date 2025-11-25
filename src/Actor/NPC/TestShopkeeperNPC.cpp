@@ -7,8 +7,8 @@ TestShopkeeperNPC::TestShopkeeperNPC(Game* game)
     // Set position (can be adjusted as needed)
     SetPosition(Vector2(400.0f, 400.0f));
 
-    // Configure sprite to use the same Player sprite sheet from tsx
-    LoadSpriteSheetFromTSX("assets/tiled/tilesets/Player.tsx");
+    // Configure sprite to use DemonGreen sprite sheet from tsx
+    LoadSpriteSheetFromTSX("assets/tiled/tilesets/DemonGreen.tsx");
 
     // Set greeting
     SetGreeting("Greetings, traveler! Welcome to my humble shop. How may I assist you today?");

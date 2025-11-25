@@ -13,7 +13,7 @@
 #include <algorithm>
 
 PatrolNPC::PatrolNPC(Game* game, bool isAggressive)
-    : Actor(game)
+    : NPC(game)
     , mState(PatrolNPCState::Patrolling)
     , mIsAggressive(isAggressive)
     , mCurrentWaypointIndex(0)
@@ -24,32 +24,17 @@ PatrolNPC::PatrolNPC(Game* game, bool isAggressive)
     , mDeaggroRange(400.0f)
     , mChaseSpeed(150.0f)
     , mMaxChaseDistance(300.0f)
-    , mAnimationComponent(nullptr)
-    , mSpriteComponent(nullptr)
-    , mMovementComponent(nullptr)
     , mHealthComponent(nullptr)
     , mAttackComponent(nullptr)
-    , mSpriteWidth(32)
-    , mSpriteHeight(32)
-    , mIdleFrames(6)
-    , mWalkFrames(6)
-    , mAnimSpeed(8.0f)
     , mCurrentDirection(0)
     , mIsMoving(false)
     , mIsAttackAnimPlaying(false)
 {
-    // Initialize default animation row mappings (standard 8-row sprite sheet layout)
-    // Idle rows: down=0, left=1, right=2, up=3
-    mIdleRows[0] = 0; mIdleRows[1] = 1; mIdleRows[2] = 2; mIdleRows[3] = 3;
-    // Walk rows: down=4, left=5, right=6, up=7
-    mWalkRows[0] = 4; mWalkRows[1] = 5; mWalkRows[2] = 6; mWalkRows[3] = 7;
+    // Initialize attack animation row mappings
     // Attack rows: down=6, left=7, right=7, up=8 (as specified)
     mAttackRows[0] = 6; mAttackRows[1] = 7; mAttackRows[2] = 7; mAttackRows[3] = 8;
 
-    // Create and add components
-    mAnimationComponent = AddComponent<AnimationComponent>();
-    mSpriteComponent = AddComponent<SpriteComponent>(200); // Higher update order for rendering
-    mMovementComponent = AddComponent<MovementComponent>();
+    // Create patrol-specific components
     mHealthComponent = AddComponent<HealthComponent>();
 
     // Configure health component
@@ -311,27 +296,6 @@ void PatrolNPC::UpdateAnimation(const Vector2& velocity)
     }
 }
 
-int PatrolNPC::GetDirectionRow(const Vector2& velocity) const
-{
-    // Determine facing direction based on velocity
-    // Rows: 0=idle_down, 1=idle_left, 2=idle_right, 3=idle_up,
-    //       4=walk_down, 5=walk_left, 6=walk_right, 7=walk_up
-
-    float absX = std::abs(velocity.x);
-    float absY = std::abs(velocity.y);
-
-    if (absX > absY)
-    {
-        // Moving more horizontally
-        return velocity.x > 0 ? 2 : 1;  // Right : Left
-    }
-    else
-    {
-        // Moving more vertically
-        return velocity.y > 0 ? 0 : 3;  // Down : Up
-    }
-}
-
 bool PatrolNPC::IsPlayerInRange(float range) const
 {
     Player* player = mGame->GetPlayer();
@@ -374,19 +338,42 @@ void PatrolNPC::OnDraw(TextRenderer* textRenderer)
     else if (mIsMoving)
     {
         row = mWalkRows[mCurrentDirection];
-        shouldFlip = (mCurrentDirection == 1);
+        shouldFlip = mUseHorizontalFlip && (mCurrentDirection == 1);
     }
     else
     {
         row = mIdleRows[mCurrentDirection];
-        shouldFlip = (mCurrentDirection == 1);
+        shouldFlip = mUseHorizontalFlip && (mCurrentDirection == 1);
     }
 
     int col = mAnimationComponent->GetCurrentFrame();
 
     // Configure sprite component for rendering
-    mSpriteComponent->SetCurrentFrame(row, col);
-    mSpriteComponent->SetFlipHorizontal(shouldFlip);
+    if (mUseColumnBasedDirection)
+    {
+        // For column-based sprites: direction is column, animation frame is row
+        // Sprite columns: [0=Down, 1=Up, 2=Left, 3=Right]
+        // Code direction: [0=down, 1=left, 2=right, 3=up]
+        // Remap direction to column: down=0->0, left=1->2, right=2->3, up=3->1
+        int directionCol = mCurrentDirection;
+        if (directionCol == 1) directionCol = 2;      // left (1) -> column 2
+        else if (directionCol == 2) directionCol = 3; // right (2) -> column 3
+        else if (directionCol == 3) directionCol = 1; // up (3) -> column 1
+        // down (0) stays 0
+        
+        // row contains the base row (0 for idle, 1 for walk start)
+        // col contains the animation frame offset
+        int finalRow = row + col;
+        
+        mSpriteComponent->SetCurrentFrame(finalRow, directionCol);
+        mSpriteComponent->SetFlipHorizontal(false);  // Column-based sprites don't need flipping
+    }
+    else
+    {
+        // For row-based sprites: direction is row, animation frame is column
+        mSpriteComponent->SetCurrentFrame(row, col);
+        mSpriteComponent->SetFlipHorizontal(shouldFlip);
+    }
 
     // Draw the sprite
     mSpriteComponent->Draw(spriteRenderer);
@@ -395,60 +382,6 @@ void PatrolNPC::OnDraw(TextRenderer* textRenderer)
 void PatrolNPC::AddWaypoint(const Vector2& position, float waitTime)
 {
     mWaypoints.emplace_back(position, waitTime);
-}
-
-void PatrolNPC::LoadSpriteSheetFromTSX(const std::string& tsxPath)
-{
-    TilesetInfo tileset;
-    if (!TiledParser::ParseTSX(tsxPath, tileset))
-    {
-        SDL_Log("Failed to load TSX file: %s", tsxPath.c_str());
-        return;
-    }
-
-    // Load the sprite sheet and configure
-    if (mSpriteComponent)
-    {
-        mSpriteComponent->LoadSpriteSheet(tileset.imagePath);
-    }
-    SetSpriteConfiguration(tileset.tileWidth, tileset.tileHeight, tileset.columns, tileset.columns, 8.0f);
-}
-
-void PatrolNPC::SetSpriteConfiguration(int width, int height, int idleFrames, int walkFrames, float animSpeed)
-{
-    mSpriteWidth = width;
-    mSpriteHeight = height;
-    mIdleFrames = idleFrames;
-    mWalkFrames = walkFrames;
-    mAnimSpeed = animSpeed;
-
-    if (mSpriteComponent)
-    {
-        mSpriteComponent->SetSpriteSize(width, height);
-        mSpriteComponent->SetRenderSize(80.0f);
-    }
-
-    if (mAnimationComponent)
-    {
-        mAnimationComponent->SetFrameCount(idleFrames);
-        mAnimationComponent->SetAnimSpeed(animSpeed);
-    }
-}
-
-void PatrolNPC::SetIdleRows(int down, int left, int right, int up)
-{
-    mIdleRows[0] = down;
-    mIdleRows[1] = left;
-    mIdleRows[2] = right;
-    mIdleRows[3] = up;
-}
-
-void PatrolNPC::SetWalkRows(int down, int left, int right, int up)
-{
-    mWalkRows[0] = down;
-    mWalkRows[1] = left;
-    mWalkRows[2] = right;
-    mWalkRows[3] = up;
 }
 
 void PatrolNPC::SetAttackRows(int down, int left, int right, int up)

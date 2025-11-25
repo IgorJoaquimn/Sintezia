@@ -14,31 +14,16 @@
 #include <GL/glew.h>
 
 DialogNPC::DialogNPC(Game* game)
-    : Actor(game)
+    : NPC(game)
     , mGreeting("Hello!")
     , mDialogUI(std::make_unique<NPCDialogUI>(game))
     , mInteractionIndicator(std::make_unique<InteractionIndicator>(game))
-    , mAnimationComponent(nullptr)
-    , mSpriteComponent(nullptr)
-    , mSpriteWidth(32)
-    , mSpriteHeight(32)
-    , mIdleFrames(6)
-    , mWalkFrames(6)
-    , mAnimSpeed(8.0f)
 {
     // Initialize key states
     for (int i = 0; i < 10; i++)
     {
         mKeyPressed[i] = false;
     }
-
-    // Create and add components
-    mAnimationComponent = AddComponent<AnimationComponent>();
-    mSpriteComponent = AddComponent<SpriteComponent>(200); // Higher update order for rendering
-
-    // Configure animation component with default values
-    mAnimationComponent->SetFrameCount(mIdleFrames);
-    mAnimationComponent->SetAnimSpeed(mAnimSpeed);
 
     // Setup UI callbacks
     mDialogUI->SetOnTalkSelected([this]() { OnTalkSelected(); });
@@ -63,9 +48,10 @@ void DialogNPC::OnDraw(TextRenderer* textRenderer)
     auto* rectRenderer = mGame->GetRectRenderer();
     if (!spriteRenderer || !mSpriteComponent || !mAnimationComponent) return;
 
-    // For now, NPCs are idle and facing down (row 0)
-    int row = 0;  // Idle down animation
-    int col = mAnimationComponent->GetCurrentFrame();
+    // For stationary NPCs, just show idle frame
+    // Row 0, Column 0 = idle facing down
+    int row = 0;
+    int col = 0;  // Fixed at frame 0 for stationary idle
 
     // Configure sprite component for rendering
     mSpriteComponent->SetCurrentFrame(row, col);
@@ -214,43 +200,6 @@ void DialogNPC::AddTradeOffer(const TradeOffer& offer)
     mTradeOffers.push_back(offer);
 }
 
-void DialogNPC::LoadSpriteSheetFromTSX(const std::string& tsxPath)
-{
-    TilesetInfo tileset;
-    if (!TiledParser::ParseTSX(tsxPath, tileset))
-    {
-        SDL_Log("Failed to load TSX file: %s", tsxPath.c_str());
-        return;
-    }
-
-    // Load the sprite sheet and configure
-    if (mSpriteComponent)
-    {
-        mSpriteComponent->LoadSpriteSheet(tileset.imagePath);
-    }
-    SetSpriteConfiguration(tileset.tileWidth, tileset.tileHeight, tileset.columns, tileset.columns, 8.0f);
-}
-
-void DialogNPC::SetSpriteConfiguration(int width, int height, int idleFrames, int walkFrames, float animSpeed)
-{
-    mSpriteWidth = width;
-    mSpriteHeight = height;
-    mIdleFrames = idleFrames;
-    mWalkFrames = walkFrames;
-    mAnimSpeed = animSpeed;
-
-    if (mSpriteComponent)
-    {
-        mSpriteComponent->SetSpriteSize(width, height);
-        mSpriteComponent->SetRenderSize(80.0f);
-    }
-
-    if (mAnimationComponent)
-    {
-        mAnimationComponent->SetFrameCount(idleFrames);
-        mAnimationComponent->SetAnimSpeed(animSpeed);
-    }
-}
 
 // UI Callback Handlers
 void DialogNPC::OnTalkSelected()
