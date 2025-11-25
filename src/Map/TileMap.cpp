@@ -9,6 +9,7 @@
 #include <SDL.h>
 #include <algorithm>
 #include <cctype>
+#include <glm/glm.hpp>
 using json = nlohmann::json;
 
 TileMap::TileMap(int width, int height, int tileSize)
@@ -271,6 +272,18 @@ void TileMap::Draw(SpriteRenderer* spriteRenderer)
                     int gid = layer.data[index];
                     if (gid == 0) continue; // 0 = empty tile
                     
+                    // Extract flip flags from GID (Tiled format)
+                    const unsigned FLIPPED_HORIZONTALLY_FLAG = 0x80000000;
+                    const unsigned FLIPPED_VERTICALLY_FLAG   = 0x40000000;
+                    const unsigned FLIPPED_DIAGONALLY_FLAG   = 0x20000000;
+                    
+                    bool flippedHorizontally = (gid & FLIPPED_HORIZONTALLY_FLAG);
+                    bool flippedVertically = (gid & FLIPPED_VERTICALLY_FLAG);
+                    bool flippedDiagonally = (gid & FLIPPED_DIAGONALLY_FLAG);
+                    
+                    // Clear the flags to get the actual tile ID
+                    gid &= ~(FLIPPED_HORIZONTALLY_FLAG | FLIPPED_VERTICALLY_FLAG | FLIPPED_DIAGONALLY_FLAG);
+                    
                     // Find the tileset that contains this GID
                     TilesetInfo* tileset = nullptr;
                     for (auto& ts : mMapData->tilesets)
@@ -326,13 +339,54 @@ void TileMap::Draw(SpriteRenderer* spriteRenderer)
                     destX += tileset->offsetX * offsetScale;
                     destY -= tileset->offsetY * offsetScale;
                     
+                    // Handle Tiled's flip flags (H=horizontal, V=vertical, D=diagonal/transpose)
+                    // Reference: https://doc.mapeditor.org/en/stable/reference/tmx-map-format/#tile-flipping
+                    float rotation = 0.0f;
+                    bool flipH = flippedHorizontally;
+                    bool flipV = flippedVertically;
+                    
+                    // Diagonal flip represents rotation
+                    if (flippedDiagonally)
+                    {
+                        rotation = glm::radians(90.0f);
+                        
+                        // Adjust flips based on other flags
+                        if (flippedHorizontally && flippedVertically)
+                        {
+                            rotation = glm::radians(270.0f);
+                            flipH = false;
+                        }
+                        else if (flippedVertically)
+                        {
+                            rotation = glm::radians(270.0f);
+                            flipH = false;
+                            flipV = false;
+                        }
+                        else if (flippedHorizontally)
+                        {
+                            flipH = false;
+                            flipV = false;
+                        }
+                    }
+                    else if (flippedHorizontally && flippedVertically)
+                    {
+                        // Both flips without diagonal = 180° rotation
+                        rotation = glm::radians(180.0f);
+                        flipH = false;
+                        flipV = false;
+                    }
+                    
                     // Draw the tile using sprite sheet rendering with normalized coordinates
                     spriteRenderer->DrawSprite(
                         tileset->texture.get(),
                         Vector2(destX, destY),
                         Vector2(displayWidth, displayHeight),
                         Vector2(normalizedSrcX, normalizedSrcY),
-                        Vector2(normalizedWidth, normalizedHeight)
+                        Vector2(normalizedWidth, normalizedHeight),
+                        rotation,
+                        Vector3(1.0f, 1.0f, 1.0f),
+                        flipH,
+                        flipV
                     );
                 }
             }

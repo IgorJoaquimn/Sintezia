@@ -25,7 +25,7 @@ bool TiledParser::ParseTSX(const std::string& tsxPath, TilesetInfo& tileset)
         std::cerr << "Failed to open TSX file: " << tsxPath << std::endl;
         return false;
     }
-    
+
     // Initialize default values
     tileset.spacing = 0;
     tileset.margin = 0;

@@ -19,6 +19,10 @@
             "scaleInDock": 1,
             "scaleInEditor": 5.5
         },
+        "Z:/home/joaquino/faculdade/jogos/infinite-craft-clone/assets/maps/TilesetWater.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 4
+        },
         "maps/Path_Tile.tsx": {
             "scaleInDock": 1
         },
@@ -26,8 +30,8 @@
             "scale": 2.5471874999999997,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 239.87240829346092,
-                "y": 159.98037050668628
+                "x": 239.6761133603239,
+                "y": 159.78407557354925
             }
         },
         "player cute.tsx": {
@@ -93,7 +97,7 @@
     },
     "last.exportedFilePath": "Z:/home/joaquino/faculdade/jogos/infinite-craft-clone/assets/maps",
     "last.externalTilesetPath": "Z:/home/joaquino/faculdade/jogos/infinite-craft-clone/assets/tiled/tilesets",
-    "last.imagePath": "Z:/home/joaquino/faculdade/jogos/infinite-craft-clone/assets/third_party/Cute_Fantasy_Free/Enemies",
+    "last.imagePath": "Z:/home/joaquino/faculdade/jogos/infinite-craft-clone/assets/third_party/Ninja Adventure - Asset Pack/Backgrounds/Tilesets",
     "lastUsedTilesetExportFilter": "Todos os Ficheiros (*)",
     "map.lastUsedExportFilter": "Todos os Ficheiros (*)",
     "map.lastUsedFormat": "tmx",
@@ -116,22 +120,22 @@
     "project": "tp.tiled-project",
     "property.type": "bool",
     "recentFiles": [
-        "maps/mapa_de_teste.tmx",
+        "tilesets/Path_Middle.tsx",
+        "tilesets/Oak_Tree.tsx",
+        "tilesets/Cliff_Tile.tsx",
         "tilesets/Beach_Tile.tsx",
         "tilesets/Player.tsx",
-        "tilesets/Path_Middle.tsx",
+        "Z:/home/joaquino/faculdade/jogos/infinite-craft-clone/assets/maps/TilesetWater.tsx",
+        "tilesets/Water_Tile.tsx",
+        "tilesets/Skeleton.tsx",
         "tilesets/Path_Tile.tsx",
         "tilesets/Water_Middle.tsx",
-        "tilesets/Water_Tile.tsx",
         "tilesets/FarmLand_Tile.tsx",
-        "tilesets/Cliff_Tile.tsx",
-        "tilesets/Skeleton.tsx",
-        "tilesets/Oak_Tree.tsx",
-        "tilesets/mapa_de_teste.tmx"
+        "maps/mapa_de_teste.tmx"
     ],
     "tileset.lastUsedFormat": "tsx",
     "tileset.tileSize": {
-        "height": 32,
-        "width": 32
+        "height": 16,
+        "width": 16
     }
 }
