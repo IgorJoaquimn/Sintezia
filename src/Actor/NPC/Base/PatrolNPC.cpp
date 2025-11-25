@@ -286,12 +286,13 @@ void PatrolNPC::UpdateAnimation(const Vector2& velocity)
     }
     else
     {
-        // Idle - use idle animation
+        // Idle - use idle animation and reset to first frame
         mIsMoving = false;
 
         if (mAnimationComponent)
         {
             mAnimationComponent->SetFrameCount(mIdleFrames);
+            mAnimationComponent->ResetAnimation(); // Stay on first idle frame
         }
     }
 }
