@@ -1,6 +1,6 @@
 #pragma once
 #include "NPC.hpp"
-#include "../../MathUtils.h"
+#include "../../../MathUtils.h"
 #include <vector>
 #include <SDL.h>
 

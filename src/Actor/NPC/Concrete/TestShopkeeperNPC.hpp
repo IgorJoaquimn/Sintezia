@@ -1,5 +1,5 @@
 #pragma once
-#include "DialogNPC.hpp"
+#include "../Base/DialogNPC.hpp"
 
 // Test shopkeeper NPC with predefined dialog and trade options
 class TestShopkeeperNPC : public DialogNPC

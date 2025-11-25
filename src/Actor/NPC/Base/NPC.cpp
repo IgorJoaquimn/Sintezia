@@ -1,9 +1,9 @@
 #include "NPC.hpp"
-#include "../../Game/Game.hpp"
-#include "../../Component/AnimationComponent.hpp"
-#include "../../Component/SpriteComponent.hpp"
-#include "../../Component/MovementComponent.hpp"
-#include "../../Map/TiledParser.hpp"
+#include "../../../Game/Game.hpp"
+#include "../../../Component/AnimationComponent.hpp"
+#include "../../../Component/SpriteComponent.hpp"
+#include "../../../Component/MovementComponent.hpp"
+#include "../../../Map/TiledParser.hpp"
 #include <cmath>
 
 NPC::NPC(Game* game)
@@ -11,8 +11,8 @@ NPC::NPC(Game* game)
     , mAnimationComponent(nullptr)
     , mSpriteComponent(nullptr)
     , mMovementComponent(nullptr)
-    , mSpriteWidth(32)
-    , mSpriteHeight(32)
+    , mSpriteWidth(16)
+    , mSpriteHeight(16)
     , mIdleFrames(6)
     , mWalkFrames(6)
     , mAnimSpeed(8.0f)

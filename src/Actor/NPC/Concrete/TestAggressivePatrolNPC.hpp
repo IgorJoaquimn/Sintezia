@@ -1,5 +1,5 @@
 #pragma once
-#include "PatrolNPC.hpp"
+#include "../Base/PatrolNPC.hpp"
 
 // Test aggressive NPC that patrols and chases the player when in range
 class TestAggressivePatrolNPC : public PatrolNPC

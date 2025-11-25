@@ -1,5 +1,5 @@
 #pragma once
-#include "PatrolNPC.hpp"
+#include "../Base/PatrolNPC.hpp"
 
 // Test passive NPC that patrols in a loop without attacking
 class TestPassivePatrolNPC : public PatrolNPC
