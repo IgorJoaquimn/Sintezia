@@ -101,6 +101,9 @@ void DialogNPC::StartInteraction()
     {
         mDialogUI->ShowGreeting(mGreeting);
         HideInteractionIndicator();
+
+        // Mark SPACE/ENTER as already pressed to prevent immediate skip
+        mKeyPressed[3] = true;  // SPACE/ENTER key
     }
 }
 
@@ -173,11 +176,28 @@ void DialogNPC::HandleInteractionInput(const uint8_t* keyState)
         // In main menu or greeting, Q does nothing
     }
 
-    // Handle ESC - always closes the entire dialog
+    // Handle ESC - go back or close dialog
     if (!mKeyPressed[5] && keyState[SDL_SCANCODE_ESCAPE])
     {
         mKeyPressed[5] = true;
-        EndInteraction();
+
+        auto state = mDialogUI->GetState();
+
+        // If in MainMenu or Greeting, close the dialog
+        if (state == DialogUIState::MainMenu || state == DialogUIState::Greeting)
+        {
+            EndInteraction();
+        }
+        // If in DialogMenu or TradeMenu, go back to MainMenu
+        else if (state == DialogUIState::DialogMenu || state == DialogUIState::TradeMenu)
+        {
+            mDialogUI->ShowMainMenu();
+        }
+        // If in Message, go back to previous menu (handled by SelectCurrent)
+        else if (state == DialogUIState::Message)
+        {
+            mDialogUI->SelectCurrent();
+        }
     }
 }
 
@@ -236,11 +256,9 @@ void DialogNPC::OnTradeMenuSelected()
 
         for (const auto& trade : mTradeOffers)
         {
-            std::string desc = trade.description + "\n";
-
-            // Add reward info
+            // Format: "emoji name x qty <- emoji name x qty, emoji name x qty"
+            std::string desc;
             const Item* rewardItem = crafting ? crafting->FindItemById(trade.reward.itemId) : nullptr;
-            desc += "  Get: ";
             if (rewardItem)
             {
                 desc += rewardItem->emoji + " " + rewardItem->name + " x" +
@@ -252,10 +270,10 @@ void DialogNPC::OnTradeMenuSelected()
                        std::to_string(trade.reward.quantity);
             }
 
-            // Add requirements info
+            // Add requirements info with arrow
             if (!trade.requirements.empty())
             {
-                desc += "\n  For: ";
+                desc += " <- ";
                 for (size_t i = 0; i < trade.requirements.size(); i++)
                 {
                     const Item* reqItem = crafting ? crafting->FindItemById(trade.requirements[i].itemId) : nullptr;
@@ -271,7 +289,6 @@ void DialogNPC::OnTradeMenuSelected()
                                std::to_string(trade.requirements[i].quantity);
                     }
 
-                    // Add comma if not the last item
                     if (i < trade.requirements.size() - 1)
                     {
                         desc += ", ";
