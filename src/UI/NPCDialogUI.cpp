@@ -19,7 +19,7 @@ namespace UIConstants
     constexpr float MARGIN_TOP = 14.0f;
     constexpr float MARGIN_RIGHT = 20.0f;
     constexpr float MARGIN_BOTTOM = 25.0f;
-    constexpr float CONTENT_TOP_PADDING = 25.0f;
+    constexpr float CONTENT_TOP_PADDING = 10.0f;
 
     // Text Settings
     constexpr float TEXT_SCALE_NORMAL = 0.5f;
@@ -70,8 +70,8 @@ NPCDialogUI::NPCDialogUI(Game* game)
 {
     // Load UI textures
     mDialogBoxTexture = std::make_shared<Texture>();
-    if (!mDialogBoxTexture->Load("assets/third_party/Ninja Adventure - Asset Pack/Ui/Dialog/DialogBox.png")) {
-        SDL_Log("Failed to load DialogBox.png");
+    if (!mDialogBoxTexture->Load("assets/third_party/Ninja Adventure - Asset Pack/Ui/Dialog/DialogueBoxSimple.png")) {
+        SDL_Log("Failed to load DialogBoxSimple.png");
     }
 
     mChoiceBoxTexture = std::make_shared<Texture>();
