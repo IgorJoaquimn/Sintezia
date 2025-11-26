@@ -43,14 +43,38 @@ namespace UIConstants
     // Selection Indicator
     constexpr float SELECTION_ARROW_OFFSET = 15.0f;
 
+    // Button Text Positioning
+    constexpr float BUTTON_TEXT_Y_OFFSET = 16.0f;
+
+    // List Option Settings
+    constexpr float LIST_OPTION_TRUNCATE_MARGIN = 30.0f;
+
+    // Fallback Dimensions
+    constexpr float DEFAULT_BOX_WIDTH = 800.0f;
+    constexpr float DEFAULT_BOX_HEIGHT = 200.0f;
+
     // Colors
     const Vector3 COLOR_BG_DEFAULT(0.2f, 0.2f, 0.3f);
     const Vector3 COLOR_BUTTON_DEFAULT(0.3f, 0.3f, 0.4f);
     const Vector3 COLOR_BUTTON_SELECTED(0.3f, 0.5f, 0.6f);
     const Vector3 COLOR_TINT_SELECTED(0.9f, 1.2f, 1.3f);
     const Vector3 COLOR_TINT_DEFAULT(0.85f, 0.85f, 0.85f);
+    const Vector3 COLOR_TEXT_DEFAULT(0.08f, 0.11f, 0.11f);
+    const Vector3 COLOR_TEXT_SELECTED(0.0f, 0.9f, 1.0f);
+    const Vector3 COLOR_TEXT_UNSELECTED(0.08f, 0.11f, 0.11f);
+    const Vector3 COLOR_HINT_TEXT(0.5f, 0.5f, 0.5f);
+    const Vector3 COLOR_SELECTION_ARROW(0.0f, 0.8f, 0.9f);
+    const Vector3 COLOR_WHITE_TINT(1.0f, 1.0f, 1.0f);
 
     constexpr float ALPHA_DEFAULT = 0.9f;
+
+    // Interaction Indicator Constants
+    constexpr int INDICATOR_FRAME_WIDTH = 20;
+    constexpr int INDICATOR_FRAME_HEIGHT = 16;
+    constexpr float INDICATOR_SPRITE_SIZE = 80.0f;
+    constexpr float INDICATOR_BUBBLE_SCALE = 2.5f;
+    constexpr float INDICATOR_GAP_ABOVE_SPRITE = 20.0f;
+    constexpr float INDICATOR_CENTER_OFFSET = 0.5f;
 }
 
 // ============================================================================
@@ -304,9 +328,9 @@ DialogBoxLayout NPCDialogUI::CalculateDialogBoxLayout() const
     DialogBoxLayout layout;
 
     layout.boxWidth = mDialogBoxTexture ?
-        mDialogBoxTexture->GetWidth() * UIConstants::UI_SCALE : 800.0f;
+        mDialogBoxTexture->GetWidth() * UIConstants::UI_SCALE : UIConstants::DEFAULT_BOX_WIDTH;
     layout.boxHeight = mDialogBoxTexture ?
-        mDialogBoxTexture->GetHeight() * UIConstants::UI_SCALE : 200.0f;
+        mDialogBoxTexture->GetHeight() * UIConstants::UI_SCALE : UIConstants::DEFAULT_BOX_HEIGHT;
 
     layout.boxX = (Game::WINDOW_WIDTH - layout.boxWidth) / 2.0f;
     layout.boxY = Game::WINDOW_HEIGHT - layout.boxHeight - UIConstants::DIALOG_BOX_Y_OFFSET;
@@ -330,7 +354,7 @@ void NPCDialogUI::DrawDialogBoxBackground(const DialogBoxLayout& layout, RectRen
             Vector2(layout.boxX, layout.boxY),
             Vector2(layout.boxWidth, layout.boxHeight),
             0.0f,
-            Vector3(1.0f, 1.0f, 1.0f)
+            UIConstants::COLOR_WHITE_TINT
         );
     } else {
         DrawBox(rectRenderer, layout.boxX, layout.boxY, layout.boxWidth, layout.boxHeight,
@@ -340,7 +364,7 @@ void NPCDialogUI::DrawDialogBoxBackground(const DialogBoxLayout& layout, RectRen
 
 void NPCDialogUI::DrawNavigationHint(const std::string& hint, const DialogBoxLayout& layout, TextRenderer* textRenderer)
 {
-    textRenderer->SetTextColor(0.5f, 0.5f, 0.5f);
+    textRenderer->SetTextColor(UIConstants::COLOR_HINT_TEXT.x, UIConstants::COLOR_HINT_TEXT.y, UIConstants::COLOR_HINT_TEXT.z);
     float hintY = layout.boxY + layout.boxHeight - UIConstants::MARGIN_BOTTOM;
     float marginLeft = UIConstants::MARGIN_LEFT * UIConstants::UI_SCALE;
     textRenderer->RenderText(hint, layout.boxX + marginLeft, hintY, UIConstants::TEXT_SCALE_HINT);
@@ -368,7 +392,7 @@ void NPCDialogUI::DrawFaceset(const DialogBoxLayout& layout, float& outTextX, fl
         mFacesetTexture.get(),
         Vector2(faceX, faceY),
         Vector2(faceDisplaySize, faceDisplaySize),
-        Vector2(0.0f, 0.0f),
+        Vector2(0.0f, 0.0f),  // Source position - top left of texture
         Vector2(normW, normH)
     );
 
@@ -396,7 +420,7 @@ void NPCDialogUI::DrawGreetingUI(TextRenderer* textRenderer, RectRenderer* rectR
     }
 
     // Draw greeting text with wrapping
-    textRenderer->SetTextColor(0.08f, 0.11f, 0.11f);
+    textRenderer->SetTextColor(UIConstants::COLOR_TEXT_DEFAULT.x, UIConstants::COLOR_TEXT_DEFAULT.y, UIConstants::COLOR_TEXT_DEFAULT.z);
     RenderWrappedText(mCurrentText, textX, textY, textWidth,
                      UIConstants::TEXT_SCALE_NORMAL,
                      UIConstants::LINE_SPACING, textRenderer);
@@ -425,15 +449,12 @@ void NPCDialogUI::DrawButton(const std::string& text, float x, float y, bool isS
     }
 
     // Draw button text
-    textRenderer->SetTextColor(
-        isSelected ? 0.0f : 0.08f,
-        isSelected ? 0.9f : 0.11f,
-        isSelected ? 1.0f : 0.11f
-    );
+    const Vector3& textColor = isSelected ? UIConstants::COLOR_TEXT_SELECTED : UIConstants::COLOR_TEXT_UNSELECTED;
+    textRenderer->SetTextColor(textColor.x, textColor.y, textColor.z);
     textRenderer->RenderText(
         text,
         x + UIConstants::BUTTON_PADDING_X,
-        y + UIConstants::BUTTON_PADDING_Y + 15.0f,
+        y + UIConstants::BUTTON_PADDING_Y + UIConstants::BUTTON_TEXT_Y_OFFSET,
         UIConstants::TEXT_SCALE_NORMAL
     );
 }
@@ -482,19 +503,16 @@ void NPCDialogUI::DrawListOption(const std::string& text, float x, float y, bool
 {
     // Draw selection indicator
     if (isSelected) {
-        textRenderer->SetTextColor(0.0f, 0.8f, 0.9f);
+        textRenderer->SetTextColor(UIConstants::COLOR_SELECTION_ARROW.x, UIConstants::COLOR_SELECTION_ARROW.y, UIConstants::COLOR_SELECTION_ARROW.z);
         textRenderer->RenderText(">", x - UIConstants::SELECTION_ARROW_OFFSET, y, textScale);
     }
 
     // Set text color based on selection
-    textRenderer->SetTextColor(
-        isSelected ? 0.0f : 0.08f,
-        isSelected ? 0.9f : 0.11f,
-        isSelected ? 1.0f : 0.11f
-    );
+    const Vector3& textColor = isSelected ? UIConstants::COLOR_TEXT_SELECTED : UIConstants::COLOR_TEXT_UNSELECTED;
+    textRenderer->SetTextColor(textColor.x, textColor.y, textColor.z);
 
     // Truncate if necessary and render
-    std::string displayText = TruncateText(text, maxWidth - 30.0f, textScale, textRenderer);
+    std::string displayText = TruncateText(text, maxWidth - UIConstants::LIST_OPTION_TRUNCATE_MARGIN, textScale, textRenderer);
     textRenderer->RenderText(displayText, x, y, textScale);
 }
 
@@ -550,7 +568,7 @@ void NPCDialogUI::DrawMessageUI(TextRenderer* textRenderer, RectRenderer* rectRe
     DrawDialogBoxBackground(layout, rectRenderer);
 
     // Draw message text with wrapping
-    textRenderer->SetTextColor(0.08f, 0.11f, 0.11f);
+    textRenderer->SetTextColor(UIConstants::COLOR_TEXT_DEFAULT.x, UIConstants::COLOR_TEXT_DEFAULT.y, UIConstants::COLOR_TEXT_DEFAULT.z);
     RenderWrappedText(mCurrentText, layout.textX, layout.textY, layout.maxTextWidth,
                      UIConstants::TEXT_SCALE_NORMAL,
                      UIConstants::LINE_SPACING, textRenderer);
@@ -625,8 +643,8 @@ void InteractionIndicator::Draw(TextRenderer* textRenderer, RectRenderer* rectRe
 
     // DialogInfo.png is typically a horizontal sprite sheet with multiple frames
     // Each frame is usually 16x16 pixels
-    int frameWidth = 20;
-    int frameHeight = 16;
+    int frameWidth = UIConstants::INDICATOR_FRAME_WIDTH;
+    int frameHeight = UIConstants::INDICATOR_FRAME_HEIGHT;
 
     // Calculate source rectangle for current frame
     // Frames are arranged horizontally in the sprite sheet
@@ -643,17 +661,17 @@ void InteractionIndicator::Draw(TextRenderer* textRenderer, RectRenderer* rectRe
     Vector2 srcSize(srcW, srcH);
 
     // Position above the NPC's head
-    float spriteRenderSize = 80.0f;
-    float topOfSprite = mScreenPosition.y - spriteRenderSize * 0.5f;
+    float spriteRenderSize = UIConstants::INDICATOR_SPRITE_SIZE;
+    float topOfSprite = mScreenPosition.y - spriteRenderSize * UIConstants::INDICATOR_CENTER_OFFSET;
 
     // Scale up the bubble sprite (2x scale looks good)
-    float bubbleScale = 2.5f;
+    float bubbleScale = UIConstants::INDICATOR_BUBBLE_SCALE;
     float bubbleWidth = frameWidth * bubbleScale;
     float bubbleHeight = frameHeight * bubbleScale;
 
     // Center the bubble above the NPC
-    float bubbleX = mScreenPosition.x - bubbleWidth * 0.5f;
-    float bubbleY = topOfSprite - 20.0f - bubbleHeight; // 20px gap above sprite
+    float bubbleX = mScreenPosition.x - bubbleWidth * UIConstants::INDICATOR_CENTER_OFFSET;
+    float bubbleY = topOfSprite - UIConstants::INDICATOR_GAP_ABOVE_SPRITE - bubbleHeight;
 
     Vector2 position(bubbleX, bubbleY);
     Vector2 size(bubbleWidth, bubbleHeight);
@@ -666,7 +684,7 @@ void InteractionIndicator::Draw(TextRenderer* textRenderer, RectRenderer* rectRe
         srcPos,
         srcSize,
         0.0f,  // rotation
-        Vector3(1.0f, 1.0f, 1.0f)  // white color (no tint)
+        UIConstants::COLOR_WHITE_TINT  // white color (no tint)
     );
 }
 
