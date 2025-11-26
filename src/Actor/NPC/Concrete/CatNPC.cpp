@@ -167,4 +167,6 @@ void CatNPC::OnUpdate(float deltaTime)
     {
         mSpriteComponent->SetCurrentFrame(0, mCurrentFrame); // Row 0, alternating columns
     }
+
+    DialogNPC::OnUpdate(deltaTime);
 }

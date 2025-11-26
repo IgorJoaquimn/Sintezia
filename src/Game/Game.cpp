@@ -214,7 +214,7 @@ void Game::ProcessInput()
     else
     {
         // Static variable to track E key press
-        static bool eKeyPressed = false;
+        static bool spaceKeyPressed = false;
 
         // Check for nearby NPCs and show interaction indicator
         DialogNPC* nearbyNPC = nullptr;
@@ -235,10 +235,10 @@ void Game::ProcessInput()
             }
         }
 
-        // Check for E key press to interact with nearby NPCs
-        if (keyState[SDL_SCANCODE_E] && !eKeyPressed)
+        // Check for SPACE key press to interact with nearby NPCs
+        if (keyState[SDL_SCANCODE_SPACE] && !spaceKeyPressed)
         {
-            eKeyPressed = true;
+            spaceKeyPressed = true;
 
             if (nearbyNPC)
             {
@@ -246,9 +246,9 @@ void Game::ProcessInput()
                 mInteractingNPC = nearbyNPC;
             }
         }
-        else if (!keyState[SDL_SCANCODE_E])
+        else if (!keyState[SDL_SCANCODE_SPACE])
         {
-            eKeyPressed = false;
+            spaceKeyPressed = false;
         }
 
         // Process player input only when not interacting

@@ -637,7 +637,17 @@ InteractionIndicator::InteractionIndicator(Game* game)
     , mIsVisible(false)
     , mWorldPosition(0.0f, 0.0f)
     , mScreenPosition(0.0f, 0.0f)
+    , mAnimTime(0.0f)
+    , mAnimFrame(0)
+    , mMaxFrames(4)  // DialogInfo.png has 4 animation frames (empty, ., .., ...)
+    , mAnimSpeed(4.0f)  // 4 fps for smooth bubble animation
 {
+    // Load DialogInfo texture
+    mDialogInfoTexture = std::make_shared<Texture>();
+    if (!mDialogInfoTexture->Load("assets/third_party/Ninja Adventure - Asset Pack/Ui/Dialog/DialogInfo.png")) {
+        SDL_Log("Failed to load DialogInfo.png");
+        mDialogInfoTexture.reset();
+    }
 }
 
 InteractionIndicator::~InteractionIndicator()
@@ -656,34 +666,73 @@ void InteractionIndicator::Hide()
     mIsVisible = false;
 }
 
+void InteractionIndicator::Update(float deltaTime)
+{
+    if (!mIsVisible) return;
+
+    // Update animation
+    mAnimTime += deltaTime;
+    float frameTime = 1.0f / mAnimSpeed;
+
+    if (mAnimTime >= frameTime)
+    {
+        mAnimTime -= frameTime;
+        mAnimFrame = (mAnimFrame + 1) % mMaxFrames;
+    }
+
+    // Update screen position (in case world/camera changes)
+    UpdateScreenPosition();
+}
+
 void InteractionIndicator::Draw(TextRenderer* textRenderer, RectRenderer* rectRenderer)
 {
-    if (!mIsVisible || !textRenderer || !rectRenderer) return;
+    if (!mIsVisible || !mDialogInfoTexture || !mGame->GetSpriteRenderer()) return;
 
-    // Draw a small box with "[E] Interact" text above the NPC
-    std::string text = "[E] Interact";
-    float textScale = 0.4f;
-    float padding = 10.0f;
+    // DialogInfo.png is typically a horizontal sprite sheet with multiple frames
+    // Each frame is usually 16x16 pixels
+    int frameWidth = 20;
+    int frameHeight = 16;
 
-    // Calculate text dimensions
-    Vector2 textSize = textRenderer->MeasureText(text, textScale);
+    // Calculate source rectangle for current frame
+    // Frames are arranged horizontally in the sprite sheet
+    float texWidth = static_cast<float>(mDialogInfoTexture->GetWidth());
+    float texHeight = static_cast<float>(mDialogInfoTexture->GetHeight());
+
+    // Normalize coordinates for source rect (0.0 to 1.0)
+    float srcX = (static_cast<float>(mAnimFrame * frameWidth)) / texWidth;
+    float srcY = 0.0f;
+    float srcW = static_cast<float>(frameWidth) / texWidth;
+    float srcH = static_cast<float>(frameHeight) / texHeight;
+
+    Vector2 srcPos(srcX, srcY);
+    Vector2 srcSize(srcW, srcH);
 
     // Position above the NPC's head
-    // Assume sprite render size is ~80px and position is center of sprite
     float spriteRenderSize = 80.0f;
     float topOfSprite = mScreenPosition.y - spriteRenderSize * 0.5f;
 
-    float boxWidth = textSize.x + (padding * 2);
-    float boxHeight = textSize.y + (padding * 1.2f);
-    float boxX = mScreenPosition.x - boxWidth * 0.5f;
-    float boxY = topOfSprite - 12.0f - boxHeight; // 12px gap above sprite
+    // Scale up the bubble sprite (2x scale looks good)
+    float bubbleScale = 2.5f;
+    float bubbleWidth = frameWidth * bubbleScale;
+    float bubbleHeight = frameHeight * bubbleScale;
 
-    // Draw background
-    rectRenderer->RenderRect(boxX, boxY, boxWidth, boxHeight, Vector3(0.1f, 0.1f, 0.2f), 0.85f);
+    // Center the bubble above the NPC
+    float bubbleX = mScreenPosition.x - bubbleWidth * 0.5f;
+    float bubbleY = topOfSprite - 20.0f - bubbleHeight; // 20px gap above sprite
 
-    // Draw text centered in box
-    textRenderer->SetTextColor(1.0f, 1.0f, 1.0f);
-    textRenderer->RenderText(text, boxX + padding, boxY + (padding * 2), textScale);
+    Vector2 position(bubbleX, bubbleY);
+    Vector2 size(bubbleWidth, bubbleHeight);
+
+    // Draw the animated sprite
+    mGame->GetSpriteRenderer()->DrawSprite(
+        mDialogInfoTexture.get(),
+        position,
+        size,
+        srcPos,
+        srcSize,
+        0.0f,  // rotation
+        Vector3(1.0f, 1.0f, 1.0f)  // white color (no tint)
+    );
 }
 
 void InteractionIndicator::UpdateScreenPosition()

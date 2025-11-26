@@ -41,6 +41,12 @@ DialogNPC::~DialogNPC()
 
 void DialogNPC::OnUpdate(float deltaTime)
 {
+    // Update interaction indicator animation
+    if (mInteractionIndicator)
+    {
+        mInteractionIndicator->Update(deltaTime);
+    }
+
     // NPCs are currently stationary, but this can be extended for moving NPCs
 }
 

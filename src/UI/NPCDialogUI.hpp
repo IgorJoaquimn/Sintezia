@@ -106,7 +106,7 @@ private:
     void RenderWrappedText(const std::string& text, float x, float y, float maxWidth, float scale, float lineSpacing, TextRenderer* textRenderer);
 };
 
-// Interaction indicator UI - shows "[E] to interact" when player is near NPC
+// Interaction indicator UI - shows animated speech bubble when player is near NPC
 class InteractionIndicator
 {
 public:
@@ -116,6 +116,7 @@ public:
     void Show(const Vector2& worldPosition);
     void Hide();
     void Draw(TextRenderer* textRenderer, RectRenderer* rectRenderer);
+    void Update(float deltaTime);
 
     bool IsVisible() const { return mIsVisible; }
 
@@ -124,6 +125,13 @@ private:
     bool mIsVisible;
     Vector2 mWorldPosition;
     Vector2 mScreenPosition;
+
+    // Animation
+    std::shared_ptr<class Texture> mDialogInfoTexture;
+    float mAnimTime;
+    int mAnimFrame;
+    int mMaxFrames;
+    float mAnimSpeed;
 
     void UpdateScreenPosition();
 };
