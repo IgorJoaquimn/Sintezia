@@ -18,7 +18,8 @@ namespace UIConstants
     constexpr float MARGIN_LEFT = 20.0f;
     constexpr float MARGIN_TOP = 14.0f;
     constexpr float MARGIN_RIGHT = 20.0f;
-    constexpr float MARGIN_BOTTOM = 35.0f;
+    constexpr float MARGIN_BOTTOM = 25.0f;
+    constexpr float CONTENT_TOP_PADDING = 25.0f;
 
     // Text Settings
     constexpr float TEXT_SCALE_NORMAL = 0.5f;
@@ -31,6 +32,7 @@ namespace UIConstants
     constexpr float BUTTON_SPACING = 15.0f;
     constexpr float BUTTON_PADDING_X = 20.0f;
     constexpr float BUTTON_PADDING_Y = 12.0f;
+    constexpr float MAIN_MENU_BUTTON_OFFSET_Y = -10.0f;
 
     // Faceset Settings
     constexpr float FACESET_MARGIN = 6.0f;
@@ -314,7 +316,7 @@ DialogBoxLayout NPCDialogUI::CalculateDialogBoxLayout() const
     float marginRight = UIConstants::MARGIN_RIGHT * UIConstants::UI_SCALE;
 
     layout.textX = layout.boxX + marginLeft;
-    layout.textY = layout.boxY + marginTop + 20.0f;
+    layout.textY = layout.boxY + marginTop + UIConstants::CONTENT_TOP_PADDING;
     layout.maxTextWidth = layout.boxWidth - marginLeft - marginRight;
 
     return layout;
@@ -443,10 +445,8 @@ void NPCDialogUI::DrawMainMenuUI(TextRenderer* textRenderer, RectRenderer* rectR
     DialogBoxLayout layout = CalculateDialogBoxLayout();
     DrawDialogBoxBackground(layout, rectRenderer);
 
-    float marginLeft = UIConstants::MARGIN_LEFT * UIConstants::UI_SCALE;
-    float marginTop = UIConstants::MARGIN_TOP * UIConstants::UI_SCALE;
-    float buttonY = layout.boxY + marginTop + 20.0f;
-    float currentX = layout.boxX + marginLeft;
+    float buttonY = layout.textY + UIConstants::MAIN_MENU_BUTTON_OFFSET_Y;
+    float currentX = layout.textX;
 
     // Draw horizontal menu buttons
     for (size_t i = 0; i < mCurrentOptions.size(); i++)
@@ -505,7 +505,7 @@ void NPCDialogUI::DrawDialogMenuUI(TextRenderer* textRenderer, RectRenderer* rec
     DialogBoxLayout layout = CalculateDialogBoxLayout();
     DrawDialogBoxBackground(layout, rectRenderer);
 
-    float optionY = layout.textY + 5.0f;
+    float optionY = layout.textY;
 
     // Draw all dialog options as a vertical list
     for (size_t i = 0; i < mCurrentOptions.size(); i++)
@@ -527,7 +527,7 @@ void NPCDialogUI::DrawTradeMenuUI(TextRenderer* textRenderer, RectRenderer* rect
     DialogBoxLayout layout = CalculateDialogBoxLayout();
     DrawDialogBoxBackground(layout, rectRenderer);
 
-    float optionY = layout.textY + 5.0f;
+    float optionY = layout.textY;
 
     // Draw all trade offers as a vertical list
     for (size_t i = 0; i < mCurrentOptions.size(); i++)
