@@ -236,6 +236,7 @@ void Game::ProcessInput()
         }
 
         // Check for SPACE key press to interact with nearby NPCs
+        bool startedInteraction = false;
         if (keyState[SDL_SCANCODE_SPACE] && !spaceKeyPressed)
         {
             spaceKeyPressed = true;
@@ -244,6 +245,13 @@ void Game::ProcessInput()
             {
                 nearbyNPC->StartInteraction();
                 mInteractingNPC = nearbyNPC;
+                startedInteraction = true;
+
+                // Stop player movement when starting interaction
+                if (mPlayer)
+                {
+                    mPlayer->StopMovement();
+                }
             }
         }
         else if (!keyState[SDL_SCANCODE_SPACE])
@@ -251,8 +259,8 @@ void Game::ProcessInput()
             spaceKeyPressed = false;
         }
 
-        // Process player input only when not interacting
-        if (mPlayer)
+        // Process player input only when not interacting (and didn't just start interaction this frame)
+        if (mPlayer && !startedInteraction)
         {
             mPlayer->ProcessInput(keyState);
         }
@@ -275,12 +283,26 @@ void Game::UpdateGame()
 
     mTicksCount = SDL_GetTicks();
 
+    // Check if game is paused (interacting with NPC)
+    bool isPaused = mInteractingNPC && mInteractingNPC->IsInteracting();
+
     // Update all actors
     mUpdatingActors = true;
 
     for (auto& actor : mActors)
     {
-        actor->Update(deltaTime);
+        // When paused, only update the interacting NPC (for dialog UI)
+        if (isPaused)
+        {
+            if (actor.get() == mInteractingNPC)
+            {
+                actor->Update(deltaTime);
+            }
+        }
+        else
+        {
+            actor->Update(deltaTime);
+        }
     }
 
     mUpdatingActors = false;

@@ -258,3 +258,12 @@ bool Player::UseItem(int itemId)
     // For now, just remove one from inventory
     return mInventory->RemoveItem(itemId, 1);
 }
+
+void Player::StopMovement()
+{
+    if (mMovementComponent)
+    {
+        mMovementComponent->SetVelocity(Vector2::Zero);
+    }
+    mState = PlayerState::Idle;
+}

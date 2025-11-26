@@ -50,6 +50,9 @@ public:
     bool PickupItem(const class Item& item, int quantity = 1);
     bool UseItem(int itemId);
     
+    // Movement control
+    void StopMovement();
+
 private:
     // Components
     PlayerInputComponent* mInputComponent;
