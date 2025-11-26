@@ -34,6 +34,18 @@ enum class DialogUIState
     Message
 };
 
+// Layout structure for dialog box calculations
+struct DialogBoxLayout
+{
+    float boxX;
+    float boxY;
+    float boxWidth;
+    float boxHeight;
+    float textX;
+    float textY;
+    float maxTextWidth;
+};
+
 // Main NPC Dialog UI Manager
 class NPCDialogUI
 {
@@ -101,9 +113,20 @@ private:
     void DrawTradeMenuUI(TextRenderer* textRenderer, RectRenderer* rectRenderer);
     void DrawMessageUI(TextRenderer* textRenderer, RectRenderer* rectRenderer);
 
-    // Text wrapping utilities
-    std::vector<std::string> WrapText(const std::string& text, float maxWidth, float scale, TextRenderer* textRenderer);
+    // Layout and structure helpers
+    DialogBoxLayout CalculateDialogBoxLayout() const;
+    void DrawDialogBoxBackground(const DialogBoxLayout& layout, RectRenderer* rectRenderer);
+    void DrawNavigationHint(const std::string& hint, const DialogBoxLayout& layout, TextRenderer* textRenderer);
+    void DrawFaceset(const DialogBoxLayout& layout, float& outTextX, float& outTextWidth, float& outTextY);
+
+    // UI component helpers
+    void DrawButton(const std::string& text, float x, float y, bool isSelected, TextRenderer* textRenderer, RectRenderer* rectRenderer);
+    void DrawListOption(const std::string& text, float x, float y, bool isSelected, float maxWidth, float textScale, TextRenderer* textRenderer);
+
+    // Text utilities
+    static std::vector<std::string> WrapText(const std::string& text, float maxWidth, float scale, TextRenderer* textRenderer);
     void RenderWrappedText(const std::string& text, float x, float y, float maxWidth, float scale, float lineSpacing, TextRenderer* textRenderer);
+    std::string TruncateText(const std::string& text, float maxWidth, float scale, TextRenderer* textRenderer);
 };
 
 // Interaction indicator UI - shows animated speech bubble when player is near NPC

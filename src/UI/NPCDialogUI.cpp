@@ -5,7 +5,55 @@
 #include "../Core/Texture/Texture.hpp"
 #include <algorithm>
 
+// ============================================================================
+// UI Constants
+// ============================================================================
+namespace UIConstants
+{
+    // Dialog Box Settings
+    constexpr float UI_SCALE = 2.5f;
+    constexpr float DIALOG_BOX_Y_OFFSET = 50.0f;
+
+    // Margins and Padding
+    constexpr float MARGIN_LEFT = 20.0f;
+    constexpr float MARGIN_TOP = 14.0f;
+    constexpr float MARGIN_RIGHT = 20.0f;
+    constexpr float MARGIN_BOTTOM = 35.0f;
+
+    // Text Settings
+    constexpr float TEXT_SCALE_NORMAL = 0.5f;
+    constexpr float TEXT_SCALE_SMALL = 0.45f;
+    constexpr float TEXT_SCALE_HINT = 0.35f;
+    constexpr float LINE_SPACING = 20.0f;
+    constexpr float LINE_HEIGHT = 28.0f;
+
+    // Button Settings
+    constexpr float BUTTON_SPACING = 15.0f;
+    constexpr float BUTTON_PADDING_X = 20.0f;
+    constexpr float BUTTON_PADDING_Y = 12.0f;
+
+    // Faceset Settings
+    constexpr float FACESET_MARGIN = 6.0f;
+    constexpr float FACESET_SIZE = 38.0f;
+    constexpr float FACESET_TEXT_OFFSET = 50.0f;
+    constexpr float FACESET_VERTICAL_OFFSET = 20.0f;
+
+    // Selection Indicator
+    constexpr float SELECTION_ARROW_OFFSET = 15.0f;
+
+    // Colors
+    const Vector3 COLOR_BG_DEFAULT(0.2f, 0.2f, 0.3f);
+    const Vector3 COLOR_BUTTON_DEFAULT(0.3f, 0.3f, 0.4f);
+    const Vector3 COLOR_BUTTON_SELECTED(0.3f, 0.5f, 0.6f);
+    const Vector3 COLOR_TINT_SELECTED(0.9f, 1.2f, 1.3f);
+    const Vector3 COLOR_TINT_DEFAULT(0.85f, 0.85f, 0.85f);
+
+    constexpr float ALPHA_DEFAULT = 0.9f;
+}
+
+// ============================================================================
 // NPCDialogUI Implementation
+// ============================================================================
 NPCDialogUI::NPCDialogUI(Game* game)
     : mGame(game)
     , mState(DialogUIState::Hidden)
@@ -178,7 +226,7 @@ void NPCDialogUI::SelectCurrent()
 std::vector<std::string> NPCDialogUI::WrapText(const std::string& text, float maxWidth, float scale, TextRenderer* textRenderer)
 {
     std::vector<std::string> lines;
-    if (!textRenderer || text.empty()) return lines;
+    if (text.empty()) return lines;
 
     std::string currentLine;
     std::string word;
@@ -239,332 +287,273 @@ void NPCDialogUI::RenderWrappedText(const std::string& text, float x, float y, f
     }
 }
 
+// ============================================================================
+// Helper Methods
+// ============================================================================
+
 void NPCDialogUI::DrawBox(RectRenderer* rectRenderer, float x, float y, float width, float height, const Vector3& color, float alpha)
 {
     if (rectRenderer)
         rectRenderer->RenderRect(x, y, width, height, color, alpha);
 }
 
+DialogBoxLayout NPCDialogUI::CalculateDialogBoxLayout() const
+{
+    DialogBoxLayout layout;
+
+    layout.boxWidth = mDialogBoxTexture ?
+        mDialogBoxTexture->GetWidth() * UIConstants::UI_SCALE : 800.0f;
+    layout.boxHeight = mDialogBoxTexture ?
+        mDialogBoxTexture->GetHeight() * UIConstants::UI_SCALE : 200.0f;
+
+    layout.boxX = (Game::WINDOW_WIDTH - layout.boxWidth) / 2.0f;
+    layout.boxY = Game::WINDOW_HEIGHT - layout.boxHeight - UIConstants::DIALOG_BOX_Y_OFFSET;
+
+    float marginLeft = UIConstants::MARGIN_LEFT * UIConstants::UI_SCALE;
+    float marginTop = UIConstants::MARGIN_TOP * UIConstants::UI_SCALE;
+    float marginRight = UIConstants::MARGIN_RIGHT * UIConstants::UI_SCALE;
+
+    layout.textX = layout.boxX + marginLeft;
+    layout.textY = layout.boxY + marginTop + 20.0f;
+    layout.maxTextWidth = layout.boxWidth - marginLeft - marginRight;
+
+    return layout;
+}
+
+void NPCDialogUI::DrawDialogBoxBackground(const DialogBoxLayout& layout, RectRenderer* rectRenderer)
+{
+    if (mDialogBoxTexture && mGame->GetSpriteRenderer()) {
+        mGame->GetSpriteRenderer()->DrawSprite(
+            mDialogBoxTexture.get(),
+            Vector2(layout.boxX, layout.boxY),
+            Vector2(layout.boxWidth, layout.boxHeight),
+            0.0f,
+            Vector3(1.0f, 1.0f, 1.0f)
+        );
+    } else {
+        DrawBox(rectRenderer, layout.boxX, layout.boxY, layout.boxWidth, layout.boxHeight,
+                UIConstants::COLOR_BG_DEFAULT, UIConstants::ALPHA_DEFAULT);
+    }
+}
+
+void NPCDialogUI::DrawNavigationHint(const std::string& hint, const DialogBoxLayout& layout, TextRenderer* textRenderer)
+{
+    textRenderer->SetTextColor(0.5f, 0.5f, 0.5f);
+    float hintY = layout.boxY + layout.boxHeight - UIConstants::MARGIN_BOTTOM;
+    float marginLeft = UIConstants::MARGIN_LEFT * UIConstants::UI_SCALE;
+    textRenderer->RenderText(hint, layout.boxX + marginLeft, hintY, UIConstants::TEXT_SCALE_HINT);
+}
+
+// ============================================================================
+// Drawing Methods
+// ============================================================================
+
+void NPCDialogUI::DrawFaceset(const DialogBoxLayout& layout, float& outTextX, float& outTextWidth, float& outTextY)
+{
+    if (!mFacesetTexture || !mGame->GetSpriteRenderer()) return;
+
+    int faceSize = std::min(mFacesetTexture->GetWidth(), mFacesetTexture->GetHeight());
+    float faceDisplaySize = UIConstants::FACESET_SIZE * UIConstants::UI_SCALE;
+
+    float faceX = layout.boxX + (UIConstants::FACESET_MARGIN * UIConstants::UI_SCALE);
+    float faceY = layout.boxY + (UIConstants::MARGIN_TOP * UIConstants::UI_SCALE);
+
+    // Calculate normalized source coordinates
+    float normW = static_cast<float>(faceSize) / static_cast<float>(mFacesetTexture->GetWidth());
+    float normH = static_cast<float>(faceSize) / static_cast<float>(mFacesetTexture->GetHeight());
+
+    mGame->GetSpriteRenderer()->DrawSprite(
+        mFacesetTexture.get(),
+        Vector2(faceX, faceY),
+        Vector2(faceDisplaySize, faceDisplaySize),
+        Vector2(0.0f, 0.0f),
+        Vector2(normW, normH)
+    );
+
+    // Adjust text position to accommodate faceset
+    float marginRight = UIConstants::MARGIN_RIGHT * UIConstants::UI_SCALE;
+    outTextX = layout.boxX + (UIConstants::FACESET_TEXT_OFFSET * UIConstants::UI_SCALE);
+    outTextWidth = layout.boxWidth - (UIConstants::FACESET_TEXT_OFFSET * UIConstants::UI_SCALE) - marginRight;
+    outTextY = faceY + UIConstants::FACESET_VERTICAL_OFFSET;
+}
+
 void NPCDialogUI::DrawGreetingUI(TextRenderer* textRenderer, RectRenderer* rectRenderer)
 {
     if (!textRenderer || !rectRenderer) return;
 
-    // UI Settings
-    float textScale = 0.5f;
-    float lineSpacing = 20.0f;
-    float uiScale = 2.5f;
+    DialogBoxLayout layout = CalculateDialogBoxLayout();
+    DrawDialogBoxBackground(layout, rectRenderer);
 
-    // Calculate Dialog Box Dimensions
-    float boxWidth = mDialogBoxTexture ? mDialogBoxTexture->GetWidth() * uiScale : 800.0f;
-    float boxHeight = mDialogBoxTexture ? mDialogBoxTexture->GetHeight() * uiScale : 200.0f;
+    float textX = layout.textX;
+    float textY = layout.textY;
+    float textWidth = layout.maxTextWidth;
 
-    float boxX = (Game::WINDOW_WIDTH - boxWidth) / 2.0f;
-    float boxY = Game::WINDOW_HEIGHT - boxHeight - 50.0f;
-
-    // Draw Dialog Box Background
-    if (mDialogBoxTexture && mGame->GetSpriteRenderer()) {
-        mGame->GetSpriteRenderer()->DrawSprite(mDialogBoxTexture.get(),
-            Vector2(boxX, boxY), Vector2(boxWidth, boxHeight),
-            0.0f, Vector3(1.0f, 1.0f, 1.0f));
-    } else {
-        DrawBox(rectRenderer, boxX, boxY, boxWidth, boxHeight, Vector3(0.2f, 0.2f, 0.3f), 0.9f);
-    }
-
-    // Text layout
-    float marginLeft = 20.0f * uiScale;
-    float marginTop = 14.0f * uiScale;
-    float marginRight = 20.0f * uiScale;
-
-    float textX = boxX + marginLeft;
-    float textY = boxY + marginTop + 20.0f;
-    float textWidth = boxWidth - marginLeft - marginRight;
-
-    // Draw Faceset if available
-    if (mFacesetTexture && mGame->GetSpriteRenderer())
-    {
-        int faceSize = std::min(mFacesetTexture->GetWidth(), mFacesetTexture->GetHeight());
-        float faceDisplaySize = 38.0f * uiScale;
-
-        float faceX = boxX + (6.0f * uiScale);
-        float faceY = boxY + marginTop;
-
-        // Calculate normalized source coordinates
-        float normW = static_cast<float>(faceSize) / static_cast<float>(mFacesetTexture->GetWidth());
-        float normH = static_cast<float>(faceSize) / static_cast<float>(mFacesetTexture->GetHeight());
-
-        mGame->GetSpriteRenderer()->DrawSprite(mFacesetTexture.get(),
-            Vector2(faceX, faceY), Vector2(faceDisplaySize, faceDisplaySize),
-            Vector2(0.0f, 0.0f), Vector2(normW, normH));
-
-        // Adjust text position to accommodate face
-        textX = boxX + (50.0f * uiScale);
-        textWidth = boxWidth - (50.0f * uiScale) - marginRight;
-        textY = faceY + 20.0f;
+    // Draw faceset if available and adjust text position
+    if (mFacesetTexture) {
+        DrawFaceset(layout, textX, textWidth, textY);
     }
 
     // Draw greeting text with wrapping
     textRenderer->SetTextColor(0.08f, 0.11f, 0.11f);
-    RenderWrappedText(mCurrentText, textX, textY, textWidth, textScale, lineSpacing, textRenderer);
+    RenderWrappedText(mCurrentText, textX, textY, textWidth,
+                     UIConstants::TEXT_SCALE_NORMAL,
+                     UIConstants::LINE_SPACING, textRenderer);
+}
+
+void NPCDialogUI::DrawButton(const std::string& text, float x, float y, bool isSelected,
+                            TextRenderer* textRenderer, RectRenderer* rectRenderer)
+{
+    // Measure text
+    Vector2 textSize = textRenderer->MeasureText(text, UIConstants::TEXT_SCALE_NORMAL);
+    float buttonWidth = textSize.x + (UIConstants::BUTTON_PADDING_X * 2);
+    float buttonHeight = textSize.y + (UIConstants::BUTTON_PADDING_Y * 2);
+
+    // Draw button background
+    if (mChoiceBoxTexture && mGame->GetSpriteRenderer()) {
+        Vector3 tint = isSelected ? UIConstants::COLOR_TINT_SELECTED : UIConstants::COLOR_TINT_DEFAULT;
+        mGame->GetSpriteRenderer()->DrawSprite(
+            mChoiceBoxTexture.get(),
+            Vector2(x, y),
+            Vector2(buttonWidth, buttonHeight),
+            0.0f, tint
+        );
+    } else {
+        Vector3 color = isSelected ? UIConstants::COLOR_BUTTON_SELECTED : UIConstants::COLOR_BUTTON_DEFAULT;
+        DrawBox(rectRenderer, x, y, buttonWidth, buttonHeight, color, UIConstants::ALPHA_DEFAULT);
+    }
+
+    // Draw button text
+    textRenderer->SetTextColor(
+        isSelected ? 0.0f : 0.08f,
+        isSelected ? 0.9f : 0.11f,
+        isSelected ? 1.0f : 0.11f
+    );
+    textRenderer->RenderText(
+        text,
+        x + UIConstants::BUTTON_PADDING_X,
+        y + UIConstants::BUTTON_PADDING_Y + 15.0f,
+        UIConstants::TEXT_SCALE_NORMAL
+    );
 }
 
 void NPCDialogUI::DrawMainMenuUI(TextRenderer* textRenderer, RectRenderer* rectRenderer)
 {
     if (!textRenderer || !rectRenderer) return;
 
-    // UI Settings
-    float textScale = 0.5f;
-    float uiScale = 2.5f;
+    DialogBoxLayout layout = CalculateDialogBoxLayout();
+    DrawDialogBoxBackground(layout, rectRenderer);
 
-    // Calculate Dialog Box Dimensions
-    float boxWidth = mDialogBoxTexture ? mDialogBoxTexture->GetWidth() * uiScale : 800.0f;
-    float boxHeight = mDialogBoxTexture ? mDialogBoxTexture->GetHeight() * uiScale : 200.0f;
+    float marginLeft = UIConstants::MARGIN_LEFT * UIConstants::UI_SCALE;
+    float marginTop = UIConstants::MARGIN_TOP * UIConstants::UI_SCALE;
+    float buttonY = layout.boxY + marginTop + 20.0f;
+    float currentX = layout.boxX + marginLeft;
 
-    float boxX = (Game::WINDOW_WIDTH - boxWidth) / 2.0f;
-    float boxY = Game::WINDOW_HEIGHT - boxHeight - 50.0f;
-
-    // Draw Dialog Box Background
-    if (mDialogBoxTexture && mGame->GetSpriteRenderer()) {
-        mGame->GetSpriteRenderer()->DrawSprite(mDialogBoxTexture.get(),
-            Vector2(boxX, boxY), Vector2(boxWidth, boxHeight),
-            0.0f, Vector3(1.0f, 1.0f, 1.0f));
-    } else {
-        DrawBox(rectRenderer, boxX, boxY, boxWidth, boxHeight, Vector3(0.2f, 0.2f, 0.3f), 0.9f);
-    }
-
-    float marginLeft = 20.0f * uiScale;
-    float marginTop = 14.0f * uiScale;
-
-    // Draw options as horizontal buttons (centered vertically in the dialog box)
-    float buttonSpacing = 15.0f;
-    float buttonPaddingX = 20.0f;
-    float buttonPaddingY = 12.0f;
-    float buttonY = boxY + marginTop + 20.0f;
-
-    float currentX = boxX + marginLeft;
-
+    // Draw horizontal menu buttons
     for (size_t i = 0; i < mCurrentOptions.size(); i++)
     {
         bool isSelected = (i == static_cast<size_t>(mSelectedIndex));
+        DrawButton(mCurrentOptions[i], currentX, buttonY, isSelected, textRenderer, rectRenderer);
 
-        // Measure text
-        Vector2 textSize = textRenderer->MeasureText(mCurrentOptions[i], textScale);
-        float buttonWidth = textSize.x + (buttonPaddingX * 2);
-        float buttonHeight = textSize.y + (buttonPaddingY * 2);
-
-        // Draw button background with ChoiceBox texture
-        if (mChoiceBoxTexture && mGame->GetSpriteRenderer()) {
-            Vector3 tint = isSelected ? Vector3(0.9f, 1.2f, 1.3f) : Vector3(0.85f, 0.85f, 0.85f);
-            mGame->GetSpriteRenderer()->DrawSprite(mChoiceBoxTexture.get(),
-                Vector2(currentX, buttonY), Vector2(buttonWidth, buttonHeight),
-                0.0f, tint);
-        } else {
-            Vector3 color = isSelected ? Vector3(0.3f, 0.5f, 0.6f) : Vector3(0.3f, 0.3f, 0.4f);
-            DrawBox(rectRenderer, currentX, buttonY, buttonWidth, buttonHeight, color, 0.9f);
-        }
-
-        // Draw button text
-        textRenderer->SetTextColor(
-            isSelected ? 0.0f : 0.08f,
-            isSelected ? 0.9f : 0.11f,
-            isSelected ? 1.0f : 0.11f
-        );
-        textRenderer->RenderText(mCurrentOptions[i],
-            currentX + buttonPaddingX,
-            buttonY + buttonPaddingY + 15.0f,
-            textScale);
-
-        currentX += buttonWidth + buttonSpacing;
+        Vector2 textSize = textRenderer->MeasureText(mCurrentOptions[i], UIConstants::TEXT_SCALE_NORMAL);
+        currentX += textSize.x + (UIConstants::BUTTON_PADDING_X * 2) + UIConstants::BUTTON_SPACING;
     }
 
-    // Draw navigation hint
-    textRenderer->SetTextColor(0.5f, 0.5f, 0.5f);
-    float hintY = boxY + boxHeight - 35.0f;
-    textRenderer->RenderText("[A/D] Navigate  [ENTER] Select  [ESC] Close", boxX + marginLeft, hintY, 0.35f);
+    DrawNavigationHint("[A/D] Navigate  [ENTER] Select  [ESC] Close", layout, textRenderer);
+}
+
+std::string NPCDialogUI::TruncateText(const std::string& text, float maxWidth, float scale, TextRenderer* textRenderer)
+{
+    if (!textRenderer || textRenderer->GetTextWidth(text, scale) <= maxWidth) {
+        return text;
+    }
+
+    std::string truncated;
+    for (char c : text) {
+        if (textRenderer->GetTextWidth(truncated + c + "...", scale) > maxWidth) {
+            break;
+        }
+        truncated += c;
+    }
+    return truncated + "...";
+}
+
+void NPCDialogUI::DrawListOption(const std::string& text, float x, float y, bool isSelected,
+                                 float maxWidth, float textScale, TextRenderer* textRenderer)
+{
+    // Draw selection indicator
+    if (isSelected) {
+        textRenderer->SetTextColor(0.0f, 0.8f, 0.9f);
+        textRenderer->RenderText(">", x - UIConstants::SELECTION_ARROW_OFFSET, y, textScale);
+    }
+
+    // Set text color based on selection
+    textRenderer->SetTextColor(
+        isSelected ? 0.0f : 0.08f,
+        isSelected ? 0.9f : 0.11f,
+        isSelected ? 1.0f : 0.11f
+    );
+
+    // Truncate if necessary and render
+    std::string displayText = TruncateText(text, maxWidth - 30.0f, textScale, textRenderer);
+    textRenderer->RenderText(displayText, x, y, textScale);
 }
 
 void NPCDialogUI::DrawDialogMenuUI(TextRenderer* textRenderer, RectRenderer* rectRenderer)
 {
     if (!textRenderer || !rectRenderer) return;
 
-    // UI Settings
-    float textScale = 0.45f;
-    float lineHeight = 28.0f;
-    float uiScale = 2.5f;
+    DialogBoxLayout layout = CalculateDialogBoxLayout();
+    DrawDialogBoxBackground(layout, rectRenderer);
 
-    // Calculate Dialog Box Dimensions
-    float boxWidth = mDialogBoxTexture ? mDialogBoxTexture->GetWidth() * uiScale : 800.0f;
-    float boxHeight = mDialogBoxTexture ? mDialogBoxTexture->GetHeight() * uiScale : 200.0f;
+    float optionY = layout.textY + 5.0f;
 
-    float boxX = (Game::WINDOW_WIDTH - boxWidth) / 2.0f;
-    float boxY = Game::WINDOW_HEIGHT - boxHeight - 50.0f;
-
-    // Draw Dialog Box Background
-    if (mDialogBoxTexture && mGame->GetSpriteRenderer()) {
-        mGame->GetSpriteRenderer()->DrawSprite(mDialogBoxTexture.get(),
-            Vector2(boxX, boxY), Vector2(boxWidth, boxHeight),
-            0.0f, Vector3(1.0f, 1.0f, 1.0f));
-    } else {
-        DrawBox(rectRenderer, boxX, boxY, boxWidth, boxHeight, Vector3(0.2f, 0.2f, 0.3f), 0.9f);
-    }
-
-    float marginLeft = 20.0f * uiScale;
-    float marginTop = 14.0f * uiScale;
-    float marginRight = 20.0f * uiScale;
-
-    float textX = boxX + marginLeft;
-    float textY = boxY + marginTop + 20.0f;
-    float maxTextWidth = boxWidth - marginLeft - marginRight;
-
-    // Draw dialog options
-    float optionY = textY + 5.0f;
-
+    // Draw all dialog options as a vertical list
     for (size_t i = 0; i < mCurrentOptions.size(); i++)
     {
         bool isSelected = (i == static_cast<size_t>(mSelectedIndex));
+        float currentY = optionY + static_cast<float>(i) * UIConstants::LINE_HEIGHT;
 
-        // Draw selection indicator
-        if (isSelected) {
-            textRenderer->SetTextColor(0.0f, 0.8f, 0.9f);
-            textRenderer->RenderText(">", textX - 15.0f, optionY + static_cast<float>(i) * lineHeight, textScale);
-        }
-
-        // Draw option text
-        textRenderer->SetTextColor(
-            isSelected ? 0.0f : 0.08f,
-            isSelected ? 0.9f : 0.11f,
-            isSelected ? 1.0f : 0.11f
-        );
-
-        // Truncate if too long
-        std::string optionText = mCurrentOptions[i];
-        if (textRenderer->GetTextWidth(optionText, textScale) > maxTextWidth - 30.0f) {
-            std::string truncated;
-            for (char c : optionText) {
-                if (textRenderer->GetTextWidth(truncated + c + "...", textScale) > maxTextWidth - 30.0f) break;
-                truncated += c;
-            }
-            optionText = truncated + "...";
-        }
-
-        textRenderer->RenderText(optionText, textX, optionY + static_cast<float>(i) * lineHeight, textScale);
+        DrawListOption(mCurrentOptions[i], layout.textX, currentY, isSelected,
+                      layout.maxTextWidth, UIConstants::TEXT_SCALE_SMALL, textRenderer);
     }
 
-    // Draw navigation hint
-    textRenderer->SetTextColor(0.5f, 0.5f, 0.5f);
-    float hintY = boxY + boxHeight - 35.0f;
-    textRenderer->RenderText("[W/S] Navigate  [ENTER] Select  [ESC] Back", boxX + marginLeft, hintY, 0.35f);
+    DrawNavigationHint("[W/S] Navigate  [ENTER] Select  [ESC] Back", layout, textRenderer);
 }
 
 void NPCDialogUI::DrawTradeMenuUI(TextRenderer* textRenderer, RectRenderer* rectRenderer)
 {
     if (!textRenderer || !rectRenderer) return;
 
-    // UI Settings
-    float textScale = 0.45f;
-    float itemSpacing = 28.0f;
-    float uiScale = 2.5f;
+    DialogBoxLayout layout = CalculateDialogBoxLayout();
+    DrawDialogBoxBackground(layout, rectRenderer);
 
-    // Calculate Dialog Box Dimensions
-    float boxWidth = mDialogBoxTexture ? mDialogBoxTexture->GetWidth() * uiScale : 800.0f;
-    float boxHeight = mDialogBoxTexture ? mDialogBoxTexture->GetHeight() * uiScale : 200.0f;
+    float optionY = layout.textY + 5.0f;
 
-    float boxX = (Game::WINDOW_WIDTH - boxWidth) / 2.0f;
-    float boxY = Game::WINDOW_HEIGHT - boxHeight - 50.0f;
-
-    // Draw Dialog Box Background
-    if (mDialogBoxTexture && mGame->GetSpriteRenderer()) {
-        mGame->GetSpriteRenderer()->DrawSprite(mDialogBoxTexture.get(),
-            Vector2(boxX, boxY), Vector2(boxWidth, boxHeight),
-            0.0f, Vector3(1.0f, 1.0f, 1.0f));
-    } else {
-        DrawBox(rectRenderer, boxX, boxY, boxWidth, boxHeight, Vector3(0.2f, 0.2f, 0.3f), 0.9f);
-    }
-
-    float marginLeft = 20.0f * uiScale;
-    float marginTop = 14.0f * uiScale;
-    float marginRight = 20.0f * uiScale;
-
-    float textX = boxX + marginLeft;
-    float textY = boxY + marginTop + 20.0f;
-    float maxTextWidth = boxWidth - marginLeft - marginRight;
-
-    // Draw trade offers - compact format
-    float optionY = textY + 5.0f;
-
+    // Draw all trade offers as a vertical list
     for (size_t i = 0; i < mCurrentOptions.size(); i++)
     {
         bool isSelected = (i == static_cast<size_t>(mSelectedIndex));
-        float currentY = optionY + static_cast<float>(i) * itemSpacing;
+        float currentY = optionY + static_cast<float>(i) * UIConstants::LINE_HEIGHT;
 
-        // Draw selection indicator
-        if (isSelected) {
-            textRenderer->SetTextColor(0.0f, 0.8f, 0.9f);
-            textRenderer->RenderText(">", textX - 15.0f, currentY, textScale);
-        }
-
-        // Set text color
-        textRenderer->SetTextColor(
-            isSelected ? 0.0f : 0.08f,
-            isSelected ? 0.9f : 0.11f,
-            isSelected ? 1.0f : 0.11f
-        );
-
-        // Draw trade description (already formatted concisely by caller)
-        std::string tradeText = mCurrentOptions[i];
-        if (textRenderer->GetTextWidth(tradeText, textScale) > maxTextWidth - 30.0f) {
-            std::string truncated;
-            for (char c : tradeText) {
-                if (textRenderer->GetTextWidth(truncated + c + "...", textScale) > maxTextWidth - 30.0f) break;
-                truncated += c;
-            }
-            tradeText = truncated + "...";
-        }
-
-        textRenderer->RenderText(tradeText, textX, currentY, textScale);
+        DrawListOption(mCurrentOptions[i], layout.textX, currentY, isSelected,
+                      layout.maxTextWidth, UIConstants::TEXT_SCALE_SMALL, textRenderer);
     }
 
-    // Draw navigation hint
-    textRenderer->SetTextColor(0.5f, 0.5f, 0.5f);
-    float hintY = boxY + boxHeight - 35.0f;
-    textRenderer->RenderText("[W/S] Navigate  [ENTER] Select  [ESC] Back", boxX + marginLeft, hintY, 0.35f);
+    DrawNavigationHint("[W/S] Navigate  [ENTER] Select  [ESC] Back", layout, textRenderer);
 }
 
 void NPCDialogUI::DrawMessageUI(TextRenderer* textRenderer, RectRenderer* rectRenderer)
 {
     if (!textRenderer || !rectRenderer) return;
 
-    // UI Settings
-    float textScale = 0.5f;
-    float lineSpacing = 20.0f;
-    float uiScale = 2.5f;
-
-    // Calculate Dialog Box Dimensions
-    float boxWidth = mDialogBoxTexture ? mDialogBoxTexture->GetWidth() * uiScale : 800.0f;
-    float boxHeight = mDialogBoxTexture ? mDialogBoxTexture->GetHeight() * uiScale : 200.0f;
-
-    float boxX = (Game::WINDOW_WIDTH - boxWidth) / 2.0f;
-    float boxY = Game::WINDOW_HEIGHT - boxHeight - 50.0f;
-
-    // Draw Dialog Box Background
-    if (mDialogBoxTexture && mGame->GetSpriteRenderer()) {
-        mGame->GetSpriteRenderer()->DrawSprite(mDialogBoxTexture.get(),
-            Vector2(boxX, boxY), Vector2(boxWidth, boxHeight),
-            0.0f, Vector3(1.0f, 1.0f, 1.0f));
-    } else {
-        DrawBox(rectRenderer, boxX, boxY, boxWidth, boxHeight, Vector3(0.2f, 0.2f, 0.3f), 0.9f);
-    }
-
-    float marginLeft = 20.0f * uiScale;
-    float marginTop = 14.0f * uiScale;
-    float marginRight = 20.0f * uiScale;
-
-    float textX = boxX + marginLeft;
-    float textY = boxY + marginTop + 20.0f;
-    float maxTextWidth = boxWidth - marginLeft - marginRight;
+    DialogBoxLayout layout = CalculateDialogBoxLayout();
+    DrawDialogBoxBackground(layout, rectRenderer);
 
     // Draw message text with wrapping
     textRenderer->SetTextColor(0.08f, 0.11f, 0.11f);
-    RenderWrappedText(mCurrentText, textX, textY, maxTextWidth, textScale, lineSpacing, textRenderer);
+    RenderWrappedText(mCurrentText, layout.textX, layout.textY, layout.maxTextWidth,
+                     UIConstants::TEXT_SCALE_NORMAL,
+                     UIConstants::LINE_SPACING, textRenderer);
 }
 
 void NPCDialogUI::SetFacesetTexture(const std::string& path)
