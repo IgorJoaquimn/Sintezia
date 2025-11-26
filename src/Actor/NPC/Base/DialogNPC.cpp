@@ -133,13 +133,13 @@ void DialogNPC::HandleInteractionInput(const uint8_t* keyState)
 
     UpdateKeyState(keyState);
 
-    // Handle navigation
-    if (!mKeyPressed[1] && keyState[SDL_SCANCODE_W])
+    // Handle navigation - W/A for up, S/D for down
+    if (!mKeyPressed[1] && (keyState[SDL_SCANCODE_W] || keyState[SDL_SCANCODE_A]))
     {
         mKeyPressed[1] = true;
         mDialogUI->NavigateUp();
     }
-    else if (!mKeyPressed[2] && keyState[SDL_SCANCODE_S])
+    else if (!mKeyPressed[2] && (keyState[SDL_SCANCODE_S] || keyState[SDL_SCANCODE_D]))
     {
         mKeyPressed[2] = true;
         mDialogUI->NavigateDown();
@@ -152,19 +152,19 @@ void DialogNPC::HandleInteractionInput(const uint8_t* keyState)
         mDialogUI->SelectCurrent();
     }
 
-    // Handle back with A key - only works in submenus (not main menu)
-    if (!mKeyPressed[4] && keyState[SDL_SCANCODE_A])
+    // Handle back with Q key - only works in submenus (not main menu)
+    if (!mKeyPressed[4] && keyState[SDL_SCANCODE_Q])
     {
         mKeyPressed[4] = true;
 
-        // A only works in dialog/trade menus, goes back to main menu
+        // Q only works in dialog/trade menus, goes back to main menu
         if (mDialogUI->GetState() == DialogUIState::DialogMenu ||
             mDialogUI->GetState() == DialogUIState::TradeMenu ||
             mDialogUI->GetState() == DialogUIState::Message)
         {
             mDialogUI->ShowMainMenu();
         }
-        // In main menu or greeting, A does nothing
+        // In main menu or greeting, Q does nothing
     }
 
     // Handle ESC - always closes the entire dialog
@@ -180,13 +180,13 @@ void DialogNPC::UpdateKeyState(const uint8_t* keyState)
     // Reset key states when keys are released
     if (!keyState[SDL_SCANCODE_SPACE] && !keyState[SDL_SCANCODE_RETURN])
         mKeyPressed[0] = false;
-    if (!keyState[SDL_SCANCODE_W])
+    if (!keyState[SDL_SCANCODE_W] && !keyState[SDL_SCANCODE_A])
         mKeyPressed[1] = false;
-    if (!keyState[SDL_SCANCODE_S])
+    if (!keyState[SDL_SCANCODE_S] && !keyState[SDL_SCANCODE_D])
         mKeyPressed[2] = false;
     if (!keyState[SDL_SCANCODE_RETURN] && !keyState[SDL_SCANCODE_SPACE])
         mKeyPressed[3] = false;
-    if (!keyState[SDL_SCANCODE_A])
+    if (!keyState[SDL_SCANCODE_Q])
         mKeyPressed[4] = false;
     if (!keyState[SDL_SCANCODE_ESCAPE])
         mKeyPressed[5] = false;

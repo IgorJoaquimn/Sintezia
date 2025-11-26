@@ -41,8 +41,10 @@ bool FontManager::LoadFonts() {
 bool FontManager::LoadTextFont() {
     // Load text font - check multiple paths (prioritize local assets)
     std::vector<std::string> textPaths = {
-        "../assets/third_party/NotoSans-Regular.ttf",  // From build/ directory
-        "assets/third_party/NotoSans-Regular.ttf",      // From project root
+        "../assets/third_party/Ninja Adventure - Asset Pack/Ui/Font/NormalFont.ttf",  // From build/ directory
+        "assets/third_party/Ninja Adventure - Asset Pack/Ui/Font/NormalFont.ttf",      // From project root
+        "../assets/third_party/NotoSans-Regular.ttf",  // Fallback: From build/ directory
+        "assets/third_party/NotoSans-Regular.ttf",      // Fallback: From project root
         "/usr/share/fonts/truetype/noto/NotoSans-Regular.ttf"
     };
 

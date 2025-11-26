@@ -1,6 +1,8 @@
 #include "TextRenderer.hpp"
 #include <iostream>
 #include <cstring>
+#include <algorithm>
+#include <cctype>
 
 TextRenderer::TextRenderer()
     : fontManager(std::make_unique<FontManager>()),
@@ -127,6 +129,11 @@ GlyphInfo TextRenderer::LoadGlyph(uint32_t codepoint, FT_Face face, bool isEmoji
     glyph.advance = slot->advance.x >> 6;
     glyph.isColor = isEmoji && (bitmap.pixel_mode == FT_PIXEL_MODE_BGRA);
 
+    // Ensure space characters have reasonable width (especially for pixel fonts)
+    if (codepoint == 32 && glyph.advance < 8) {
+        glyph.advance = 12; // Set a reasonable minimum space width
+    }
+
     // Return early for whitespace/empty glyphs
     if (glyph.width == 0 || glyph.height == 0) {
         return glyph;
@@ -156,6 +163,11 @@ GlyphInfo TextRenderer::LoadGlyph(uint32_t codepoint, FT_Face face, bool isEmoji
     return glyph;
 }
 void TextRenderer::RenderText(const std::string& text, float x, float y, float scale) {
+    // Convert text to uppercase
+    std::string upperText = text;
+    std::transform(upperText.begin(), upperText.end(), upperText.begin(),
+                   [](unsigned char c) { return std::toupper(c); });
+
     textShader->Use();
     
     // Use specific text projection matrix that handles coordinate system correctly
@@ -170,8 +182,8 @@ void TextRenderer::RenderText(const std::string& text, float x, float y, float s
     float cursorY = y;
     
     size_t pos = 0;
-    while (pos < text.length()) {
-        uint32_t codepoint = GetNextCodepoint(text, pos);
+    while (pos < upperText.length()) {
+        uint32_t codepoint = GetNextCodepoint(upperText, pos);
         if (codepoint == 0) break;
         
         // Check glyph cache
@@ -192,9 +204,12 @@ void TextRenderer::RenderText(const std::string& text, float x, float y, float s
         
         const GlyphInfo& glyph = it->second;
         
+        // Determine scale factors
+        float emojiScale = glyph.isColor ? 0.35f : 1.0f;
+        float advanceScale = emojiScale;
+
         if (glyph.textureID > 0) {
             // Scale and position calculations
-            float emojiScale = glyph.isColor ? 0.35f : 1.0f;
             float scaled = scale * emojiScale;
             
             float xpos = cursorX + glyph.bearingX * scaled;
@@ -228,8 +243,7 @@ void TextRenderer::RenderText(const std::string& text, float x, float y, float s
             glDrawArrays(GL_TRIANGLES, 0, 6);
         }
         
-        // Advance cursor
-        float advanceScale = glyph.isColor ? 0.35f : 1.0f;
+        // Advance cursor (happens for all glyphs, including spaces)
         cursorX += glyph.advance * scale * advanceScale;
     }
     
@@ -240,13 +254,18 @@ void TextRenderer::RenderText(const std::string& text, float x, float y, float s
 
 Vector2 TextRenderer::MeasureText(const std::string& text, float scale) const
 {
+    // Convert text to uppercase for measurement consistency
+    std::string upperText = text;
+    std::transform(upperText.begin(), upperText.end(), upperText.begin(),
+                   [](unsigned char c) { return std::toupper(c); });
+
     float totalWidth = 0.0f;
     float maxHeight = 0.0f;
     
     size_t pos = 0;
-    while (pos < text.length())
+    while (pos < upperText.length())
     {
-        uint32_t codepoint = GetNextCodepoint(text, pos);
+        uint32_t codepoint = GetNextCodepoint(upperText, pos);
         if (codepoint == 0) break;
         
         // Check glyph cache or load if needed

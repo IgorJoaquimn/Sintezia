@@ -335,15 +335,6 @@ void NPCDialogUI::DrawGreetingUI(TextRenderer* textRenderer, RectRenderer* rectR
     // Draw greeting text
     textRenderer->SetTextColor(0.08f, 0.11f, 0.11f); // #141b1b
     RenderWrappedText(mCurrentText, textX, textY, textWidth, textScale, lineSpacing, textRenderer);
-
-    // Draw "Press Space to continue" hint
-    std::string hint = "[Space] Continue";
-    float hintWidth = textRenderer->GetTextWidth(hint, 0.4f);
-    textRenderer->SetTextColor(0.7f, 0.7f, 0.7f);
-    
-    float hintX = boxX + boxWidth - hintWidth - (marginRight * uiScale);
-    float hintY = boxY + boxHeight - (marginBottom * uiScale) - 10.0f; // Slightly above bottom margin
-    textRenderer->RenderText(hint, hintX, hintY, 0.4f);
 }
 
 void NPCDialogUI::DrawMainMenuUI(TextRenderer* textRenderer, RectRenderer* rectRenderer)
@@ -441,12 +432,6 @@ void NPCDialogUI::DrawMainMenuUI(TextRenderer* textRenderer, RectRenderer* rectR
         // Advance X position
         currentX += buttonWidth + buttonSpacing;
     }
-
-    // Draw controls
-    float controlsY = boxY + boxHeight + 10.0f;
-    textRenderer->SetTextColor(0.7f, 0.7f, 0.7f);
-    textRenderer->RenderText("W/S: Navigate | SPACE: Select | ESC: Exit",
-                           textX, controlsY, 0.4f);
 }
 
 void NPCDialogUI::DrawDialogMenuUI(TextRenderer* textRenderer, RectRenderer* rectRenderer)
@@ -522,12 +507,6 @@ void NPCDialogUI::DrawDialogMenuUI(TextRenderer* textRenderer, RectRenderer* rec
 
         textRenderer->RenderText(fullText, textX, optionY + static_cast<float>(i) * lineHeight, textScale);
     }
-
-    // Draw controls
-    float controlsY = boxY + boxHeight - (marginBottom * uiScale) - 20.0f;
-    textRenderer->SetTextColor(0.7f, 0.7f, 0.7f);
-    textRenderer->RenderText("W/S: Navigate | SPACE: Select | A: Back | ESC: Exit",
-                           textX, controlsY, 0.4f);
 }
 
 void NPCDialogUI::DrawTradeMenuUI(TextRenderer* textRenderer, RectRenderer* rectRenderer)
@@ -596,12 +575,6 @@ void NPCDialogUI::DrawTradeMenuUI(TextRenderer* textRenderer, RectRenderer* rect
             textRenderer->RenderText(lineText, textX, currentY + static_cast<float>(lineIdx) * lineSpacing, textScale);
         }
     }
-
-    // Draw controls
-    float controlsY = boxY + boxHeight - (marginBottom * uiScale) - 20.0f;
-    textRenderer->SetTextColor(0.7f, 0.7f, 0.7f);
-    textRenderer->RenderText("W/S: Navigate | SPACE: Trade | A: Back | ESC: Exit",
-                           textX, controlsY, 0.4f);
 }
 
 void NPCDialogUI::DrawMessageUI(TextRenderer* textRenderer, RectRenderer* rectRenderer)
@@ -621,7 +594,7 @@ void NPCDialogUI::DrawMessageUI(TextRenderer* textRenderer, RectRenderer* rectRe
 
     // Calculate Dialog Box Dimensions based on texture
     float boxWidth = 800.0f;
-    float boxHeight = 200.0f;
+    float boxHeight = 800.0f;
 
     if (mDialogBoxTexture) {
         boxWidth = mDialogBoxTexture->GetWidth() * uiScale;
@@ -646,12 +619,6 @@ void NPCDialogUI::DrawMessageUI(TextRenderer* textRenderer, RectRenderer* rectRe
 
     textRenderer->SetTextColor(0.08f, 0.11f, 0.11f); // #141b1b
     RenderWrappedText(mCurrentText, textX, textY, maxTextWidth, textScale, lineSpacing, textRenderer);
-
-    // Draw continue prompt
-    std::string prompt = "Press SPACE to continue...";
-    float promptY = boxY + boxHeight - (marginBottom * uiScale) - 20.0f;
-    textRenderer->SetTextColor(0.7f, 0.7f, 0.7f);
-    textRenderer->RenderText(prompt, textX, promptY, 0.4f);
 }
 
 void NPCDialogUI::SetFacesetTexture(const std::string& path)
