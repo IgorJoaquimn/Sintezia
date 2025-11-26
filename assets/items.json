@@ -2,27 +2,27 @@
     "items": [
         {
             "id": 1,
-            "name": "Water",
+            "name": "Água",
             "emoji": "💧"
         },
         {
             "id": 2,
-            "name": "Fire",
+            "name": "Fogo",
             "emoji": "🔥"
         },
         {
             "id": 3,
-            "name": "Earth",
+            "name": "Terra",
             "emoji": "🌍"
         },
         {
             "id": 4,
-            "name": "Air",
+            "name": "Ar",
             "emoji": "💨"
         },
         {
             "id": 5,
-            "name": "Steam",
+            "name": "Vapor",
             "emoji": "💨"
         },
         {
@@ -32,43 +32,93 @@
         },
         {
             "id": 7,
-            "name": "Mud",
+            "name": "Lama",
             "emoji": "🟤"
         },
         {
             "id": 8,
-            "name": "Dust",
+            "name": "Poeira",
             "emoji": "💨"
         },
         {
             "id": 9,
-            "name": "Rain",
+            "name": "Chuva",
             "emoji": "🌧️"
         },
         {
             "id": 10,
-            "name": "Smoke",
+            "name": "Fumaça",
             "emoji": "💨"
         },
         {
             "id": 11,
-            "name": "Cloud",
+            "name": "Nuvem",
             "emoji": "☁️"
         },
         {
             "id": 12,
-            "name": "Stone",
+            "name": "Pedra",
             "emoji": "🪨"
         },
         {
             "id": 13,
-            "name": "Brick",
+            "name": "Tijolo",
             "emoji": "🧱"
         },
         {
             "id": 14,
-            "name": "Storm",
+            "name": "Tempestade",
             "emoji": "⛈️"
+        },
+        {
+            "id": 100,
+            "name": "Madeira",
+            "emoji": "🌲"
+        },
+        {
+            "id": 102,
+            "name": "Machado",
+            "emoji": "🪓"
+        },
+        {
+            "id": 103,
+            "name": "Carne",
+            "emoji": "🥩"
+        },
+        {
+            "id": 104,
+            "name": "Carne Assada",
+            "emoji": "🍖"
+        },
+        {
+            "id": 105,
+            "name": "Tocha",
+            "emoji": "🔦"
+        },
+        {
+            "id": 106,
+            "name": "Esperança",
+            "emoji": "✨"
+        },
+        {
+            "id": 107,
+            "name": "Paz",
+            "emoji": "🕊️"
+        },
+        {
+            "id": 108,
+            "name": "Pergaminho Antigo",
+            "emoji": "📜"
+        },
+        {
+            "id": 109,
+            "name": "Barco",
+            "emoji": "⛵"
+        },
+        {
+            "id": 110,
+            "name": "Liberdade",
+            "emoji": "🌅"
         }
     ]
 }

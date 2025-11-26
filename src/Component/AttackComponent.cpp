@@ -81,8 +81,8 @@ void AttackComponent::PerformAttack()
         default: attackDir = Vector2(0.0f, 1.0f); break;
     }
 
-    SDL_Log("Attack triggered! Direction: %d, Found %zu targets in range %.1f",
-            mAttackDirection, targets.size(), mConfig.range);
+    // SDL_Log("Attack triggered! Direction: %d, Found %zu targets in range %.1f",
+    //         mAttackDirection, targets.size(), mConfig.range);
 
     // Apply damage and knockback to all targets
     for (Actor* target : targets)
@@ -95,17 +95,17 @@ void AttackComponent::PerformAttack()
         // Check if target is roughly in the attack direction
         float dot = Vector2::Dot(attackDir, toTarget);
 
-        SDL_Log("  Target at distance %.1f, dot product: %.2f (attackDir=(%.2f,%.2f), toTarget=(%.2f,%.2f))",
-                distance, dot, attackDir.x, attackDir.y, toTarget.x, toTarget.y);
+        // SDL_Log("  Target at distance %.1f, dot product: %.2f (attackDir=(%.2f,%.2f), toTarget=(%.2f,%.2f))",
+        //         distance, dot, attackDir.x, attackDir.y, toTarget.x, toTarget.y);
 
         if (dot > 0.0f) // Target is in front (90 degree cone)
         {
-            SDL_Log("  -> HIT! Applying damage");
+            // SDL_Log("  -> HIT! Applying damage");
             ApplyDamageAndKnockback(target, toTarget);
         }
         else
         {
-            SDL_Log("  -> MISS! Target not in attack cone");
+            // SDL_Log("  -> MISS! Target not in attack cone");
         }
     }
 }
@@ -152,8 +152,8 @@ void AttackComponent::ApplyDamageAndKnockback(Actor* target, const Vector2& dire
         healthComp->TakeDamage(mConfig.damage);
         float healthAfter = healthComp->GetCurrentHealth();
 
-        SDL_Log("Attack hit! Damage: %.1f | Target health: %.1f -> %.1f",
-                mConfig.damage, healthBefore, healthAfter);
+        // SDL_Log("Attack hit! Damage: %.1f | Target health: %.1f -> %.1f",
+        //         mConfig.damage, healthBefore, healthAfter);
     }
 
     // Apply knockback
@@ -164,8 +164,8 @@ void AttackComponent::ApplyDamageAndKnockback(Actor* target, const Vector2& dire
         {
             Vector2 knockbackImpulse = direction * mConfig.knockback;
             movementComp->ApplyImpulse(knockbackImpulse);
-            SDL_Log("Knockback applied: direction=(%.2f, %.2f), force=%.1f",
-                    direction.x, direction.y, mConfig.knockback);
+            // SDL_Log("Knockback applied: direction=(%.2f, %.2f), force=%.1f",
+            //         direction.x, direction.y, mConfig.knockback);
         }
     }
 }

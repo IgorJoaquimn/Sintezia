@@ -64,6 +64,9 @@ public:
     // Mouse state
     const Vector2& GetMousePosition() const { return mMousePos; }
 
+    // Get renderer
+    Renderer* GetRenderer() { return mRenderer.get(); }
+
     static const int WINDOW_WIDTH = 1200;  // 30 tiles × 40px = 1200px
     static const int WINDOW_HEIGHT = 800;  // 20 tiles × 40px = 800px
 
@@ -103,4 +106,7 @@ private:
 
     // Mouse state
     Vector2 mMousePos;
+
+    // Load NPCs from JSON
+    void LoadNPCsFromJson(const std::string& filePath);
 };

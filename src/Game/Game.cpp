@@ -21,6 +21,9 @@
 #include "../Crafting/Crafting.hpp"
 #include "Inventory.hpp"
 #include <algorithm>
+#include <fstream>
+#include <nlohmann/json.hpp>
+#include "../Actor/NPC/Concrete/GenericNPC.hpp"
 
 Game::Game()
     : mWindow(nullptr)
@@ -162,6 +165,9 @@ bool Game::Initialize()
     auto catNPC = std::make_unique<CatNPC>(this);
     RegisterNPC(catNPC.get());
     AddActor(std::move(catNPC));
+
+    // Load NPCs from JSON
+    LoadNPCsFromJson("assets/npcs.json");
 
     // Set different text color for variety
     mTextRenderer->SetTextColor(1.0f, 1.0f, 1.0f); // White
@@ -444,5 +450,36 @@ void Game::CombineItems(ItemActor* item1, ItemActor* item2)
                 item1->GetItem().name.c_str(), 
                 item2->GetItem().name.c_str(), 
                 result->name.c_str());
+    }
+}
+
+void Game::LoadNPCsFromJson(const std::string& filePath)
+{
+    std::ifstream file(filePath);
+    if (!file.is_open())
+    {
+        SDL_Log("Failed to open NPC file: %s", filePath.c_str());
+        return;
+    }
+
+    try
+    {
+        nlohmann::json j;
+        file >> j;
+
+        if (j.contains("npcs"))
+        {
+            for (const auto& npcData : j["npcs"])
+            {
+                auto npc = std::make_unique<GenericNPC>(this, npcData);
+                RegisterNPC(npc.get());
+                AddActor(std::move(npc));
+            }
+            SDL_Log("Loaded NPCs from %s", filePath.c_str());
+        }
+    }
+    catch (const std::exception& e)
+    {
+        SDL_Log("Error parsing NPC JSON: %s", e.what());
     }
 }

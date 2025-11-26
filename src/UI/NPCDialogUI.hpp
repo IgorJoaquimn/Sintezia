@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <functional>
+#include <memory>
 
 // Forward declarations
 class Game;
@@ -51,6 +52,9 @@ public:
     void ShowMessage(const std::string& message);
     void Hide();
 
+    // Configuration
+    void SetFacesetTexture(const std::string& path);
+
     bool IsVisible() const { return mState != DialogUIState::Hidden; }
     DialogUIState GetState() const { return mState; }
 
@@ -84,6 +88,10 @@ private:
     std::function<void()> mOnTalkSelected;
     std::function<void()> mOnTradeMenuSelected;
     std::function<void()> mOnLeaveSelected;
+
+    std::shared_ptr<class Texture> mFacesetTexture;
+    std::shared_ptr<class Texture> mDialogBoxTexture;
+    std::shared_ptr<class Texture> mChoiceBoxTexture; // New texture for choice buttons
 
     // Helper rendering methods
     void DrawBox(RectRenderer* rectRenderer, float x, float y, float width, float height, const Vector3& color, float alpha);

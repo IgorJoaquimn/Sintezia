@@ -1,0 +1,115 @@
+{
+  "npcs": [
+    {
+      "id": 1,
+      "name": "Ancião de Sintézia",
+      "sprite": "OldMan",
+      "faceset": "assets/third_party/Ninja Adventure - Asset Pack/Actor/Characters/OldMan/Faceset.png",
+      "position": { "x": 10, "y": 10 },
+      "dialogues": {
+        "intro": [
+          "Bem-vindo a Sintézia, jovem náufrago.",
+          "Aqui, a realidade é tecida por palavras e conceitos.",
+          "Nada é apenas o que parece. Tudo pode ser transformado."
+        ]
+      },
+      "quests": [
+        {
+          "id": 101,
+          "title": "Primeiras Palavras",
+          "description": "O Ancião quer que você entenda a base da criação. Traga Madeira e Pedra.",
+          "required_items": [100, 12], 
+          "reward_text": "Agora você entende. A união faz a ferramenta.",
+          "reward_item": 102,
+          "start_dialogue": "Para começar, você precisa do básico. A natureza nos dá 'Madeira' e 'Pedra'. Traga-as para mim.",
+          "end_dialogue": "Excelente. Veja como elas se unem. Tome este 'Machado'. Use-o para moldar seu destino."
+        },
+        {
+          "id": 102,
+          "title": "A Chama do Conhecimento",
+          "description": "O frio da noite se aproxima. Descubra como criar Fogo.",
+          "required_items": [2],
+          "reward_text": "O calor da vida.",
+          "reward_item": 105,
+          "start_dialogue": "A noite é escura e fria. Você precisará de 'Fogo'. Não posso lhe dar, você deve descobrir como criá-lo.",
+          "end_dialogue": "Ah, o calor... O 'Fogo' não apenas aquece, ele transforma. Use-o com sabedoria."
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Clara, a Náufraga",
+      "sprite": "Villager",
+      "faceset": "assets/third_party/Ninja Adventure - Asset Pack/Actor/Characters/Villager/Faceset.png",
+      "position": { "x": 15, "y": 8 },
+      "dialogues": {
+        "intro": [
+          "Ei! Você também sobreviveu?",
+          "Estou morrendo de fome... e com medo."
+        ]
+      },
+      "quests": [
+        {
+          "id": 201,
+          "title": "Fome de Sobrevivência",
+          "description": "Clara precisa de comida. Traga Carne Assada.",
+          "required_items": [104],
+          "reward_text": "Sua generosidade gera Esperança.",
+          "reward_item": 106,
+          "start_dialogue": "Eu não como há dias. Consegui caçar algo, mas não tenho como cozinhar. Se você me trouxer 'Carne Assada', serei eternamente grata.",
+          "end_dialogue": "Obrigada! Isso está delicioso. Sinto que agora temos uma chance. Tome, isso é 'Esperança'. Guarde-a."
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Monge Silencioso",
+      "sprite": "Monk",
+      "faceset": "assets/third_party/Ninja Adventure - Asset Pack/Actor/Characters/Monk/Faceset.png",
+      "position": { "x": 5, "y": 20 },
+      "dialogues": {
+        "intro": [
+          "...",
+          "(Ele aponta para o horizonte e depois para o seu coração)"
+        ]
+      },
+      "quests": [
+        {
+          "id": 301,
+          "title": "O Som do Silêncio",
+          "description": "O Monge busca a Paz interior. Talvez uma combinação de conceitos ajude.",
+          "required_items": [107],
+          "reward_text": "O silêncio se quebra em sabedoria.",
+          "reward_item": 108,
+          "start_dialogue": "...",
+          "end_dialogue": "(O Monge sorri e lhe entrega um 'Pergaminho Antigo'. Parece conter segredos da ilha.)"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Caçador de Relíquias",
+      "sprite": "Hunter",
+      "faceset": "assets/third_party/Ninja Adventure - Asset Pack/Actor/Characters/Hunter/Faceset.png",
+      "position": { "x": 25, "y": 15 },
+      "dialogues": {
+        "intro": [
+          "Cuidado onde pisa. Esta ilha tem dentes.",
+          "Estou procurando pistas sobre a antiga civilização daqui."
+        ]
+      },
+      "quests": [
+        {
+          "id": 401,
+          "title": "A Fuga",
+          "description": "O Caçador tem um plano para escapar. Ele precisa de um Barco.",
+          "required_items": [109],
+          "reward_text": "A liberdade está próxima.",
+          "reward_item": 110,
+          "start_dialogue": "Olhe este pergaminho... diz que é possível sair daqui. Mas precisamos de um 'Barco'. Se você construir um, podemos partir.",
+          "end_dialogue": "Você conseguiu! Um 'Barco'! Vamos, a maré está subindo. Sintézia ficará para trás, mas o que aprendemos aqui... isso levaremos para sempre."
+        }
+      ]
+    }
+  ]
+}

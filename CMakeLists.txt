@@ -48,6 +48,7 @@ set(SOURCES
     ${SRC_DIR}/Actor/NPC/Concrete/TestPassivePatrolNPC.cpp
     ${SRC_DIR}/Actor/NPC/Concrete/TestAggressivePatrolNPC.cpp
     ${SRC_DIR}/Actor/NPC/Concrete/CatNPC.cpp
+    ${SRC_DIR}/Actor/NPC/Concrete/GenericNPC.cpp
     ${SRC_DIR}/Map/TileMap.cpp
     ${SRC_DIR}/Map/TiledParser.cpp
     ${SRC_DIR}/Component/Component.cpp

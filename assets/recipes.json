@@ -49,6 +49,31 @@
             "item1_id": 11,
             "item2_id": 11,
             "result_id": 14
+        },
+        {
+            "item1_id": 100,
+            "item2_id": 12,
+            "result_id": 102
+        },
+        {
+            "item1_id": 103,
+            "item2_id": 2,
+            "result_id": 104
+        },
+        {
+            "item1_id": 100,
+            "item2_id": 2,
+            "result_id": 105
+        },
+        {
+            "item1_id": 106,
+            "item2_id": 1,
+            "result_id": 107
+        },
+        {
+            "item1_id": 100,
+            "item2_id": 4,
+            "result_id": 109
         }
     ]
 }
