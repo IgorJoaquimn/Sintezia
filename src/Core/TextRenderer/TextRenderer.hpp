@@ -34,6 +34,10 @@ public:
     float GetTextWidth(const std::string& text, float scale = 1.0f) const;
     float GetTextHeight(const std::string& text, float scale = 1.0f) const;
 
+    // Get window dimensions
+    float GetWindowWidth() const;
+    float GetWindowHeight() const;
+
 private:
     std::unique_ptr<FontManager> fontManager;
     std::unique_ptr<ShaderProgram> textShader;

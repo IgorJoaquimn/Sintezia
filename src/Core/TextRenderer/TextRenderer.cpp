@@ -312,3 +312,5 @@ float TextRenderer::GetTextHeight(const std::string& text, float scale) const
     return MeasureText(text, scale).y;
 }
 
+float TextRenderer::GetWindowWidth() const { return mWindowWidth; }
+float TextRenderer::GetWindowHeight() const { return mWindowHeight; }

@@ -22,7 +22,7 @@ class DialogNPC;
 class Game
 {
 public:
-    Game();
+    Game(SDL_Window* window, SDL_GLContext glContext);
     ~Game();
 
     bool Initialize();

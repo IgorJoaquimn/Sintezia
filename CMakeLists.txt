@@ -69,6 +69,8 @@ set(SOURCES
     ${SRC_DIR}/Crafting/Crafting.cpp
     ${SRC_DIR}/UI/NPCDialogUI.cpp
     ${SRC_DIR}/UI/InventoryUI.cpp
+    ${SRC_DIR}/UI/MainMenu.cpp
+
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES})

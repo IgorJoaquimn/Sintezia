@@ -25,9 +25,9 @@
 #include <nlohmann/json.hpp>
 #include "../Actor/NPC/Concrete/GenericNPC.hpp"
 
-Game::Game()
-    : mWindow(nullptr)
-    , mGLContext(nullptr)
+Game::Game(SDL_Window* window, SDL_GLContext glContext)
+    : mWindow(window)
+    , mGLContext(glContext)
     , mRenderer(nullptr)
     , mTextRenderer(nullptr)
     , mRectRenderer(nullptr)
@@ -47,32 +47,8 @@ Game::~Game() = default;
 
 bool Game::Initialize()
 {
-    if (SDL_Init(SDL_INIT_VIDEO) != 0)
-    {
-        SDL_Log("Unable to initialize SDL: %s", SDL_GetError());
-        return false;
-    }
-
-    // Set OpenGL attributes
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-
-    mWindow = SDL_CreateWindow("Infinite Craft Clone", 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_OPENGL);
-    if (!mWindow)
-    {
-        SDL_Log("Failed to create window: %s", SDL_GetError());
-        return false;
-    }
-
-    // Create OpenGL context
-    mGLContext = SDL_GL_CreateContext(mWindow);
-    if (!mGLContext)
-    {
-        SDL_Log("Failed to create OpenGL context: %s", SDL_GetError());
-        return false;
-    }
-
+    // SDL and OpenGL context must be initialized before calling this!
+    // Remove SDL_Init, SDL_GL_SetAttribute, SDL_CreateWindow, SDL_GL_CreateContext
     mRenderer = std::make_unique<Renderer>();
     if (!mRenderer->Initialize(WINDOW_WIDTH, WINDOW_HEIGHT))
     {
