@@ -54,6 +54,8 @@ public:
     void StopMovement();
 
 private:
+    void LoadTextures();
+
     // Components
     PlayerInputComponent* mInputComponent;
     MovementComponent* mMovementComponent;
@@ -65,6 +67,10 @@ private:
     PlayerState mState;
     float mAttackTimer;
     int mLastDirection;
+
+    // Textures
+    std::shared_ptr<Texture> mSpriteSheet;
+    std::shared_ptr<Texture> mAttackTexture;
 
     // Inventory system
     std::unique_ptr<Inventory> mInventory;

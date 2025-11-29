@@ -75,22 +75,37 @@ Player::Player(Game* game)
     mInventoryUI = std::make_unique<InventoryUI>(game, mInventory.get());
     mInventoryUI->SetPosition(Vector2(200.0f, 150.0f));
     
-    // Load Boy sprite sheet from TSX
-    TilesetInfo tileset;
-    if (TiledParser::ParseTSX("assets/tiled/tilesets/Boy.tsx", tileset))
-    {
-        mSpriteComponent->LoadSpriteSheet(tileset.imagePath);
-        mSpriteComponent->SetSpriteSize(tileset.tileWidth, tileset.tileHeight);
-        mSpriteComponent->SetRenderSize(64.0f);
-    }
-    else
-    {
-        SDL_Log("Failed to load Boy.tsx");
-    }
+    LoadTextures();
 }
 
 Player::~Player()
 {
+}
+
+void Player::LoadTextures()
+{
+    // Load main sprite sheet
+    mSpriteSheet = std::make_shared<Texture>();
+    // Try loading from assets
+    std::string basePath = "assets/third_party/Ninja Adventure - Asset Pack/Actor/Characters/Boy/";
+    if (!mSpriteSheet->Load(basePath + "SpriteSheet.png"))
+    {
+        // Try fallback path for build dir
+        basePath = "../assets/third_party/Ninja Adventure - Asset Pack/Actor/Characters/Boy/";
+        mSpriteSheet->Load(basePath + "SpriteSheet.png");
+    }
+
+    // Load attack texture
+    mAttackTexture = std::make_shared<Texture>();
+    mAttackTexture->Load(basePath + "SeparateAnim/Attack.png");
+
+    // Set initial texture
+    if (mSpriteSheet)
+    {
+        mSpriteComponent->SetTexture(mSpriteSheet);
+        mSpriteComponent->SetSpriteSize(16, 16); // Tile size from TSX
+        mSpriteComponent->SetRenderSize(64.0f);
+    }
 }
 
 void Player::OnProcessInput(const Uint8* keyState)
@@ -191,18 +206,19 @@ void Player::OnDraw(TextRenderer* textRenderer)
     if (!spriteRenderer || !mSpriteComponent || !mInputComponent || !mAnimationComponent) return;
 
     int direction = mInputComponent->GetDirection();
+    // Use last direction if idle/attacking to keep facing the right way
+    if (!mInputComponent->IsMoving())
+    {
+        direction = mLastDirection;
+    }
+
     int frame = mAnimationComponent->GetCurrentFrame();
-    
-    // Boy.tsx sprite sheet layout (4 columns, 7 rows):
-    // Column 0: Down, Column 1: Up, Column 2: Left, Column 3: Right
-    // Row 0: Idle frame 0
-    // Rows 1-4: Walk animation frames (4 frames)
-    // Rows 5-6: Additional frames
     
     int row = 0;
     int col = 0;
     
     // Map direction (0=Down, 1=Right, 2=Up, 3=Left) to sprite columns
+    // Assuming Attack.png follows the same column layout as SpriteSheet.png
     switch (direction)
     {
         case 0: col = 0; break; // Down
@@ -211,18 +227,33 @@ void Player::OnDraw(TextRenderer* textRenderer)
         case 3: col = 2; break; // Left
     }
     
-    // Set row based on state
-    if (mState == PlayerState::Idle)
+    if (mState == PlayerState::Attacking && mAttackTexture)
     {
-        row = 0; // Idle frame
-    }
-    else if (mState == PlayerState::Walking)
-    {
-        row = 1 + (frame % 4); // Walk frames are rows 1-4
+        mSpriteComponent->SetTexture(mAttackTexture);
+        // Attack animation: Assuming 1 frame (Row 0) for now
+        // If Attack.png has multiple rows for animation, we can use 'frame' here
+        row = 0; 
     }
     else
     {
-        row = 0; // Default to idle for other states
+        if (mSpriteSheet)
+        {
+            mSpriteComponent->SetTexture(mSpriteSheet);
+        }
+
+        // Set row based on state
+        if (mState == PlayerState::Idle)
+        {
+            row = 0; // Idle frame
+        }
+        else if (mState == PlayerState::Walking)
+        {
+            row = 1 + (frame % 4); // Walk frames are rows 1-4
+        }
+        else
+        {
+            row = 0; // Default to idle for other states
+        }
     }
     
     mSpriteComponent->SetCurrentFrame(row, col);
