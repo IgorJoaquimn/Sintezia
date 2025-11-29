@@ -3,26 +3,60 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "",
+    "activeFile": "Z:/home/joaquino/faculdade/jogos/infinite-craft-clone/assets/maps/mapa_de_teste.json",
     "expandedProjectPaths": [
     ],
     "file.lastUsedOpenFilter": "Todos os Ficheiros (*)",
     "fileStates": {
+        "//wsl.localhost/Ubuntu/home/joaquino/faculdade/jogos/infinite-craft-clone/assets/tiled/tilesets/TilesetDungeon.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "Z:/home/joaquino/faculdade/jogos/infinite-craft-clone/assets/maps/TilesetDungeon.tsx": {
+            "scaleInDock": 1
+        },
+        "Z:/home/joaquino/faculdade/jogos/infinite-craft-clone/assets/maps/TilesetHouse.tsx": {
+            "scaleInDock": 1
+        },
+        "Z:/home/joaquino/faculdade/jogos/infinite-craft-clone/assets/maps/TilesetReliefDetail.tsx": {
+            "scaleInDock": 1
+        },
         "Z:/home/joaquino/faculdade/jogos/infinite-craft-clone/assets/maps/TilesetWater.tsx": {
-            "dynamicWrapping": false
+            "dynamicWrapping": false,
+            "scaleInDock": 1
+        },
+        "Z:/home/joaquino/faculdade/jogos/infinite-craft-clone/assets/maps/mapa_de_teste.json": {
+            "scale": 2,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 337,
+                "y": 367.5
+            }
+        },
+        "tilesets/Boy.tsx": {
+            "scaleInDock": 1
+        },
+        "tilesets/Cat.tsx": {
+            "scaleInDock": 1
         },
         "tilesets/Cavegirl.tsx": {
-            "dynamicWrapping": false
+            "dynamicWrapping": false,
+            "scaleInDock": 1
         },
         "tilesets/Cliff_Tile.tsx": {
             "dynamicWrapping": true,
             "scaleInDock": 1
         },
         "tilesets/DemonGreen.tsx": {
-            "dynamicWrapping": false
+            "dynamicWrapping": false,
+            "scaleInDock": 1
+        },
+        "tilesets/DialogBoxFaceset.tsx": {
+            "scaleInDock": 1
         },
         "tilesets/Extra tiles.tsx": {
             "dynamicWrapping": false,
+            "scaleInDock": 1,
             "scaleInEditor": 1
         },
         "tilesets/FarmLand_Tile.tsx": {
@@ -43,7 +77,23 @@
             "scaleInDock": 1
         },
         "tilesets/Skeleton.tsx": {
-            "dynamicWrapping": false
+            "dynamicWrapping": false,
+            "scaleInDock": 1
+        },
+        "tilesets/TilesetDungeon.tsx": {
+            "scaleInDock": 1
+        },
+        "tilesets/TilesetFloor.tsx": {
+            "scaleInDock": 1
+        },
+        "tilesets/TilesetHouse.tsx": {
+            "scaleInDock": 1
+        },
+        "tilesets/TilesetReliefDetail.tsx": {
+            "scaleInDock": 1
+        },
+        "tilesets/TilesetWater.tsx": {
+            "scaleInDock": 1
         },
         "tilesets/Water_Middle.tsx": {
             "dynamicWrapping": true,
@@ -54,7 +104,7 @@
         }
     },
     "last.exportedFilePath": "Z:/home/joaquino/faculdade/jogos/infinite-craft-clone/assets/maps",
-    "last.externalTilesetPath": "C:/Users/Vitin/UFMG/2025_2/jogos/TP_FINAL/Sintezia/assets/tiled/tilesets",
+    "last.externalTilesetPath": "//wsl.localhost/Ubuntu/home/joaquino/faculdade/jogos/infinite-craft-clone/assets/tiled/tilesets",
     "last.imagePath": "C:/Users/Vitin/UFMG/2025_2/jogos/TP_FINAL/Sintezia/assets/third_party/Ninja Adventure - Asset Pack/Backgrounds/Tilesets",
     "lastUsedTilesetExportFilter": "Todos os Ficheiros (*)",
     "map.lastUsedExportFilter": "Todos os Ficheiros (*)",
@@ -63,10 +113,14 @@
     "map.tileHeight": 16,
     "map.tileWidth": 16,
     "openFiles": [
+        "Z:/home/joaquino/faculdade/jogos/infinite-craft-clone/assets/maps/mapa_de_teste.json",
+        "//wsl.localhost/Ubuntu/home/joaquino/faculdade/jogos/infinite-craft-clone/assets/tiled/tilesets/TilesetDungeon.tsx"
     ],
     "project": "tp.tiled-project",
     "property.type": "bool",
     "recentFiles": [
+        "//wsl.localhost/Ubuntu/home/joaquino/faculdade/jogos/infinite-craft-clone/assets/tiled/tilesets/TilesetDungeon.tsx",
+        "Z:/home/joaquino/faculdade/jogos/infinite-craft-clone/assets/maps/mapa_de_teste.json",
         "tilesets/Extra tiles.tsx"
     ],
     "tileset.lastUsedFilter": "Ficheiros de conjunto de tiles Tiled (*.tsx *.xml)",

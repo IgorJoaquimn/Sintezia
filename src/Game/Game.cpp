@@ -79,6 +79,7 @@ bool Game::Initialize()
     {
         SDL_Log("Warning: Failed to initialize sprite renderer");
     }
+    
 
     // Initialize crafting system
     mCrafting = std::make_unique<Crafting>();

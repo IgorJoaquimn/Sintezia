@@ -101,7 +101,9 @@ void SpriteRenderer::DrawSprite(Texture* texture, const Vector2& position, const
 {
     // Enable blending for sprite transparency
     glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    // Use separate blend function for alpha to avoid transparency issues when rendering to FBO
+    // This ensures that drawing a transparent pixel doesn't reduce the alpha of the destination
+    glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
     mShader->Use();
     

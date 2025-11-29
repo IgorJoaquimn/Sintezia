@@ -42,12 +42,31 @@ bool Texture::Load(const std::string& fileName)
         return false;
     }
     
-    mWidth = surf->w;
-    mHeight = surf->h;
+    // Convert indexed/palette images to RGBA to avoid OpenGL errors
+    SDL_Surface* formattedSurf = surf;
+    bool converted = false;
+    
+    if (surf->format->BytesPerPixel != 3 && surf->format->BytesPerPixel != 4)
+    {
+        // Convert to ABGR8888 (which is R,G,B,A in memory on little endian, matching GL_RGBA)
+        formattedSurf = SDL_ConvertSurfaceFormat(surf, SDL_PIXELFORMAT_ABGR8888, 0);
+        if (formattedSurf)
+        {
+            converted = true;
+        }
+        else
+        {
+            std::cerr << "Failed to convert surface format for " << fileName << ": " << SDL_GetError() << std::endl;
+            // Fallback to original surface, though it will likely fail rendering
+        }
+    }
+
+    mWidth = formattedSurf->w;
+    mHeight = formattedSurf->h;
     
     // Determine format
     int format = GL_RGB;
-    if (surf->format->BytesPerPixel == 4)
+    if (formattedSurf->format->BytesPerPixel == 4)
     {
         format = GL_RGBA;
     }
@@ -56,8 +75,12 @@ bool Texture::Load(const std::string& fileName)
     glGenTextures(1, &mTextureID);
     glBindTexture(GL_TEXTURE_2D, mTextureID);
     
-    glTexImage2D(GL_TEXTURE_2D, 0, format, mWidth, mHeight, 0, format, GL_UNSIGNED_BYTE, surf->pixels);
+    glTexImage2D(GL_TEXTURE_2D, 0, format, mWidth, mHeight, 0, format, GL_UNSIGNED_BYTE, formattedSurf->pixels);
     
+    if (converted)
+    {
+        SDL_FreeSurface(formattedSurf);
+    }
     SDL_FreeSurface(surf);
     
     // Use nearest-neighbor filtering for crisp pixel art (no blur)
