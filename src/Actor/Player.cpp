@@ -11,6 +11,7 @@
 #include "../Component/AttackComponent.hpp"
 #include "../Core/Texture/Texture.hpp"
 #include "../Map/TiledParser.hpp"
+#include "../Actor/ItemActor.hpp"
 
 Player::Player(Game* game)
     : Actor(game)
@@ -183,6 +184,32 @@ void Player::OnProcessInput(const Uint8* keyState)
 
 void Player::OnUpdate(float deltaTime)
 {
+    // Check for nearby items to pickup
+    // Radius increased to 150px (approx 3-4 tiles) to make pickup easier
+    const float PICKUP_RADIUS = 150.0f;
+    const float PICKUP_RADIUS_SQ = PICKUP_RADIUS * PICKUP_RADIUS;
+    
+    Vector2 myPos = GetPosition();
+    
+    for (const auto& actor : mGame->GetActors())
+    {
+        // Check if it's an ItemActor
+        ItemActor* item = dynamic_cast<ItemActor*>(actor.get());
+        if (item && item->GetState() == ActorState::Active && !item->IsBeingPickedUp())
+        {
+            // Calculate item center (ItemActor position is Left-Center)
+            Vector2 itemBounds = item->GetBounds();
+            Vector2 itemCenter = item->GetPosition() + Vector2(itemBounds.x / 2.0f, 0.0f);
+
+            // Check distance
+            float distSq = (itemCenter - myPos).LengthSq();
+            if (distSq < PICKUP_RADIUS_SQ)
+            {
+                item->StartPickup(this);
+            }
+        }
+    }
+
     // Update inventory UI
     if (mInventoryUI)
     {

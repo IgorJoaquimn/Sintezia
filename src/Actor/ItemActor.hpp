@@ -44,6 +44,10 @@ public:
     bool Intersects(const ItemActor* other) const;
     Vector2 GetBounds() const; // Returns width and height
     
+    // Pickup functionality
+    void StartPickup(Actor* target);
+    bool IsBeingPickedUp() const { return mIsBeingPickedUp; }
+
 protected:
     void OnUpdate(float deltaTime) override;
     void OnDraw(class TextRenderer* textRenderer) override;
@@ -72,5 +76,10 @@ private:
     bool mIsDragging;
     Vector2 mDragOffset; // Offset from item position to mouse when drag started
     
+    // Pickup state
+    bool mIsBeingPickedUp;
+    Actor* mPickupTarget;
+    float mPickupSpeed;
+
     std::string GetDisplayText() const;
 };

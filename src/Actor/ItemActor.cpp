@@ -25,6 +25,9 @@ ItemActor::ItemActor(class Game* game, const Item& item)
     , mBasePosition(Vector2::Zero)
     , mStartOffset(Vector2::Zero)
     , mJumpHeight(20.0f)
+    , mIsBeingPickedUp(false)
+    , mPickupTarget(nullptr)
+    , mPickupSpeed(400.0f)
 {
     // Generate random start offset for the jump
     // Random X between -16 and 16
@@ -51,6 +54,9 @@ ItemActor::ItemActor(class Game* game, int itemId, const std::string& name, cons
     , mBasePosition(Vector2::Zero)
     , mStartOffset(Vector2::Zero)
     , mJumpHeight(20.0f)
+    , mIsBeingPickedUp(false)
+    , mPickupTarget(nullptr)
+    , mPickupSpeed(400.0f)
 {
     // Generate random start offset for the jump
     float randomX = (static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * 32.0f) - 16.0f;
@@ -82,9 +88,60 @@ std::string ItemActor::GetDisplayText() const
     return text;
 }
 
+#include "../Actor/Player.hpp"
+
+void ItemActor::StartPickup(Actor* target)
+{
+    if (!mIsBeingPickedUp && target)
+    {
+        mIsBeingPickedUp = true;
+        mPickupTarget = target;
+        mDraggable = false; // Disable dragging while being picked up
+        mIsDragging = false;
+    }
+}
+
 void ItemActor::OnUpdate(float deltaTime)
 {
-    if (mSpawnTimer < mSpawnDuration)
+    if (mIsBeingPickedUp && mPickupTarget)
+    {
+        Vector2 pos = GetPosition();
+        Vector2 targetPos = mPickupTarget->GetPosition();
+        
+        // Calculate direction to target
+        Vector2 diff = targetPos - pos;
+        float distSq = diff.LengthSq();
+        
+        // If close enough, add to inventory and destroy
+        if (distSq < 400.0f) // 20 pixels squared
+        {
+            // Try to cast target to Player to access inventory
+            Player* player = dynamic_cast<Player*>(mPickupTarget);
+            if (player)
+            {
+                player->PickupItem(mItem);
+            }
+            
+            SetState(ActorState::Destroy);
+            return;
+        }
+        
+        // Move towards target
+        diff.Normalize();
+        
+        // Accelerate towards player
+        mPickupSpeed += 1000.0f * deltaTime;
+        
+        pos += diff * mPickupSpeed * deltaTime;
+        SetPosition(pos);
+        
+        // Shrink while being picked up
+        if (mSpawnScale > 0.2f)
+        {
+            mSpawnScale -= 2.0f * deltaTime;
+        }
+    }
+    else if (mSpawnTimer < mSpawnDuration)
     {
         // Capture the target position on the first frame of update
         if (mSpawnTimer == 0.0f)
