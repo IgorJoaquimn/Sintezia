@@ -8,8 +8,52 @@
     ],
     "file.lastUsedOpenFilter": "Todos os Ficheiros (*)",
     "fileStates": {
+        "Z:/home/joaquino/faculdade/jogos/infinite-craft-clone/assets/maps/TilesetWater.tsx": {
+            "dynamicWrapping": false
+        },
+        "tilesets/Cavegirl.tsx": {
+            "dynamicWrapping": false
+        },
+        "tilesets/Cliff_Tile.tsx": {
+            "dynamicWrapping": true,
+            "scaleInDock": 1
+        },
+        "tilesets/DemonGreen.tsx": {
+            "dynamicWrapping": false
+        },
+        "tilesets/Extra tiles.tsx": {
+            "dynamicWrapping": false,
+            "scaleInEditor": 1
+        },
+        "tilesets/FarmLand_Tile.tsx": {
+            "dynamicWrapping": true,
+            "scaleInDock": 1
+        },
+        "tilesets/Oak_Tree.tsx": {
+            "scaleInDock": 1
+        },
+        "tilesets/Path_Middle.tsx": {
+            "scaleInDock": 1
+        },
+        "tilesets/Path_Tile.tsx": {
+            "scaleInDock": 1
+        },
+        "tilesets/Player.tsx": {
+            "dynamicWrapping": true,
+            "scaleInDock": 1
+        },
+        "tilesets/Skeleton.tsx": {
+            "dynamicWrapping": false
+        },
+        "tilesets/Water_Middle.tsx": {
+            "dynamicWrapping": true,
+            "scaleInDock": 1
+        },
+        "tilesets/Water_Tile.tsx": {
+            "scaleInDock": 1
+        }
     },
-    "last.exportedFilePath": "C:/Users/Vitin/UFMG/2025_2/jogos/TP_FINAL/Sintezia/assets/maps",
+    "last.exportedFilePath": "Z:/home/joaquino/faculdade/jogos/infinite-craft-clone/assets/maps",
     "last.externalTilesetPath": "C:/Users/Vitin/UFMG/2025_2/jogos/TP_FINAL/Sintezia/assets/tiled/tilesets",
     "last.imagePath": "C:/Users/Vitin/UFMG/2025_2/jogos/TP_FINAL/Sintezia/assets/third_party/Ninja Adventure - Asset Pack/Backgrounds/Tilesets",
     "lastUsedTilesetExportFilter": "Todos os Ficheiros (*)",
@@ -23,6 +67,7 @@
     "project": "tp.tiled-project",
     "property.type": "bool",
     "recentFiles": [
+        "tilesets/Extra tiles.tsx"
     ],
     "tileset.lastUsedFilter": "Ficheiros de conjunto de tiles Tiled (*.tsx *.xml)",
     "tileset.lastUsedFormat": "tsx",
