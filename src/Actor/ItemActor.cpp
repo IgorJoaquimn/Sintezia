@@ -194,6 +194,8 @@ void ItemActor::OnUpdate(float deltaTime)
     // Baseline is roughly half the text height below the center.
     float textBaselineY = centerY + (textSize.y * mSpawnScale / 2.0f);
     
+    // Ensure text color is black for items (since background is light)
+    textRenderer->SetTextColor(0.0f, 0.0f, 0.0f);
     textRenderer->RenderText(displayText, textLeftX, textBaselineY, mBaseScale * mSpawnScale);
 }
 
