@@ -16,35 +16,8 @@ TileMap::TileMap(int width, int height, int tileSize)
     : mWidth(width)
     , mHeight(height)
     , mTileSize(tileSize)
-    , mGrassTexture(std::make_unique<Texture>())
-    , mWaterTexture(std::make_unique<Texture>())
-    , mPathTexture(std::make_unique<Texture>())
 {
-    // Load the Cute Fantasy tiles
-    if (!mGrassTexture->Load("assets/third_party/Cute_Fantasy_Free/Tiles/Grass_Middle.png"))
-    {
-        std::cerr << "Failed to load grass texture! Trying fallback..." << std::endl;
-        // Try fallback
-        if (!mGrassTexture->Load("assets/sprites/Floor.png"))
-        {
-            std::cerr << "Failed to load floor texture fallback!" << std::endl;
-        }
-    }
-    
-    if (!mWaterTexture->Load("assets/third_party/Cute_Fantasy_Free/Tiles/Water_Middle.png"))
-    {
-        std::cerr << "Failed to load water texture! Trying fallback..." << std::endl;
-        if (!mWaterTexture->Load("assets/sprites/Wall.png"))
-        {
-            std::cerr << "Failed to load wall texture fallback!" << std::endl;
-        }
-    }
-    
-    if (!mPathTexture->Load("assets/third_party/Cute_Fantasy_Free/Tiles/Path_Middle.png"))
-    {
-        std::cerr << "Failed to load path texture!" << std::endl;
-    }
-    
+    // Load fallback textures only
     GenerateMap();
 }
 
@@ -399,41 +372,7 @@ void TileMap::Draw(SpriteRenderer* spriteRenderer)
         return;
     }
     
-    // Otherwise, draw simple procedural tilemap
-    for (int y = 0; y < mHeight; y++)
-    {
-        for (int x = 0; x < mWidth; x++)
-        {
-            float xPos = x * mTileSize;
-            float yPos = y * mTileSize;
-            
-            Texture* texture = nullptr;
-            
-            switch (mTiles[y][x].type)
-            {
-                case TileType::Grass:
-                case TileType::Floor:
-                    texture = mGrassTexture.get();
-                    break;
-                case TileType::Water:
-                case TileType::Wall:
-                    texture = mWaterTexture.get();
-                    break;
-                case TileType::Path:
-                    texture = mPathTexture.get();
-                    break;
-            }
-            
-            if (texture)
-            {
-                spriteRenderer->DrawSprite(
-                    texture,
-                    Vector2(xPos, yPos),
-                    Vector2(mTileSize, mTileSize)
-                );
-            }
-        }
-    }
+    // Otherwise, do not draw procedural tilemap (no textures)
 }
 
 bool TileMap::IsWalkable(const Vector2& position) const
