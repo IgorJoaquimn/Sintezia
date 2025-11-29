@@ -44,6 +44,7 @@ Game::Game(SDL_Window* window, SDL_GLContext glContext)
     , mInteractingNPC(nullptr)
     , mMousePos(Vector2::Zero)
     , mCamera(std::make_unique<Camera>(static_cast<float>(WINDOW_WIDTH), static_cast<float>(WINDOW_HEIGHT)))
+    ,mAudio(nullptr)
 {
 }
 
@@ -66,14 +67,14 @@ bool Game::Initialize()
     {
         SDL_Log("Warning: Failed to initialize text renderer");
     }
-    
+
     // Initialize rect renderer
     mRectRenderer = std::make_unique<RectRenderer>();
     if (!mRectRenderer->Initialize(WINDOW_WIDTH, WINDOW_HEIGHT))
     {
         SDL_Log("Warning: Failed to initialize rect renderer");
     }
-    
+
     // Initialize sprite renderer
     mSpriteRenderer = std::make_unique<SpriteRenderer>();
     if (!mSpriteRenderer->Initialize(WINDOW_WIDTH, WINDOW_HEIGHT))
@@ -84,13 +85,13 @@ bool Game::Initialize()
 
     // Initialize crafting system
     mCrafting = std::make_unique<Crafting>();
-    
+
     // Load items and recipes from JSON
     if (!mCrafting->LoadItemsFromJson("assets/items.json"))
     {
         SDL_Log("Warning: Failed to load items");
     }
-    
+
     if (!mCrafting->LoadRecipesFromJson("assets/recipes.json"))
     {
         SDL_Log("Warning: Failed to load recipes");
@@ -99,28 +100,34 @@ bool Game::Initialize()
     // Create tile map
     // Window is 1200×800, map is 30×20 tiles: perfect fit at 40px per tile
     mTileMap = std::make_unique<TileMap>(30, 20, 40);
-    
+
     // Load your custom Tiled map
     if (!mTileMap->LoadFromJSON("assets/maps/mapa_de_teste.tmj"))
     {
         SDL_Log("Warning: Failed to load custom map, using procedural generation");
     }
-    
+
+    mAudio = new AudioSystem();
+
+    if (mAudio) {
+        mAudio->PlaySound("background.ogg", true, 50);
+    }
+
     // Spawn items from map using ItemGenerator
     ItemGenerator itemGenerator(this);
     itemGenerator.GenerateItemsFromMap(mTileMap.get());
-    
+
     // Create player
     auto player = std::make_unique<Player>(this);
     mPlayer = player.get(); // Safe: player ownership transferred to mActors, pointer valid for game lifetime
     AddActor(std::move(player));
-    
+
     // Update player movement bounds to match map size
     if (mPlayer && mTileMap)
     {
         float mapWidth = static_cast<float>(mTileMap->GetWidth() * mTileMap->GetTileSize());
         float mapHeight = static_cast<float>(mTileMap->GetHeight() * mTileMap->GetTileSize());
-        
+
         auto* moveComp = mPlayer->GetComponent<MovementComponent>();
         if (moveComp)
         {
@@ -128,7 +135,7 @@ bool Game::Initialize()
             moveComp->SetBounds(16.0f, 16.0f, mapWidth - 16.0f, mapHeight - 16.0f);
         }
     }
-    
+
     // Give player some starting items for testing trades
     if (mPlayer && mPlayer->GetInventory() && mCrafting)
     {
@@ -136,14 +143,14 @@ bool Game::Initialize()
         const Item* water = mCrafting->FindItemById(1);  // Water
         const Item* fire = mCrafting->FindItemById(2);   // Fire
         const Item* earth = mCrafting->FindItemById(3);  // Earth
-        
+
         if (water)
             mPlayer->GetInventory()->AddItem(*water, 5);  // 5 water
         if (fire)
             mPlayer->GetInventory()->AddItem(*fire, 5);   // 5 fire
         if (earth)
             mPlayer->GetInventory()->AddItem(*earth, 3);  // 3 earth
-            
+
                     // SDL_Log("Added starting items to player inventory");
     }
 
@@ -200,7 +207,7 @@ void Game::ProcessInput()
                 break;
         }
     }
-    
+
     // Process keyboard state for player movement
     const Uint8* keyState = SDL_GetKeyboardState(nullptr);
 
@@ -321,13 +328,13 @@ void Game::UpdateGame()
             }),
         mActors.end()
     );
-    
+
     // Update camera position to follow player
     if (mPlayer && mTileMap)
     {
         int mapWidth = mTileMap->GetWidth() * mTileMap->GetTileSize();
         int mapHeight = mTileMap->GetHeight() * mTileMap->GetTileSize();
-        
+
         mCamera->Update(deltaTime, mPlayer->GetPosition(), mapWidth, mapHeight);
     }
 }
@@ -335,22 +342,22 @@ void Game::UpdateGame()
 void Game::GenerateOutput()
 {
     mRenderer->BeginFrame();
-    
+
     // Use common render utility for screen clearing
     RenderUtils::ClearScreen(0.2f, 0.5f, 0.3f, 1.0f); // Green-ish background
-    
+
     // Update sprite renderer camera
     if (mSpriteRenderer)
     {
         mSpriteRenderer->SetCameraPosition(mCamera->GetPosition());
     }
-    
+
     // Draw tilemap first
     if (mTileMap)
     {
         mTileMap->Draw(mSpriteRenderer.get());
     }
-    
+
     // Render all actors on top
     for (auto& actor : mActors)
     {
@@ -363,19 +370,19 @@ void Game::GenerateOutput()
             // The current TextRenderer implementation likely uses screen coordinates.
             // If actors draw sprites via SpriteComponent, they use SpriteRenderer which now has camera.
             // If they draw text via TextRenderer, we might need to offset.
-            
+
             actor->OnDraw(mTextRenderer.get());
         }
     }
-    
+
     // Render Player UI on top of everything
     if (mPlayer && mPlayer->GetInventoryUI())
     {
         mPlayer->GetInventoryUI()->Draw(mTextRenderer.get(), mRectRenderer.get());
     }
-    
+
     mRenderer->EndFrame();
-    
+
     SDL_GL_SwapWindow(mWindow);
 }
 
@@ -407,7 +414,7 @@ void Game::RemoveActor(Actor* actor)
         [actor](const std::unique_ptr<Actor>& a) {
             return a.get() == actor;
         });
-    
+
     if (pendingIt != mPendingActors.end())
     {
         mPendingActors.erase(pendingIt);
@@ -476,29 +483,29 @@ void Game::CombineItems(ItemActor* item1, ItemActor* item2)
 {
     if (!item1 || !item2 || !mCrafting)
         return;
-    
+
     // Try to combine the items
     auto result = mCrafting->combine_items(item1->GetItem(), item2->GetItem());
-    
+
     if (result)
     {
         // Calculate position for the new item (midpoint between the two)
         Vector2 pos1 = item1->GetPosition();
         Vector2 pos2 = item2->GetPosition();
         Vector2 newPos = Vector2((pos1.x + pos2.x) / 2.0f, (pos1.y + pos2.y) / 2.0f);
-        
+
         // Create the result item actor
         auto resultActor = std::make_unique<ItemActor>(this, *result);
         resultActor->SetPosition(newPos);
         AddActor(std::move(resultActor));
-        
+
         // Mark the original items for destruction
         item1->SetState(ActorState::Destroy);
         item2->SetState(ActorState::Destroy);
-        
-        // SDL_Log("Combined %s + %s = %s", 
-        //         item1->GetItem().name.c_str(), 
-        //         item2->GetItem().name.c_str(), 
+
+        // SDL_Log("Combined %s + %s = %s",
+        //         item1->GetItem().name.c_str(),
+        //         item2->GetItem().name.c_str(),
         //         result->name.c_str());
     }
 }

@@ -14,6 +14,7 @@
 #include "../Core/Texture/SpriteRenderer.hpp"
 #include "../Crafting/Crafting.hpp"
 #include "../Core/Camera.hpp"
+#include "../AudioSystem/AudioSystem.h"
 
 // Forward declarations
 class TileMap;
@@ -34,26 +35,26 @@ public:
     // Actor functions
     void AddActor(std::unique_ptr<Actor> actor);
     void RemoveActor(Actor* actor);
-    
+
     // Get text renderer for measurements
     TextRenderer* GetTextRenderer() { return mTextRenderer.get(); }
     const TextRenderer* GetTextRenderer() const { return mTextRenderer.get(); }
-    
+
     // Get rect renderer for backgrounds
     RectRenderer* GetRectRenderer() { return mRectRenderer.get(); }
-    
+
     // Get sprite renderer
     SpriteRenderer* GetSpriteRenderer() { return mSpriteRenderer.get(); }
-    
+
     // Get crafting system
     Crafting* GetCrafting() { return mCrafting.get(); }
-    
+
     // Get player
     Player* GetPlayer() { return mPlayer; }
-    
+
     // Get tilemap
     TileMap* GetTileMap() { return mTileMap.get(); }
-    
+
     // Get all actors (for collision/interaction checks)
     const std::vector<std::unique_ptr<Actor>>& GetActors() const { return mActors; }
 
@@ -64,7 +65,7 @@ public:
 
     // Mouse state
     const Vector2& GetMousePosition() const { return mMousePos; }
-    
+
     // Camera
     const Vector2& GetCameraPosition() const { return mCamera->GetPosition(); }
 
@@ -100,19 +101,21 @@ private:
     // Track if we're updating actors right now
     bool mIsRunning;
     bool mUpdatingActors;
-    
+
     // Game objects
     Player* mPlayer;
-    
+
     // NPC tracking
     std::vector<DialogNPC*> mNPCs;
     DialogNPC* mInteractingNPC;
 
     // Mouse state
     Vector2 mMousePos;
-    
+
     // Camera
     std::unique_ptr<Camera> mCamera;
+
+    AudioSystem* mAudio;
 
     // Load NPCs from JSON
     void LoadNPCsFromJson(const std::string& filePath);

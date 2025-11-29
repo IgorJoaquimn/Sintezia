@@ -9,6 +9,8 @@ project(${PROJECT_NAME})
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(SDL2 REQUIRED sdl2)
 pkg_check_modules(SDL2_IMAGE REQUIRED SDL2_image)
+pkg_check_modules(SDL2_mixer REQUIRED SDL2_mixer)
+pkg_check_modules(SDL2_ttf REQUIRED SDL2_ttf)
 find_package(Freetype REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(OpenGL REQUIRED)
@@ -72,6 +74,8 @@ set(SOURCES
     ${SRC_DIR}/UI/NPCDialogUI.cpp
     ${SRC_DIR}/UI/InventoryUI.cpp
     ${SRC_DIR}/UI/MainMenu.cpp
+        src/AudioSystem/AudioSystem.cpp
+        src/AudioSystem/AudioSystem.h
 
 )
 
@@ -82,6 +86,8 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${SRC_DIR}
     ${SDL2_INCLUDE_DIRS}
     ${SDL2_IMAGE_INCLUDE_DIRS}
+    ${SDL2_mixer_INCLUDE_DIRS}
+    ${SDL2_ttf_INCLUDE_DIRS}
     ${FREETYPE_INCLUDE_DIRS}
     ${GLEW_INCLUDE_DIRS}
 )
@@ -90,11 +96,15 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 target_link_directories(${PROJECT_NAME} PRIVATE
     ${SDL2_LIBRARY_DIRS}
     ${SDL2_IMAGE_LIBRARY_DIRS}
+    ${SDL2_mixer_LIBRARY_DIRS}
+    ${SDL2_ttf_LIBRARY_DIRS}
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
     ${SDL2_LIBRARIES}
     ${SDL2_IMAGE_LIBRARIES}
+    ${SDL2_mixer_LIBRARIES}
+    ${SDL2_ttf_LIBRARIES}
     ${FREETYPE_LIBRARIES}
     GLEW::glew
     OpenGL::GL
