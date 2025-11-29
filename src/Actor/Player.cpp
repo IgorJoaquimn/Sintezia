@@ -74,7 +74,8 @@ Player::Player(Game* game)
     
     // Create inventory UI
     mInventoryUI = std::make_unique<InventoryUI>(game, mInventory.get());
-    mInventoryUI->SetPosition(Vector2(200.0f, 150.0f));
+    // Center on screen (assuming 1200x800 resolution from Game.hpp)
+    mInventoryUI->CenterOnScreen(1200.0f, 800.0f);
     
     LoadTextures();
 }
@@ -119,6 +120,12 @@ void Player::OnProcessInput(const Uint8* keyState)
         // If inventory is visible, don't process game input
         if (mInventoryUI->IsVisible())
         {
+            // Stop movement when inventory is open
+            if (mMovementComponent)
+            {
+                mMovementComponent->SetVelocity(Vector2::Zero);
+            }
+            mState = PlayerState::Idle;
             return;
         }
     }
@@ -287,12 +294,7 @@ void Player::OnDraw(TextRenderer* textRenderer)
     mSpriteComponent->SetFlipHorizontal(false);
     mSpriteComponent->Draw(spriteRenderer);
 
-    // Draw inventory UI on top of player
-    if (mInventoryUI)
-    {
-        auto* rectRenderer = mGame->GetRectRenderer();
-        mInventoryUI->Draw(textRenderer, rectRenderer);
-    }
+    // Inventory UI is now drawn in Game::GenerateOutput to ensure it's on top
 }
 
 bool Player::PickupItem(const Item& item, int quantity)

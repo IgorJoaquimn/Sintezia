@@ -69,8 +69,6 @@ void InventoryUI::Draw(TextRenderer* textRenderer, RectRenderer* rectRenderer)
 
 void InventoryUI::HandleInput(const uint8_t* keyState)
 {
-    if (!mVisible) return;
-
     UpdateKeyState(keyState);
 
     // Close inventory with ESC or I
@@ -84,12 +82,12 @@ void InventoryUI::HandleInput(const uint8_t* keyState)
         mKeyPressed[0] = false;
     }
 
-    if (keyState[SDL_SCANCODE_I] && !mKeyPressed[1])
+    if ((keyState[SDL_SCANCODE_I] || keyState[SDL_SCANCODE_TAB]) && !mKeyPressed[1])
     {
         Toggle();
         mKeyPressed[1] = true;
     }
-    else if (!keyState[SDL_SCANCODE_I])
+    else if (!keyState[SDL_SCANCODE_I] && !keyState[SDL_SCANCODE_TAB])
     {
         mKeyPressed[1] = false;
     }
@@ -128,19 +126,35 @@ void InventoryUI::HandleMouseMove(const Vector2& mousePos)
     mHoveredSlot = GetSlotAtPosition(mousePos);
 }
 
-void InventoryUI::DrawInventoryBackground(RectRenderer* rectRenderer)
+Vector2 InventoryUI::GetDimensions() const
 {
-    if (!rectRenderer) return;
+    if (!mInventory) return Vector2::Zero;
 
     int rows = (mInventory->GetMaxSlots() + mSlotsPerRow - 1) / mSlotsPerRow;
     float width = mSlotsPerRow * mSlotSize + (mSlotsPerRow + 1) * mPadding;
     float height = rows * mSlotSize + (rows + 1) * mPadding + 40.0f; // Extra space for title
+    
+    return Vector2(width, height);
+}
+
+void InventoryUI::CenterOnScreen(float screenWidth, float screenHeight)
+{
+    Vector2 dims = GetDimensions();
+    mPosition.x = (screenWidth - dims.x) / 2.0f;
+    mPosition.y = (screenHeight - dims.y) / 2.0f;
+}
+
+void InventoryUI::DrawInventoryBackground(RectRenderer* rectRenderer)
+{
+    if (!rectRenderer) return;
+
+    Vector2 dims = GetDimensions();
 
     rectRenderer->RenderRect(
         mPosition.x,
         mPosition.y,
-        width,
-        height,
+        dims.x,
+        dims.y,
         mBackgroundColor,
         0.95f
     );
@@ -190,10 +204,10 @@ void InventoryUI::DrawItemInSlot(int slotIndex, const Vector2& slotPos, TextRend
     if (!slot) return;
 
     // Draw item emoji
-    float emojiScale = 1.2f;
+    float emojiScale = 0.8f;
     Vector2 emojiSize = textRenderer->MeasureText(slot->item.emoji, emojiScale);
     float emojiX = slotPos.x + (mSlotSize - emojiSize.x) / 2.0f;
-    float emojiY = slotPos.y + (mSlotSize / 2.0f);
+    float emojiY = slotPos.y + (mSlotSize / 2.0f) + (emojiSize.y / 2.0f) - 5.0f; // Slight offset adjustment
     textRenderer->RenderText(slot->item.emoji, emojiX, emojiY, emojiScale);
 
     // Draw quantity in bottom-right corner

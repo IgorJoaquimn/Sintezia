@@ -7,6 +7,7 @@
 #include "../Actor/TextActor.hpp"
 #include "../Actor/ItemActor.hpp"
 #include "../Actor/Player.hpp"
+#include "../UI/InventoryUI.hpp"
 #include "../Actor/NPC/Base/DialogNPC.hpp"
 #include "../Actor/NPC/Concrete/TestShopkeeperNPC.hpp"
 #include "../Actor/NPC/Concrete/TestPassivePatrolNPC.hpp"
@@ -79,7 +80,7 @@ bool Game::Initialize()
     {
         SDL_Log("Warning: Failed to initialize sprite renderer");
     }
-    
+
 
     // Initialize crafting system
     mCrafting = std::make_unique<Crafting>();
@@ -365,6 +366,12 @@ void Game::GenerateOutput()
             
             actor->OnDraw(mTextRenderer.get());
         }
+    }
+    
+    // Render Player UI on top of everything
+    if (mPlayer && mPlayer->GetInventoryUI())
+    {
+        mPlayer->GetInventoryUI()->Draw(mTextRenderer.get(), mRectRenderer.get());
     }
     
     mRenderer->EndFrame();

@@ -35,6 +35,10 @@ public:
     void SetSlotSize(float size) { mSlotSize = size; }
     void SetSlotsPerRow(int count) { mSlotsPerRow = count; }
     void SetPadding(float padding) { mPadding = padding; }
+    
+    // Layout helpers
+    Vector2 GetDimensions() const;
+    void CenterOnScreen(float screenWidth, float screenHeight);
 
     // Callbacks
     void SetOnItemSelected(std::function<void(int itemId)> callback) { mOnItemSelected = callback; }
