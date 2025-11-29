@@ -63,6 +63,9 @@ private:
     float mSpawnScale;
     float mSpawnTimer;
     const float mSpawnDuration = 0.5f;
+    Vector2 mBasePosition; // The target position where the item should land
+    Vector2 mStartOffset;  // Random offset for the jump start
+    float mJumpHeight;     // Height of the parabolic arc
 
     // Drag state
     bool mDraggable;

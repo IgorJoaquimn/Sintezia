@@ -11,6 +11,7 @@ public:
 
     bool Initialize(float windowWidth = 800.0f, float windowHeight = 600.0f);
     void RenderRect(float x, float y, float width, float height, const Vector3& color, float alpha = 1.0f);
+    void RenderRectOutline(float x, float y, float width, float height, const Vector3& color, float alpha = 1.0f, float thickness = 1.0f);
     void Shutdown();
 
 private:

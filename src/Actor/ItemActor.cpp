@@ -4,6 +4,7 @@
 #include "../Game/Game.hpp"
 #include <cmath>
 #include <algorithm>
+#include <cstdlib>
 
 ItemActor::ItemActor(class Game* game, const Item& item)
     : Actor(game)
@@ -21,7 +22,14 @@ ItemActor::ItemActor(class Game* game, const Item& item)
     , mDragOffset(Vector2::Zero)
     , mSpawnScale(0.0f)
     , mSpawnTimer(0.0f)
+    , mBasePosition(Vector2::Zero)
+    , mStartOffset(Vector2::Zero)
+    , mJumpHeight(20.0f)
 {
+    // Generate random start offset for the jump
+    // Random X between -16 and 16
+    float randomX = (static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * 32.0f) - 16.0f;
+    mStartOffset = Vector2(randomX, 0.0f);
 }
 
 ItemActor::ItemActor(class Game* game, int itemId, const std::string& name, const std::string& emoji)
@@ -40,7 +48,13 @@ ItemActor::ItemActor(class Game* game, int itemId, const std::string& name, cons
     , mDragOffset(Vector2::Zero)
     , mSpawnScale(0.0f)
     , mSpawnTimer(0.0f)
+    , mBasePosition(Vector2::Zero)
+    , mStartOffset(Vector2::Zero)
+    , mJumpHeight(20.0f)
 {
+    // Generate random start offset for the jump
+    float randomX = (static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * 32.0f) - 16.0f;
+    mStartOffset = Vector2(randomX, 0.0f);
 }
 
 void ItemActor::SetItem(const Item& item)
@@ -70,27 +84,45 @@ std::string ItemActor::GetDisplayText() const
 
 void ItemActor::OnUpdate(float deltaTime)
 {
-
     if (mSpawnTimer < mSpawnDuration)
     {
+        // Capture the target position on the first frame of update
+        if (mSpawnTimer == 0.0f)
+        {
+            mBasePosition = GetPosition();
+        }
+
         mSpawnTimer += deltaTime;
         float t = std::min(mSpawnTimer / mSpawnDuration, 1.0f);
         
-        // "Back Out" easing function for a pop effect
+        // "Back Out" easing function for a pop effect (Scale)
         // s = 1.70158
-        float c1 = 1.70158f;
+        float c1 = 2.0f;
         float c3 = c1 + 1;
         
         mSpawnScale = 1 + c3 * std::pow(t - 1, 3) + c1 * std::pow(t - 1, 2);
         
+        // Parabolic motion for Position
+        // Horizontal: Linear interpolation from (Target + Offset) to Target
+        // Vertical: Parabolic arc (up and down)
+        
+        // Calculate current horizontal offset (fades to 0)
+        Vector2 currentOffset = mStartOffset * (1.0f - t);
+        
+        // Calculate vertical jump offset (parabola)
+        // h(t) = 4 * H * t * (1 - t)
+        float jumpY = -mJumpHeight * 4.0f * t * (1.0f - t);
+        
+        // Update position
+        SetPosition(mBasePosition + currentOffset + Vector2(0.0f, jumpY));
+
         if (mSpawnTimer >= mSpawnDuration)
         {
             mSpawnScale = 1.0f;
+            SetPosition(mBasePosition); // Ensure we land exactly on target
         }
     }
-}
-
-void ItemActor::OnDraw(class TextRenderer* textRenderer)
+}void ItemActor::OnDraw(class TextRenderer* textRenderer)
 {
     if (!textRenderer)
         return;
@@ -138,6 +170,17 @@ void ItemActor::OnDraw(class TextRenderer* textRenderer)
                 scaledHeight, 
                 mBackgroundColor, 
                 mBackgroundAlpha
+            );
+            
+            // Draw white border
+            game->GetRectRenderer()->RenderRectOutline(
+                scaledLeftX, 
+                scaledTopY, 
+                scaledWidth, 
+                scaledHeight, 
+                Vector3(1.0f, 1.0f, 1.0f), // White
+                0.8f, // Slightly transparent
+                1.0f  // 1px thickness
             );
         }
     }

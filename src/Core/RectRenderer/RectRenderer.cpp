@@ -103,6 +103,18 @@ void RectRenderer::RenderRect(float x, float y, float width, float height, const
     RenderUtils::DisableBlending();
 }
 
+void RectRenderer::RenderRectOutline(float x, float y, float width, float height, const Vector3& color, float alpha, float thickness)
+{
+    // Top
+    RenderRect(x, y, width, thickness, color, alpha);
+    // Bottom
+    RenderRect(x, y + height - thickness, width, thickness, color, alpha);
+    // Left
+    RenderRect(x, y, thickness, height, color, alpha);
+    // Right
+    RenderRect(x + width - thickness, y, thickness, height, color, alpha);
+}
+
 void RectRenderer::Shutdown()
 {
     if (VAO != 0)
