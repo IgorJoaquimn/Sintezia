@@ -3,11 +3,11 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "tilesets/TilesetFloor.tsx",
+    "activeFile": "Z:/home/joaquino/faculdade/jogos/infinite-craft-clone/assets/maps/mapa_de_teste.json",
     "expandedProjectPaths": [
-        "maps",
         "tilesets",
-        "."
+        ".",
+        "maps"
     ],
     "file.lastUsedOpenFilter": "Todos os Ficheiros (*)",
     "fileStates": {
@@ -25,7 +25,7 @@
         },
         "Z:/home/joaquino/faculdade/jogos/infinite-craft-clone/assets/maps/mapa_de_teste.json": {
             "scale": 2,
-            "selectedLayer": -1,
+            "selectedLayer": 0,
             "viewCenter": {
                 "x": 299.5,
                 "y": 182
@@ -125,7 +125,7 @@
     },
     "last.exportedFilePath": "Z:/home/joaquino/faculdade/jogos/infinite-craft-clone/assets/maps",
     "last.externalTilesetPath": "Z:/home/joaquino/faculdade/jogos/infinite-craft-clone/assets/tiled/tilesets",
-    "last.imagePath": "Z:/home/joaquino/faculdade/jogos/infinite-craft-clone/assets/third_party/Ninja Adventure - Asset Pack/Ui/Dialog",
+    "last.imagePath": "Z:/home/joaquino/faculdade/jogos/infinite-craft-clone/assets/third_party/Ninja Adventure - Asset Pack/Backgrounds/Tilesets",
     "lastUsedTilesetExportFilter": "Todos os Ficheiros (*)",
     "map.lastUsedExportFilter": "Todos os Ficheiros (*)",
     "map.lastUsedFormat": "tmx",
@@ -151,18 +151,18 @@
     "project": "tp.tiled-project",
     "property.type": "bool",
     "recentFiles": [
-        "Z:/home/joaquino/faculdade/jogos/infinite-craft-clone/assets/maps/mapa_de_teste.json",
-        "tilesets/Beach_Tile.tsx",
         "tilesets/Boy.tsx",
-        "tilesets/Cliff_Tile.tsx",
-        "tilesets/DemonGreen.tsx",
-        "tilesets/FarmLand_Tile.tsx",
-        "tilesets/DialogBoxFaceset.tsx",
-        "tilesets/Path_Middle.tsx",
-        "tilesets/Player.tsx",
-        "tilesets/Skeleton.tsx",
+        "tilesets/TilesetFloor.tsx",
+        "tilesets/Cat.tsx",
+        "tilesets/Water_Tile.tsx",
         "tilesets/Water_Middle.tsx",
-        "tilesets/Water_Tile.tsx"
+        "tilesets/Skeleton.tsx",
+        "tilesets/Player.tsx",
+        "tilesets/Path_Middle.tsx",
+        "tilesets/DialogBoxFaceset.tsx",
+        "tilesets/FarmLand_Tile.tsx",
+        "tilesets/DemonGreen.tsx",
+        "tilesets/Cliff_Tile.tsx"
     ],
     "tileset.lastUsedFormat": "tsx",
     "tileset.tileSize": {

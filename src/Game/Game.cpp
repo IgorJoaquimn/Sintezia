@@ -20,6 +20,7 @@
 #include "../Core/RenderUtils.hpp"
 #include "../Crafting/Crafting.hpp"
 #include "Inventory.hpp"
+#include "ItemGenerator.hpp"
 #include <algorithm>
 #include <fstream>
 #include <nlohmann/json.hpp>
@@ -100,6 +101,10 @@ bool Game::Initialize()
     {
         SDL_Log("Warning: Failed to load custom map, using procedural generation");
     }
+    
+    // Spawn items from map using ItemGenerator
+    ItemGenerator itemGenerator(this);
+    itemGenerator.GenerateItemsFromMap(mTileMap.get());
     
     // Create player
     auto player = std::make_unique<Player>(this);

@@ -260,6 +260,10 @@ void TileMap::Draw(SpriteRenderer* spriteRenderer)
         {
             if (layer.data.empty()) continue;
             
+            // Skip special layers
+            if (layer.name == "collision" || layer.name.find("gerador_") == 0)
+                continue;
+            
             // Draw each tile in the layer
             // Render in left-bottom order: start from top row, so bottom tiles draw last (on top)
             for (int y = 0; y < layer.height; y++)
@@ -490,26 +494,10 @@ bool TileMap::CheckCollision(const Vector2& position, float radius) const
                 int gid = layer.data[index];
                 if (gid == 0) continue; // Empty tile
                 
-                // Find the tileset for this GID
-                for (const auto& tileset : mMapData->tilesets)
+                // Special check for collision layer
+                if (layer.name == "collision")
                 {
-                    if (gid >= tileset.firstGid && gid < tileset.firstGid + tileset.tileCount)
-                    {
-                        int localId = gid - tileset.firstGid;
-                        if (localId < tileset.tileCollisions.size() && tileset.tileCollisions[localId])
-                        {
-                            return true; // This tile has collision
-                        }
-
-                        std::string imgPath = tileset.imagePath;
-                        std::string lowered = imgPath;
-                        std::transform(lowered.begin(), lowered.end(), lowered.begin(), [](unsigned char c){ return std::tolower(c); });
-                        if (lowered.find("water") != std::string::npos)
-                        {
-                            return true;
-                        }
-                        break;
-                    }
+                    return true;
                 }
             }
         }
