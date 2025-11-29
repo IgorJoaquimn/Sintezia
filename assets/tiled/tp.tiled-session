@@ -3,162 +3,28 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "Z:/home/joaquino/faculdade/jogos/infinite-craft-clone/assets/maps/mapa_de_teste.json",
+    "activeFile": "",
     "expandedProjectPaths": [
-        "tilesets",
-        ".",
-        "maps"
     ],
     "file.lastUsedOpenFilter": "Todos os Ficheiros (*)",
     "fileStates": {
-        "Beach_Tile.tsx": {
-            "scaleInDock": 1,
-            "scaleInEditor": 5.5
-        },
-        "Path_Tile.tsx": {
-            "scaleInDock": 1,
-            "scaleInEditor": 5.5
-        },
-        "Z:/home/joaquino/faculdade/jogos/infinite-craft-clone/assets/maps/TilesetWater.tsx": {
-            "scaleInDock": 1,
-            "scaleInEditor": 4
-        },
-        "Z:/home/joaquino/faculdade/jogos/infinite-craft-clone/assets/maps/mapa_de_teste.json": {
-            "scale": 1.5,
-            "selectedLayer": 1,
-            "viewCenter": {
-                "x": 321.33333333333326,
-                "y": 91.33333333333331
-            }
-        },
-        "maps/Path_Tile.tsx": {
-            "scaleInDock": 1
-        },
-        "maps/mapa_de_teste.tmx": {
-            "scale": 2.5471874999999997,
-            "selectedLayer": 1,
-            "viewCenter": {
-                "x": 239.47981842718684,
-                "y": 159.78407557354925
-            }
-        },
-        "player cute.tsx": {
-            "scaleInDock": 1,
-            "scaleInEditor": 4
-        },
-        "player.tsx": {
-            "scaleInDock": 1,
-            "scaleInEditor": 1
-        },
-        "tilesets/Beach_Tile.tsx": {
-            "scaleInDock": 1,
-            "scaleInEditor": 1
-        },
-        "tilesets/Boy.tsx": {
-            "scaleInDock": 1,
-            "scaleInEditor": 1
-        },
-        "tilesets/Cat.tsx": {
-            "scaleInDock": 1,
-            "scaleInEditor": 1
-        },
-        "tilesets/Cliff_Tile.tsx": {
-            "scaleInDock": 1,
-            "scaleInEditor": 1
-        },
-        "tilesets/DemonGreen.tsx": {
-            "scaleInDock": 1,
-            "scaleInEditor": 1
-        },
-        "tilesets/DialogBoxFaceset.tsx": {
-            "scaleInDock": 1,
-            "scaleInEditor": 1
-        },
-        "tilesets/Extra tiles.tsx": {
-            "scaleInDock": 1,
-            "scaleInEditor": 1
-        },
-        "tilesets/FarmLand_Tile.tsx": {
-            "scaleInDock": 1,
-            "scaleInEditor": 1
-        },
-        "tilesets/Oak_Tree.tsx": {
-            "scaleInDock": 1,
-            "scaleInEditor": 1
-        },
-        "tilesets/Path_Middle.tsx": {
-            "scaleInDock": 1,
-            "scaleInEditor": 1
-        },
-        "tilesets/Path_Tile.tsx": {
-            "scaleInDock": 1,
-            "scaleInEditor": 1
-        },
-        "tilesets/Player.tsx": {
-            "scaleInDock": 1,
-            "scaleInEditor": 1
-        },
-        "tilesets/Skeleton.tsx": {
-            "scaleInDock": 1,
-            "scaleInEditor": 1
-        },
-        "tilesets/TilesetFloor.tsx": {
-            "scaleInDock": 1,
-            "scaleInEditor": 1
-        },
-        "tilesets/Water_Middle.tsx": {
-            "scaleInDock": 1,
-            "scaleInEditor": 1
-        },
-        "tilesets/Water_Tile.tsx": {
-            "scaleInDock": 1,
-            "scaleInEditor": 1
-        },
-        "tilesets/mapa_de_teste.tmx": {
-            "scale": 0.75,
-            "selectedLayer": 0,
-            "viewCenter": {
-                "x": 1320.6666666666665,
-                "y": 596
-            }
-        },
-        "tilesets/player cute.tsx": {
-            "scaleInDock": 1,
-            "scaleInEditor": 1
-        }
     },
-    "last.exportedFilePath": "Z:/home/joaquino/faculdade/jogos/infinite-craft-clone/assets/maps",
-    "last.externalTilesetPath": "Z:/home/joaquino/faculdade/jogos/infinite-craft-clone/assets/tiled/tilesets",
-    "last.imagePath": "Z:/home/joaquino/faculdade/jogos/infinite-craft-clone/assets/third_party/Ninja Adventure - Asset Pack/Backgrounds/Tilesets",
+    "last.exportedFilePath": "C:/Users/Vitin/UFMG/2025_2/jogos/TP_FINAL/Sintezia/assets/maps",
+    "last.externalTilesetPath": "C:/Users/Vitin/UFMG/2025_2/jogos/TP_FINAL/Sintezia/assets/tiled/tilesets",
+    "last.imagePath": "C:/Users/Vitin/UFMG/2025_2/jogos/TP_FINAL/Sintezia/assets/third_party/Ninja Adventure - Asset Pack/Backgrounds/Tilesets",
     "lastUsedTilesetExportFilter": "Todos os Ficheiros (*)",
     "map.lastUsedExportFilter": "Todos os Ficheiros (*)",
-    "map.lastUsedFormat": "tmx",
+    "map.lastUsedFormat": "json",
     "map.renderOrder": "1",
     "map.tileHeight": 16,
     "map.tileWidth": 16,
     "openFiles": [
-        "Z:/home/joaquino/faculdade/jogos/infinite-craft-clone/assets/maps/mapa_de_teste.json",
-        "tilesets/Path_Middle.tsx",
-        "tilesets/Oak_Tree.tsx",
-        "tilesets/FarmLand_Tile.tsx",
-        "tilesets/Extra tiles.tsx"
     ],
     "project": "tp.tiled-project",
     "property.type": "bool",
     "recentFiles": [
-        "tilesets/Extra tiles.tsx",
-        "tilesets/FarmLand_Tile.tsx",
-        "tilesets/Oak_Tree.tsx",
-        "tilesets/Path_Middle.tsx",
-        "Z:/home/joaquino/faculdade/jogos/infinite-craft-clone/assets/maps/mapa_de_teste.json",
-        "tilesets/Boy.tsx",
-        "tilesets/TilesetFloor.tsx",
-        "tilesets/Cat.tsx",
-        "tilesets/Water_Tile.tsx",
-        "tilesets/Water_Middle.tsx",
-        "tilesets/Skeleton.tsx",
-        "tilesets/Player.tsx"
     ],
+    "tileset.lastUsedFilter": "Ficheiros de conjunto de tiles Tiled (*.tsx *.xml)",
     "tileset.lastUsedFormat": "tsx",
     "tileset.tileSize": {
         "height": 16,
