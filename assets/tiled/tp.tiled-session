@@ -74,6 +74,9 @@
             "scaleInDock": 1,
             "scaleInEditor": 1
         },
+        "tilesets/TilesetFloor.tsx": {
+            "scaleInDock": 1
+        },
         "tilesets/Water_Middle.tsx": {
             "scaleInDock": 1,
             "scaleInEditor": 1
