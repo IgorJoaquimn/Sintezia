@@ -124,19 +124,6 @@ bool TiledParser::ParseTSX(const std::string& tsxPath, TilesetInfo& tileset)
             }
         }
         
-        // Check for collision property
-        if (currentTileId >= 0 && currentTileId < tileset.tileCount)
-        {
-            if (line.find("<property") != std::string::npos && 
-                line.find("name=\"collision\"") != std::string::npos)
-            {
-                std::string value = ExtractAttribute(line, "value");
-                if (value == "true")
-                {
-                    tileset.tileCollisions[currentTileId] = true;
-                }
-            }
-        }
         
         // Reset tile ID when closing tag
         if (line.find("</tile>") != std::string::npos)

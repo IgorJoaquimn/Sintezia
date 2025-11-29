@@ -2,6 +2,8 @@
 #include "../Core/TextRenderer/TextRenderer.hpp"
 #include "../Core/RectRenderer/RectRenderer.hpp"
 #include "../Game/Game.hpp"
+#include <cmath>
+#include <algorithm>
 
 ItemActor::ItemActor(class Game* game, const Item& item)
     : Actor(game)
@@ -11,11 +13,14 @@ ItemActor::ItemActor(class Game* game, const Item& item)
     , mShowBackground(true)
     , mBackgroundColor(Vector3(0.95f, 0.95f, 0.95f))
     , mBackgroundAlpha(0.3f)
-    , mPadding(25.0f)
-    , mBorderRadius(10.0f)
+    , mPadding(4.0f)
+    , mBorderRadius(4.0f)
+    , mBaseScale(0.5f)
     , mDraggable(true)
     , mIsDragging(false)
     , mDragOffset(Vector2::Zero)
+    , mSpawnScale(0.0f)
+    , mSpawnTimer(0.0f)
 {
 }
 
@@ -27,11 +32,14 @@ ItemActor::ItemActor(class Game* game, int itemId, const std::string& name, cons
     , mShowBackground(true)
     , mBackgroundColor(Vector3(0.95f, 0.95f, 0.95f))
     , mBackgroundAlpha(0.3f)
-    , mPadding(25.0f)
-    , mBorderRadius(10.0f)
+    , mPadding(4.0f)
+    , mBorderRadius(4.0f)
+    , mBaseScale(0.5f)
     , mDraggable(true)
     , mIsDragging(false)
     , mDragOffset(Vector2::Zero)
+    , mSpawnScale(0.0f)
+    , mSpawnTimer(0.0f)
 {
 }
 
@@ -60,6 +68,28 @@ std::string ItemActor::GetDisplayText() const
     return text;
 }
 
+void ItemActor::OnUpdate(float deltaTime)
+{
+
+    if (mSpawnTimer < mSpawnDuration)
+    {
+        mSpawnTimer += deltaTime;
+        float t = std::min(mSpawnTimer / mSpawnDuration, 1.0f);
+        
+        // "Back Out" easing function for a pop effect
+        // s = 1.70158
+        float c1 = 1.70158f;
+        float c3 = c1 + 1;
+        
+        mSpawnScale = 1 + c3 * std::pow(t - 1, 3) + c1 * std::pow(t - 1, 2);
+        
+        if (mSpawnTimer >= mSpawnDuration)
+        {
+            mSpawnScale = 1.0f;
+        }
+    }
+}
+
 void ItemActor::OnDraw(class TextRenderer* textRenderer)
 {
     if (!textRenderer)
@@ -77,14 +107,22 @@ void ItemActor::OnDraw(class TextRenderer* textRenderer)
 
     std::string displayText = GetDisplayText();
     
-    // Measure text to calculate background size
-    Vector2 textSize = textRenderer->MeasureText(displayText, 1.0f);
+    // Measure text to calculate background size (unscaled)
+    Vector2 textSize = textRenderer->MeasureText(displayText, mBaseScale);
     
     float bgWidth = textSize.x + (mPadding * 2.0f);
     float bgHeight = textSize.y + (mPadding * 2.0f);
     
-    // Calculate top-left position so the background is centered vertically at pos.y
-    float bgTopY = pos.y - (bgHeight / 2.0f);
+    // Calculate center of the item
+    float centerX = pos.x + bgWidth / 2.0f;
+    float centerY = pos.y; // pos.y is vertical center
+    
+    // Apply scale
+    float scaledWidth = bgWidth * mSpawnScale;
+    float scaledHeight = bgHeight * mSpawnScale;
+    
+    float scaledLeftX = centerX - (scaledWidth / 2.0f);
+    float scaledTopY = centerY - (scaledHeight / 2.0f);
     
     // Draw background if enabled
     if (mShowBackground)
@@ -94,10 +132,10 @@ void ItemActor::OnDraw(class TextRenderer* textRenderer)
         {
             // Draw background rectangle centered vertically at pos.y
             game->GetRectRenderer()->RenderRect(
-                pos.x, 
-                bgTopY, 
-                bgWidth, 
-                bgHeight, 
+                scaledLeftX, 
+                scaledTopY, 
+                scaledWidth, 
+                scaledHeight, 
                 mBackgroundColor, 
                 mBackgroundAlpha
             );
@@ -105,11 +143,15 @@ void ItemActor::OnDraw(class TextRenderer* textRenderer)
     }
     
     // Draw text centered inside the background
-    // Text Y coordinate acts as baseline, so we need to offset by text height
-    // to position the top of the text at bgTopY + padding
-    float textX = pos.x + mPadding;
-    float textY = bgTopY + mPadding + textSize.y; // Add height to position baseline correctly
-    textRenderer->RenderText(displayText, textX, textY, 1.0f);
+    // Calculate centered position for text
+    float textLeftX = centerX - (textSize.x * mSpawnScale / 2.0f);
+    
+    // Baseline calculation:
+    // CenterY is the middle of the box.
+    // Baseline is roughly half the text height below the center.
+    float textBaselineY = centerY + (textSize.y * mSpawnScale / 2.0f);
+    
+    textRenderer->RenderText(displayText, textLeftX, textBaselineY, mBaseScale * mSpawnScale);
 }
 
 Vector2 ItemActor::GetTextDimensions(float scale) const
@@ -158,7 +200,7 @@ bool ItemActor::ContainsPoint(const Vector2& point) const
     if (!game || !game->GetTextRenderer())
         return false;
     
-    Vector2 textSize = game->GetTextRenderer()->MeasureText(displayText, 1.0f);
+    Vector2 textSize = game->GetTextRenderer()->MeasureText(displayText, mBaseScale);
     
     float bgWidth = textSize.x + (mPadding * 2.0f);
     float bgHeight = textSize.y + (mPadding * 2.0f);
@@ -250,7 +292,7 @@ Vector2 ItemActor::GetBounds() const
     if (!game || !game->GetTextRenderer())
         return Vector2(100.0f, 50.0f); // Fallback
     
-    Vector2 textSize = game->GetTextRenderer()->MeasureText(displayText, 1.0f);
+    Vector2 textSize = game->GetTextRenderer()->MeasureText(displayText, mBaseScale);
     
     float bgWidth = textSize.x + (mPadding * 2.0f);
     float bgHeight = textSize.y + (mPadding * 2.0f);

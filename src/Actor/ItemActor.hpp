@@ -45,6 +45,7 @@ public:
     Vector2 GetBounds() const; // Returns width and height
     
 protected:
+    void OnUpdate(float deltaTime) override;
     void OnDraw(class TextRenderer* textRenderer) override;
     
 private:
@@ -56,7 +57,13 @@ private:
     float mBackgroundAlpha;
     float mPadding;
     float mBorderRadius;
+    float mBaseScale;
     
+    // Animation state
+    float mSpawnScale;
+    float mSpawnTimer;
+    const float mSpawnDuration = 0.5f;
+
     // Drag state
     bool mDraggable;
     bool mIsDragging;
