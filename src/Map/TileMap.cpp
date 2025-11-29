@@ -16,35 +16,8 @@ TileMap::TileMap(int width, int height, int tileSize)
     : mWidth(width)
     , mHeight(height)
     , mTileSize(tileSize)
-    , mGrassTexture(std::make_unique<Texture>())
-    , mWaterTexture(std::make_unique<Texture>())
-    , mPathTexture(std::make_unique<Texture>())
 {
-    // Load the Cute Fantasy tiles
-    if (!mGrassTexture->Load("assets/third_party/Cute_Fantasy_Free/Tiles/Grass_Middle.png"))
-    {
-        std::cerr << "Failed to load grass texture! Trying fallback..." << std::endl;
-        // Try fallback
-        if (!mGrassTexture->Load("assets/sprites/Floor.png"))
-        {
-            std::cerr << "Failed to load floor texture fallback!" << std::endl;
-        }
-    }
-    
-    if (!mWaterTexture->Load("assets/third_party/Cute_Fantasy_Free/Tiles/Water_Middle.png"))
-    {
-        std::cerr << "Failed to load water texture! Trying fallback..." << std::endl;
-        if (!mWaterTexture->Load("assets/sprites/Wall.png"))
-        {
-            std::cerr << "Failed to load wall texture fallback!" << std::endl;
-        }
-    }
-    
-    if (!mPathTexture->Load("assets/third_party/Cute_Fantasy_Free/Tiles/Path_Middle.png"))
-    {
-        std::cerr << "Failed to load path texture!" << std::endl;
-    }
-    
+    // Load fallback textures only
     GenerateMap();
 }
 
@@ -260,6 +233,10 @@ void TileMap::Draw(SpriteRenderer* spriteRenderer)
         {
             if (layer.data.empty()) continue;
             
+            // Skip special layers
+            if (layer.name == "collision" || layer.name.find("gerador_") == 0)
+                continue;
+            
             // Draw each tile in the layer
             // Render in left-bottom order: start from top row, so bottom tiles draw last (on top)
             for (int y = 0; y < layer.height; y++)
@@ -395,41 +372,7 @@ void TileMap::Draw(SpriteRenderer* spriteRenderer)
         return;
     }
     
-    // Otherwise, draw simple procedural tilemap
-    for (int y = 0; y < mHeight; y++)
-    {
-        for (int x = 0; x < mWidth; x++)
-        {
-            float xPos = x * mTileSize;
-            float yPos = y * mTileSize;
-            
-            Texture* texture = nullptr;
-            
-            switch (mTiles[y][x].type)
-            {
-                case TileType::Grass:
-                case TileType::Floor:
-                    texture = mGrassTexture.get();
-                    break;
-                case TileType::Water:
-                case TileType::Wall:
-                    texture = mWaterTexture.get();
-                    break;
-                case TileType::Path:
-                    texture = mPathTexture.get();
-                    break;
-            }
-            
-            if (texture)
-            {
-                spriteRenderer->DrawSprite(
-                    texture,
-                    Vector2(xPos, yPos),
-                    Vector2(mTileSize, mTileSize)
-                );
-            }
-        }
-    }
+    // Otherwise, do not draw procedural tilemap (no textures)
 }
 
 bool TileMap::IsWalkable(const Vector2& position) const
@@ -490,26 +433,10 @@ bool TileMap::CheckCollision(const Vector2& position, float radius) const
                 int gid = layer.data[index];
                 if (gid == 0) continue; // Empty tile
                 
-                // Find the tileset for this GID
-                for (const auto& tileset : mMapData->tilesets)
+                // Special check for collision layer
+                if (layer.name == "collision")
                 {
-                    if (gid >= tileset.firstGid && gid < tileset.firstGid + tileset.tileCount)
-                    {
-                        int localId = gid - tileset.firstGid;
-                        if (localId < tileset.tileCollisions.size() && tileset.tileCollisions[localId])
-                        {
-                            return true; // This tile has collision
-                        }
-
-                        std::string imgPath = tileset.imagePath;
-                        std::string lowered = imgPath;
-                        std::transform(lowered.begin(), lowered.end(), lowered.begin(), [](unsigned char c){ return std::tolower(c); });
-                        if (lowered.find("water") != std::string::npos)
-                        {
-                            return true;
-                        }
-                        break;
-                    }
+                    return true;
                 }
             }
         }

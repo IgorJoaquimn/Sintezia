@@ -70,15 +70,6 @@ private:
     int mHeight;
     int mTileSize;
     std::vector<std::vector<Tile>> mTiles;
-    
-    // Simple textures for basic tiles
-    std::unique_ptr<Texture> mGrassTexture;
-    std::unique_ptr<Texture> mWaterTexture;
-    std::unique_ptr<Texture> mPathTexture;
-    
-    // Advanced tileset support (optional)
     std::unique_ptr<MapData> mMapData;
-    
-    // Helper methods
     Tile CreateTile(TileType type);
 };

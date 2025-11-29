@@ -20,6 +20,7 @@
 #include "../Core/RenderUtils.hpp"
 #include "../Crafting/Crafting.hpp"
 #include "Inventory.hpp"
+#include "ItemGenerator.hpp"
 #include <algorithm>
 #include <fstream>
 #include <nlohmann/json.hpp>
@@ -96,10 +97,14 @@ bool Game::Initialize()
     mTileMap = std::make_unique<TileMap>(30, 20, 40);
     
     // Load your custom Tiled map
-    if (!mTileMap->LoadFromJSON("assets/maps/mapa_de_teste.json"))
+    if (!mTileMap->LoadFromJSON("assets/maps/mapa_de_teste.tmj"))
     {
         SDL_Log("Warning: Failed to load custom map, using procedural generation");
     }
+    
+    // Spawn items from map using ItemGenerator
+    ItemGenerator itemGenerator(this);
+    itemGenerator.GenerateItemsFromMap(mTileMap.get());
     
     // Create player
     auto player = std::make_unique<Player>(this);

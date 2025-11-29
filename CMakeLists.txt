@@ -37,6 +37,7 @@ set(SOURCES
     ${SRC_DIR}/MathUtils.cpp
     ${SRC_DIR}/Game/Game.cpp
     ${SRC_DIR}/Game/Inventory.cpp
+    ${SRC_DIR}/Game/ItemGenerator.cpp
     ${SRC_DIR}/Actor/Actor.cpp
     ${SRC_DIR}/Actor/TextActor.cpp
     ${SRC_DIR}/Actor/ItemActor.cpp
