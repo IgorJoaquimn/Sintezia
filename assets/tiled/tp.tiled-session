@@ -3,11 +3,11 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "tilesets/Oak_Tree.tsx",
+    "activeFile": "tilesets/TilesetFloor.tsx",
     "expandedProjectPaths": [
-        ".",
+        "maps",
         "tilesets",
-        "maps"
+        "."
     ],
     "file.lastUsedOpenFilter": "Todos os Ficheiros (*)",
     "fileStates": {
@@ -22,6 +22,14 @@
         "Z:/home/joaquino/faculdade/jogos/infinite-craft-clone/assets/maps/TilesetWater.tsx": {
             "scaleInDock": 1,
             "scaleInEditor": 4
+        },
+        "Z:/home/joaquino/faculdade/jogos/infinite-craft-clone/assets/maps/mapa_de_teste.json": {
+            "scale": 2,
+            "selectedLayer": -1,
+            "viewCenter": {
+                "x": 299.5,
+                "y": 182
+            }
         },
         "maps/Path_Tile.tsx": {
             "scaleInDock": 1
@@ -46,7 +54,23 @@
             "scaleInDock": 1,
             "scaleInEditor": 1
         },
+        "tilesets/Boy.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "tilesets/Cat.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
         "tilesets/Cliff_Tile.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "tilesets/DemonGreen.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "tilesets/DialogBoxFaceset.tsx": {
             "scaleInDock": 1,
             "scaleInEditor": 1
         },
@@ -75,7 +99,8 @@
             "scaleInEditor": 1
         },
         "tilesets/TilesetFloor.tsx": {
-            "scaleInDock": 1
+            "scaleInDock": 1,
+            "scaleInEditor": 1
         },
         "tilesets/Water_Middle.tsx": {
             "scaleInDock": 1,
@@ -108,33 +133,36 @@
     "map.tileHeight": 16,
     "map.tileWidth": 16,
     "openFiles": [
-        "maps/mapa_de_teste.tmx",
+        "Z:/home/joaquino/faculdade/jogos/infinite-craft-clone/assets/maps/mapa_de_teste.json",
         "tilesets/Beach_Tile.tsx",
-        "tilesets/Player.tsx",
-        "tilesets/Oak_Tree.tsx",
-        "tilesets/Skeleton.tsx",
+        "tilesets/Boy.tsx",
         "tilesets/Cliff_Tile.tsx",
+        "tilesets/DemonGreen.tsx",
         "tilesets/FarmLand_Tile.tsx",
-        "tilesets/Water_Tile.tsx",
+        "tilesets/DialogBoxFaceset.tsx",
+        "tilesets/Path_Middle.tsx",
+        "tilesets/Player.tsx",
+        "tilesets/Skeleton.tsx",
         "tilesets/Water_Middle.tsx",
-        "tilesets/Path_Tile.tsx",
-        "tilesets/Path_Middle.tsx"
+        "tilesets/Water_Tile.tsx",
+        "tilesets/Cat.tsx",
+        "tilesets/TilesetFloor.tsx"
     ],
     "project": "tp.tiled-project",
     "property.type": "bool",
     "recentFiles": [
-        "tilesets/Path_Middle.tsx",
-        "tilesets/Path_Tile.tsx",
-        "tilesets/Water_Middle.tsx",
-        "tilesets/Water_Tile.tsx",
-        "tilesets/FarmLand_Tile.tsx",
-        "tilesets/Cliff_Tile.tsx",
-        "tilesets/Skeleton.tsx",
-        "tilesets/Oak_Tree.tsx",
-        "tilesets/Player.tsx",
+        "Z:/home/joaquino/faculdade/jogos/infinite-craft-clone/assets/maps/mapa_de_teste.json",
         "tilesets/Beach_Tile.tsx",
-        "maps/mapa_de_teste.tmx",
-        "Z:/home/joaquino/faculdade/jogos/infinite-craft-clone/assets/maps/TilesetWater.tsx"
+        "tilesets/Boy.tsx",
+        "tilesets/Cliff_Tile.tsx",
+        "tilesets/DemonGreen.tsx",
+        "tilesets/FarmLand_Tile.tsx",
+        "tilesets/DialogBoxFaceset.tsx",
+        "tilesets/Path_Middle.tsx",
+        "tilesets/Player.tsx",
+        "tilesets/Skeleton.tsx",
+        "tilesets/Water_Middle.tsx",
+        "tilesets/Water_Tile.tsx"
     ],
     "tileset.lastUsedFormat": "tsx",
     "tileset.tileSize": {
