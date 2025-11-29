@@ -30,7 +30,7 @@
             "scale": 2.5471874999999997,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 239.6761133603239,
+                "x": 239.47981842718684,
                 "y": 159.78407557354925
             }
         },
@@ -121,17 +121,17 @@
     "property.type": "bool",
     "recentFiles": [
         "tilesets/Path_Middle.tsx",
-        "tilesets/Oak_Tree.tsx",
-        "tilesets/Cliff_Tile.tsx",
-        "tilesets/Beach_Tile.tsx",
-        "tilesets/Player.tsx",
-        "Z:/home/joaquino/faculdade/jogos/infinite-craft-clone/assets/maps/TilesetWater.tsx",
-        "tilesets/Water_Tile.tsx",
-        "tilesets/Skeleton.tsx",
         "tilesets/Path_Tile.tsx",
         "tilesets/Water_Middle.tsx",
+        "tilesets/Water_Tile.tsx",
         "tilesets/FarmLand_Tile.tsx",
-        "maps/mapa_de_teste.tmx"
+        "tilesets/Cliff_Tile.tsx",
+        "tilesets/Skeleton.tsx",
+        "tilesets/Oak_Tree.tsx",
+        "tilesets/Player.tsx",
+        "tilesets/Beach_Tile.tsx",
+        "maps/mapa_de_teste.tmx",
+        "Z:/home/joaquino/faculdade/jogos/infinite-craft-clone/assets/maps/TilesetWater.tsx"
     ],
     "tileset.lastUsedFormat": "tsx",
     "tileset.tileSize": {
