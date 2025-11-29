@@ -96,7 +96,7 @@ bool Game::Initialize()
     mTileMap = std::make_unique<TileMap>(30, 20, 40);
     
     // Load your custom Tiled map
-    if (!mTileMap->LoadFromJSON("assets/maps/mapa_de_teste.json"))
+    if (!mTileMap->LoadFromJSON("assets/maps/mapa_de_teste.tmj"))
     {
         SDL_Log("Warning: Failed to load custom map, using procedural generation");
     }
