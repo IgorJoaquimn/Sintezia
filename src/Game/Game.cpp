@@ -25,6 +25,7 @@
 #include <fstream>
 #include <nlohmann/json.hpp>
 #include "../Actor/NPC/Concrete/GenericNPC.hpp"
+#include "../Component/MovementComponent.hpp"
 
 Game::Game(SDL_Window* window, SDL_GLContext glContext)
     : mWindow(window)
@@ -41,6 +42,7 @@ Game::Game(SDL_Window* window, SDL_GLContext glContext)
     , mPlayer(nullptr)
     , mInteractingNPC(nullptr)
     , mMousePos(Vector2::Zero)
+    , mCamera(std::make_unique<Camera>(static_cast<float>(WINDOW_WIDTH), static_cast<float>(WINDOW_HEIGHT)))
 {
 }
 
@@ -110,6 +112,20 @@ bool Game::Initialize()
     auto player = std::make_unique<Player>(this);
     mPlayer = player.get(); // Safe: player ownership transferred to mActors, pointer valid for game lifetime
     AddActor(std::move(player));
+    
+    // Update player movement bounds to match map size
+    if (mPlayer && mTileMap)
+    {
+        float mapWidth = static_cast<float>(mTileMap->GetWidth() * mTileMap->GetTileSize());
+        float mapHeight = static_cast<float>(mTileMap->GetHeight() * mTileMap->GetTileSize());
+        
+        auto* moveComp = mPlayer->GetComponent<MovementComponent>();
+        if (moveComp)
+        {
+            // Keep a small margin from the absolute edge
+            moveComp->SetBounds(16.0f, 16.0f, mapWidth - 16.0f, mapHeight - 16.0f);
+        }
+    }
     
     // Give player some starting items for testing trades
     if (mPlayer && mPlayer->GetInventory() && mCrafting)
@@ -253,7 +269,7 @@ void Game::UpdateGame()
     // Wait until 16ms have passed (frame limiting)
     while (!SDL_TICKS_PASSED(SDL_GetTicks(), mTicksCount + 16))
     {
-        // Busy wait
+        SDL_Delay(1);
     }
 
     float deltaTime = static_cast<float>(SDL_GetTicks() - mTicksCount) / 1000.0f;
@@ -303,6 +319,15 @@ void Game::UpdateGame()
             }),
         mActors.end()
     );
+    
+    // Update camera position to follow player
+    if (mPlayer && mTileMap)
+    {
+        int mapWidth = mTileMap->GetWidth() * mTileMap->GetTileSize();
+        int mapHeight = mTileMap->GetHeight() * mTileMap->GetTileSize();
+        
+        mCamera->Update(deltaTime, mPlayer->GetPosition(), mapWidth, mapHeight);
+    }
 }
 
 void Game::GenerateOutput()
@@ -311,6 +336,12 @@ void Game::GenerateOutput()
     
     // Use common render utility for screen clearing
     RenderUtils::ClearScreen(0.2f, 0.5f, 0.3f, 1.0f); // Green-ish background
+    
+    // Update sprite renderer camera
+    if (mSpriteRenderer)
+    {
+        mSpriteRenderer->SetCameraPosition(mCamera->GetPosition());
+    }
     
     // Draw tilemap first
     if (mTileMap)
@@ -323,6 +354,14 @@ void Game::GenerateOutput()
     {
         if (actor->GetState() == ActorState::Active)
         {
+            // For TextRenderer, we might need to adjust position manually if it doesn't use SpriteRenderer
+            // But TextRenderer usually renders UI or world text.
+            // If it's world text, it needs camera offset.
+            // Let's assume TextRenderer handles UI (screen space) for now, or check if it needs update.
+            // The current TextRenderer implementation likely uses screen coordinates.
+            // If actors draw sprites via SpriteComponent, they use SpriteRenderer which now has camera.
+            // If they draw text via TextRenderer, we might need to offset.
+            
             actor->OnDraw(mTextRenderer.get());
         }
     }

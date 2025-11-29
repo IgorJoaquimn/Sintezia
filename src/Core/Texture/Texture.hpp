@@ -9,6 +9,7 @@ public:
     ~Texture();
     
     bool Load(const std::string& fileName);
+    bool CreateForRendering(int width, int height, unsigned int format);
     void Unload();
     
     void SetActive();

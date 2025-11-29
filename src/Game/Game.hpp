@@ -13,6 +13,7 @@
 #include "../Core/RectRenderer/RectRenderer.hpp"
 #include "../Core/Texture/SpriteRenderer.hpp"
 #include "../Crafting/Crafting.hpp"
+#include "../Core/Camera.hpp"
 
 // Forward declarations
 class TileMap;
@@ -63,6 +64,9 @@ public:
 
     // Mouse state
     const Vector2& GetMousePosition() const { return mMousePos; }
+    
+    // Camera
+    const Vector2& GetCameraPosition() const { return mCamera->GetPosition(); }
 
     // Get renderer
     Renderer* GetRenderer() { return mRenderer.get(); }
@@ -106,6 +110,9 @@ private:
 
     // Mouse state
     Vector2 mMousePos;
+    
+    // Camera
+    std::unique_ptr<Camera> mCamera;
 
     // Load NPCs from JSON
     void LoadNPCsFromJson(const std::string& filePath);

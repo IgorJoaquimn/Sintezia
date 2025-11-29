@@ -13,6 +13,15 @@ void TextActor::OnDraw(class TextRenderer* textRenderer)
     if (textRenderer)
     {
         Vector2 pos = GetPosition();
+        
+        // Adjust for camera
+        if (GetGame())
+        {
+            Vector2 cameraPos = GetGame()->GetCameraPosition();
+            pos.x -= cameraPos.x;
+            pos.y -= cameraPos.y;
+        }
+        
         // Measure text to get height for baseline positioning
         float textHeight = textRenderer->GetTextHeight(mText, 1.0f);
         // Position text so that top of text is at pos.y (baseline is pos.y + textHeight)

@@ -72,4 +72,9 @@ private:
     std::vector<std::vector<Tile>> mTiles;
     std::unique_ptr<MapData> mMapData;
     Tile CreateTile(TileType type);
+
+    // Cached rendering
+    std::unique_ptr<Texture> mCachedMapTexture;
+    GLuint mMapFBO = 0;
+    void CacheMap(class SpriteRenderer* spriteRenderer);
 };

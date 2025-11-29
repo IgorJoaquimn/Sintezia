@@ -66,6 +66,7 @@ set(SOURCES
     ${SRC_DIR}/Core/RectRenderer/RectRenderer.cpp
     ${SRC_DIR}/Core/Texture/Texture.cpp
     ${SRC_DIR}/Core/Texture/SpriteRenderer.cpp
+    ${SRC_DIR}/Core/Camera.cpp
     ${SRC_DIR}/Crafting/Item.cpp
     ${SRC_DIR}/Crafting/Crafting.cpp
     ${SRC_DIR}/UI/NPCDialogUI.cpp

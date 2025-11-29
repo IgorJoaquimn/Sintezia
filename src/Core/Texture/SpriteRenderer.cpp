@@ -8,6 +8,7 @@ SpriteRenderer::SpriteRenderer()
     , mVBO(0)
     , mWindowWidth(800.0f)
     , mWindowHeight(600.0f)
+    , mCameraPos(Vector2::Zero)
 {
 }
 
@@ -107,8 +108,12 @@ void SpriteRenderer::DrawSprite(Texture* texture, const Vector2& position, const
     // Prepare transformations
     glm::mat4 model = glm::mat4(1.0f);
     
+    // Apply camera translation (inverse of camera position)
+    // We subtract camera position to move the world relative to the camera
+    Vector2 drawPos = position - mCameraPos;
+
     // First translate (transformations are: scale happens first, then rotation, then final translation)
-    model = glm::translate(model, glm::vec3(position.x, position.y, 0.0f));
+    model = glm::translate(model, glm::vec3(drawPos.x, drawPos.y, 0.0f));
     
     // Move origin of rotation to center of quad
     model = glm::translate(model, glm::vec3(0.5f * size.x, 0.5f * size.y, 0.0f));

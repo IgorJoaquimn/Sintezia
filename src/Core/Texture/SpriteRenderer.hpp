@@ -13,6 +13,10 @@ public:
     
     bool Initialize(float windowWidth, float windowHeight);
     void Shutdown();
+
+    void SetProjection(float width, float height) { mWindowWidth = width; mWindowHeight = height; }
+    float GetWindowWidth() const { return mWindowWidth; }
+    float GetWindowHeight() const { return mWindowHeight; }
     
     // Draw a sprite
     void DrawSprite(Texture* texture, const Vector2& position, const Vector2& size, 
@@ -24,6 +28,10 @@ public:
                     float rotation = 0.0f, const Vector3& color = Vector3(1.0f, 1.0f, 1.0f),
                     bool flipHorizontal = false, bool flipVertical = false);
     
+    // Set camera position for rendering
+    void SetCameraPosition(const Vector2& pos) { mCameraPos = pos; }
+    const Vector2& GetCameraPosition() const { return mCameraPos; }
+
 private:
     bool InitializeShaders();
     void SetupRenderData();
@@ -33,4 +41,5 @@ private:
     GLuint mVBO;
     float mWindowWidth;
     float mWindowHeight;
+    Vector2 mCameraPos;
 };

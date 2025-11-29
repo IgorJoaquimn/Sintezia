@@ -23,6 +23,11 @@ TileMap::TileMap(int width, int height, int tileSize)
 
 TileMap::~TileMap()
 {
+    if (mMapFBO != 0)
+    {
+        glDeleteFramebuffers(1, &mMapFBO);
+        mMapFBO = 0;
+    }
 }
 
 Tile TileMap::CreateTile(TileType type)
@@ -107,6 +112,20 @@ bool TileMap::LoadFromJSON(const std::string& jsonPath)
         mMapData->mapHeight = j["height"];
         mMapData->tileWidth = j["tilewidth"];
         mMapData->tileHeight = j["tileheight"];
+        
+        // Update TileMap dimensions to match loaded map
+        mWidth = mMapData->mapWidth;
+        mHeight = mMapData->mapHeight;
+        
+        // Resize mTiles to avoid crashes in IsWalkable
+        mTiles.resize(mHeight);
+        for (auto& row : mTiles) {
+            row.resize(mWidth);
+            // Initialize with default
+            for (auto& tile : row) {
+                tile = CreateTile(TileType::Floor);
+            }
+        }
         
         // Load tilesets
         for (const auto& tsJson : j["tilesets"])
@@ -209,170 +228,227 @@ void TileMap::Draw(SpriteRenderer* spriteRenderer)
     // If we have loaded map data from Tiled, draw that instead
     if (mMapData && !mMapData->layers.empty() && !mMapData->tilesets.empty())
     {
-        static bool debugPrinted = false;
-        if (!debugPrinted)
+        if (!mCachedMapTexture)
         {
-            std::cout << "Drawing Tiled map:" << std::endl;
-            std::cout << "  Map tile size (grid): " << mMapData->tileWidth << "x" << mMapData->tileHeight << std::endl;
-            std::cout << "  Display scale for base tiles: " << mTileSize << "px" << std::endl;
-            std::cout << "  Map dimensions: " << mMapData->mapWidth << "x" << mMapData->mapHeight << " tiles" << std::endl;
-            for (const auto& ts : mMapData->tilesets)
-            {
-                std::cout << "  Tileset: " << ts.tileWidth << "x" << ts.tileHeight 
-                          << "px (" << ts.columns << " cols, " << ts.tileCount << " tiles)" << std::endl;
-            }
-            debugPrinted = true;
+            CacheMap(spriteRenderer);
         }
-        
-        // Calculate base scale factor from map's base tile size to display size
-        // This is the scale for tiles that match the map's base tile size
-        float baseScale = static_cast<float>(mTileSize) / static_cast<float>(mMapData->tileWidth);
-        
-        // Draw each layer
-        for (const auto& layer : mMapData->layers)
+
+        if (mCachedMapTexture)
         {
-            if (layer.data.empty()) continue;
-            
-            // Skip special layers
-            if (layer.name == "collision" || layer.name.find("gerador_") == 0)
-                continue;
-            
-            // Draw each tile in the layer
-            // Render in left-bottom order: start from top row, so bottom tiles draw last (on top)
-            for (int y = 0; y < layer.height; y++)
-            {
-                for (int x = 0; x < layer.width; x++)
-                {
-                    int index = y * layer.width + x;
-                    if (index >= layer.data.size()) continue;
-                    
-                    int gid = layer.data[index];
-                    if (gid == 0) continue; // 0 = empty tile
-                    
-                    // Extract flip flags from GID (Tiled format)
-                    const unsigned FLIPPED_HORIZONTALLY_FLAG = 0x80000000;
-                    const unsigned FLIPPED_VERTICALLY_FLAG   = 0x40000000;
-                    const unsigned FLIPPED_DIAGONALLY_FLAG   = 0x20000000;
-                    
-                    bool flippedHorizontally = (gid & FLIPPED_HORIZONTALLY_FLAG);
-                    bool flippedVertically = (gid & FLIPPED_VERTICALLY_FLAG);
-                    bool flippedDiagonally = (gid & FLIPPED_DIAGONALLY_FLAG);
-                    
-                    // Clear the flags to get the actual tile ID
-                    gid &= ~(FLIPPED_HORIZONTALLY_FLAG | FLIPPED_VERTICALLY_FLAG | FLIPPED_DIAGONALLY_FLAG);
-                    
-                    // Find the tileset that contains this GID
-                    TilesetInfo* tileset = nullptr;
-                    for (auto& ts : mMapData->tilesets)
-                    {
-                        if (gid >= ts.firstGid && gid < ts.firstGid + ts.tileCount)
-                        {
-                            tileset = &ts;
-                            break;
-                        }
-                    }
-                    
-                    if (!tileset || !tileset->texture) continue;
-                    
-                    // Calculate local tile ID within the tileset
-                    int localId = gid - tileset->firstGid;
-                    
-                    // Calculate source position in the tileset (in pixels)
-                    int tileCol = localId % tileset->columns;
-                    int tileRow = localId / tileset->columns;
-                    
-                    float srcX = tileCol * tileset->tileWidth;
-                    float srcY = tileRow * tileset->tileHeight;
-                    
-                    // Get texture dimensions to normalize coordinates
-                    int texWidth = tileset->texture->GetWidth();
-                    int texHeight = tileset->texture->GetHeight();
-                    
-                    // Normalize to 0.0-1.0 range for shader
-                    float normalizedSrcX = srcX / static_cast<float>(texWidth);
-                    float normalizedSrcY = srcY / static_cast<float>(texHeight);
-                    float normalizedWidth = tileset->tileWidth / static_cast<float>(texWidth);
-                    float normalizedHeight = tileset->tileHeight / static_cast<float>(texHeight);
-                    
-                    // Calculate destination position on screen
-                    // In Tiled: (x, y) is the grid cell position, with (0,0) at top-left
-                    float destX = x * mTileSize;
-                    float destY = y * mTileSize;
-                    
-                    // Calculate display size based on the tileset's tile size
-                    // Scale factor: how much bigger/smaller the tileset tile is vs the map grid
-                    // Example: 64px tile in 16px grid = 4x scale factor
-                    float scaleFactorX = static_cast<float>(tileset->tileWidth) / static_cast<float>(mMapData->tileWidth);
-                    float scaleFactorY = static_cast<float>(tileset->tileHeight) / static_cast<float>(mMapData->tileHeight);
-                    
-                    // Display size in screen pixels
-                    float displayWidth = mTileSize * scaleFactorX;
-                    float displayHeight = mTileSize * scaleFactorY;
-                    
-                    // Offset scale for converting Tiled pixels to display pixels
-                    float offsetScale = mTileSize / 16.0f;
-                    
-                    // Apply offsets from Tiled editor
-                    destX += tileset->offsetX * offsetScale;
-                    destY -= tileset->offsetY * offsetScale;
-                    
-                    // Handle Tiled's flip flags (H=horizontal, V=vertical, D=diagonal/transpose)
-                    // Reference: https://doc.mapeditor.org/en/stable/reference/tmx-map-format/#tile-flipping
-                    float rotation = 0.0f;
-                    bool flipH = flippedHorizontally;
-                    bool flipV = flippedVertically;
-                    
-                    // Diagonal flip represents rotation
-                    if (flippedDiagonally)
-                    {
-                        rotation = glm::radians(90.0f);
-                        
-                        // Adjust flips based on other flags
-                        if (flippedHorizontally && flippedVertically)
-                        {
-                            rotation = glm::radians(270.0f);
-                            flipH = false;
-                        }
-                        else if (flippedVertically)
-                        {
-                            rotation = glm::radians(270.0f);
-                            flipH = false;
-                            flipV = false;
-                        }
-                        else if (flippedHorizontally)
-                        {
-                            flipH = false;
-                            flipV = false;
-                        }
-                    }
-                    else if (flippedHorizontally && flippedVertically)
-                    {
-                        // Both flips without diagonal = 180° rotation
-                        rotation = glm::radians(180.0f);
-                        flipH = false;
-                        flipV = false;
-                    }
-                    
-                    // Draw the tile using sprite sheet rendering with normalized coordinates
-                    spriteRenderer->DrawSprite(
-                        tileset->texture.get(),
-                        Vector2(destX, destY),
-                        Vector2(displayWidth, displayHeight),
-                        Vector2(normalizedSrcX, normalizedSrcY),
-                        Vector2(normalizedWidth, normalizedHeight),
-                        rotation,
-                        Vector3(1.0f, 1.0f, 1.0f),
-                        flipH,
-                        flipV
-                    );
-                }
-            }
+            // Draw the cached map texture
+            // Note: We need to flip vertically because rendering to FBO results in inverted Y axis
+            // relative to our top-left origin coordinate system when drawn as a texture
+            spriteRenderer->DrawSprite(
+                mCachedMapTexture.get(),
+                Vector2(0, 0),
+                Vector2(mCachedMapTexture->GetWidth(), mCachedMapTexture->GetHeight()),
+                Vector2(0.0f, 0.0f),
+                Vector2(1.0f, 1.0f),
+                0.0f,
+                Vector3(1.0f, 1.0f, 1.0f),
+                false,
+                true // Flip vertical
+            );
         }
-        
         return;
     }
     
     // Otherwise, do not draw procedural tilemap (no textures)
+}
+
+void TileMap::CacheMap(SpriteRenderer* spriteRenderer)
+{
+    if (!mMapData) return;
+
+    int width = mMapData->mapWidth * mTileSize;
+    int height = mMapData->mapHeight * mTileSize;
+    
+    // Create texture if needed
+    if (!mCachedMapTexture)
+    {
+        mCachedMapTexture = std::make_unique<Texture>();
+        mCachedMapTexture->CreateForRendering(width, height, GL_RGBA);
+    }
+    
+    // Create FBO if needed
+    if (mMapFBO == 0)
+    {
+        glGenFramebuffers(1, &mMapFBO);
+    }
+    
+    // Save current state
+    GLint prevFBO;
+    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevFBO);
+    
+    GLint prevViewport[4];
+    glGetIntegerv(GL_VIEWPORT, prevViewport);
+    
+    float prevWidth = spriteRenderer->GetWindowWidth();
+    float prevHeight = spriteRenderer->GetWindowHeight();
+    
+    // Setup FBO
+    glBindFramebuffer(GL_FRAMEBUFFER, mMapFBO);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mCachedMapTexture->GetTextureID(), 0);
+    
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+    {
+        std::cerr << "Framebuffer is not complete!" << std::endl;
+        glBindFramebuffer(GL_FRAMEBUFFER, prevFBO);
+        return;
+    }
+    
+    // Setup rendering
+    glViewport(0, 0, width, height);
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // Transparent background
+    glClear(GL_COLOR_BUFFER_BIT);
+    
+    // Set projection to match map size
+    spriteRenderer->SetProjection(width, height);
+    
+    static bool debugPrinted = false;
+    if (!debugPrinted)
+    {
+        std::cout << "Caching Tiled map to texture (" << width << "x" << height << ")" << std::endl;
+        debugPrinted = true;
+    }
+    
+    // Draw each layer
+    for (const auto& layer : mMapData->layers)
+    {
+        if (layer.data.empty()) continue;
+        
+        // Skip special layers
+        if (layer.name == "collision" || layer.name.find("gerador_") == 0)
+            continue;
+        
+        // Draw each tile in the layer
+        for (int y = 0; y < layer.height; y++)
+        {
+            for (int x = 0; x < layer.width; x++)
+            {
+                int index = y * layer.width + x;
+                if (index >= layer.data.size()) continue;
+                
+                int gid = layer.data[index];
+                if (gid == 0) continue; // 0 = empty tile
+                
+                // Extract flip flags from GID (Tiled format)
+                const unsigned FLIPPED_HORIZONTALLY_FLAG = 0x80000000;
+                const unsigned FLIPPED_VERTICALLY_FLAG   = 0x40000000;
+                const unsigned FLIPPED_DIAGONALLY_FLAG   = 0x20000000;
+                
+                bool flippedHorizontally = (gid & FLIPPED_HORIZONTALLY_FLAG);
+                bool flippedVertically = (gid & FLIPPED_VERTICALLY_FLAG);
+                bool flippedDiagonally = (gid & FLIPPED_DIAGONALLY_FLAG);
+                
+                // Clear the flags to get the actual tile ID
+                gid &= ~(FLIPPED_HORIZONTALLY_FLAG | FLIPPED_VERTICALLY_FLAG | FLIPPED_DIAGONALLY_FLAG);
+                
+                // Find the tileset that contains this GID
+                TilesetInfo* tileset = nullptr;
+                for (auto& ts : mMapData->tilesets)
+                {
+                    if (gid >= ts.firstGid && gid < ts.firstGid + ts.tileCount)
+                    {
+                        tileset = &ts;
+                        break;
+                    }
+                }
+                
+                if (!tileset || !tileset->texture) continue;
+                
+                // Calculate local tile ID within the tileset
+                int localId = gid - tileset->firstGid;
+                
+                // Calculate source position in the tileset (in pixels)
+                int tileCol = localId % tileset->columns;
+                int tileRow = localId / tileset->columns;
+                
+                float srcX = tileCol * tileset->tileWidth;
+                float srcY = tileRow * tileset->tileHeight;
+                
+                // Get texture dimensions to normalize coordinates
+                int texWidth = tileset->texture->GetWidth();
+                int texHeight = tileset->texture->GetHeight();
+                
+                // Normalize to 0.0-1.0 range for shader
+                float normalizedSrcX = srcX / static_cast<float>(texWidth);
+                float normalizedSrcY = srcY / static_cast<float>(texHeight);
+                float normalizedWidth = tileset->tileWidth / static_cast<float>(texWidth);
+                float normalizedHeight = tileset->tileHeight / static_cast<float>(texHeight);
+                
+                // Calculate destination position on screen
+                // In Tiled: (x, y) is the grid cell position, with (0,0) at top-left
+                float destX = x * mTileSize;
+                float destY = y * mTileSize;
+                
+                // Calculate display size based on the tileset's tile size
+                float scaleFactorX = static_cast<float>(tileset->tileWidth) / static_cast<float>(mMapData->tileWidth);
+                float scaleFactorY = static_cast<float>(tileset->tileHeight) / static_cast<float>(mMapData->tileHeight);
+                
+                // Display size in screen pixels
+                float displayWidth = mTileSize * scaleFactorX;
+                float displayHeight = mTileSize * scaleFactorY;
+                
+                // Offset scale for converting Tiled pixels to display pixels
+                float offsetScale = mTileSize / 16.0f;
+                
+                // Apply offsets from Tiled editor
+                destX += tileset->offsetX * offsetScale;
+                destY -= tileset->offsetY * offsetScale;
+                
+                // Handle Tiled's flip flags
+                float rotation = 0.0f;
+                bool flipH = flippedHorizontally;
+                bool flipV = flippedVertically;
+                
+                if (flippedDiagonally)
+                {
+                    rotation = glm::radians(90.0f);
+                    if (flippedHorizontally && flippedVertically)
+                    {
+                        rotation = glm::radians(270.0f);
+                        flipH = false;
+                    }
+                    else if (flippedVertically)
+                    {
+                        rotation = glm::radians(270.0f);
+                        flipH = false;
+                        flipV = false;
+                    }
+                    else if (flippedHorizontally)
+                    {
+                        flipH = false;
+                        flipV = false;
+                    }
+                }
+                else if (flippedHorizontally && flippedVertically)
+                {
+                    rotation = glm::radians(180.0f);
+                    flipH = false;
+                    flipV = false;
+                }
+                
+                // Draw the tile
+                spriteRenderer->DrawSprite(
+                    tileset->texture.get(),
+                    Vector2(destX, destY),
+                    Vector2(displayWidth, displayHeight),
+                    Vector2(normalizedSrcX, normalizedSrcY),
+                    Vector2(normalizedWidth, normalizedHeight),
+                    rotation,
+                    Vector3(1.0f, 1.0f, 1.0f),
+                    flipH,
+                    flipV
+                );
+            }
+        }
+    }
+    
+    // Restore state
+    spriteRenderer->SetProjection(prevWidth, prevHeight);
+    glBindFramebuffer(GL_FRAMEBUFFER, prevFBO);
+    glViewport(prevViewport[0], prevViewport[1], prevViewport[2], prevViewport[3]);
 }
 
 bool TileMap::IsWalkable(const Vector2& position) const

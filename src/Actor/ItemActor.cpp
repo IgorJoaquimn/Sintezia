@@ -66,6 +66,15 @@ void ItemActor::OnDraw(class TextRenderer* textRenderer)
         return;
 
     Vector2 pos = GetPosition();
+    
+    // Adjust for camera
+    if (GetGame())
+    {
+        Vector2 cameraPos = GetGame()->GetCameraPosition();
+        pos.x -= cameraPos.x;
+        pos.y -= cameraPos.y;
+    }
+
     std::string displayText = GetDisplayText();
     
     // Measure text to calculate background size
@@ -133,6 +142,15 @@ float ItemActor::GetTextHeight(float scale) const
 bool ItemActor::ContainsPoint(const Vector2& point) const
 {
     Vector2 pos = GetPosition();
+    
+    // Adjust for camera
+    if (GetGame())
+    {
+        Vector2 cameraPos = GetGame()->GetCameraPosition();
+        pos.x -= cameraPos.x;
+        pos.y -= cameraPos.y;
+    }
+
     std::string displayText = GetDisplayText();
     
     // Get the text renderer from game to measure
@@ -159,7 +177,18 @@ void ItemActor::OnMouseDown(const Vector2& mousePos)
     if (ContainsPoint(mousePos))
     {
         mIsDragging = true;
-        mDragOffset = GetPosition() - mousePos;
+        
+        // Store offset relative to world position
+        // mousePos is screen coordinates
+        // GetPosition() is world coordinates
+        // We need to convert mousePos to world coordinates to calculate offset correctly
+        Vector2 worldMousePos = mousePos;
+        if (GetGame())
+        {
+            worldMousePos += GetGame()->GetCameraPosition();
+        }
+        
+        mDragOffset = GetPosition() - worldMousePos;
         
         // Visual feedback: make background more opaque when dragging
         mBackgroundAlpha = 0.6f;
@@ -181,7 +210,14 @@ void ItemActor::OnMouseMove(const Vector2& mousePos)
 {
     if (mIsDragging)
     {
-        SetPosition(mousePos + mDragOffset);
+        // Convert screen mouse pos to world pos
+        Vector2 worldMousePos = mousePos;
+        if (GetGame())
+        {
+            worldMousePos += GetGame()->GetCameraPosition();
+        }
+        
+        SetPosition(worldMousePos + mDragOffset);
     }
 }
 
