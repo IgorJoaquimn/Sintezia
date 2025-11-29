@@ -1,6 +1,8 @@
 #include "Texture.hpp"
 #include <SDL_image.h>
 #include <iostream>
+#include <unistd.h>
+#include <fcntl.h>
 
 Texture::Texture()
     : mTextureID(0)
@@ -17,7 +19,23 @@ Texture::~Texture()
 bool Texture::Load(const std::string& fileName)
 {
     // Load from file
+    // Suppress libpng warnings by redirecting stderr
+    int stderr_backup = dup(STDERR_FILENO);
+    int null_fd = open("/dev/null", O_WRONLY);
+    if (stderr_backup != -1 && null_fd != -1) {
+        dup2(null_fd, STDERR_FILENO);
+    }
+
     SDL_Surface* surf = IMG_Load(fileName.c_str());
+
+    // Restore stderr
+    if (stderr_backup != -1 && null_fd != -1) {
+        fflush(stderr);
+        dup2(stderr_backup, STDERR_FILENO);
+        close(stderr_backup);
+        close(null_fd);
+    }
+
     if (!surf)
     {
         std::cerr << "Failed to load texture file " << fileName << ": " << SDL_GetError() << std::endl;

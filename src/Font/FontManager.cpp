@@ -51,7 +51,7 @@ bool FontManager::LoadTextFont() {
     bool textLoaded = false;
     for (const auto& path : textPaths) {
         if (FT_New_Face(ftLibrary, path.c_str(), 0, &textFace) == 0) {
-            std::cout << "Successfully loaded text font: " << path << std::endl;
+            // std::cout << "Successfully loaded text font: " << path << std::endl;
             textLoaded = true;
             break;
         }
@@ -79,7 +79,7 @@ bool FontManager::LoadEmojiFont() {
     bool emojiLoaded = false;
     for (const auto& path : emojiPaths) {
         if (FT_New_Face(ftLibrary, path.c_str(), 0, &emojiFace) == 0) {
-            std::cout << "Successfully loaded emoji font: " << path << std::endl;
+            // std::cout << "Successfully loaded emoji font: " << path << std::endl;
             emojiLoaded = true;
             break;
         }

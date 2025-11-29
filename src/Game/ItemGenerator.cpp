@@ -58,7 +58,7 @@ void ItemGenerator::GenerateItemsFromMap(TileMap* tileMap) {
                     }
                 }
             }
-            std::cout << "ItemGenerator: Spawned " << count << " items of type '" << itemName << "' from layer '" << layer.name << "'" << std::endl;
+            // std::cout << "ItemGenerator: Spawned " << count << " items of type '" << itemName << "' from layer '" << layer.name << "'" << std::endl;
         }
     }
 }

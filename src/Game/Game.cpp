@@ -142,7 +142,7 @@ bool Game::Initialize()
         if (earth)
             mPlayer->GetInventory()->AddItem(*earth, 3);  // 3 earth
             
-        SDL_Log("Added starting items to player inventory");
+                    // SDL_Log("Added starting items to player inventory");
     }
 
     // Create test shopkeeper NPC (dialog NPC with trading)
@@ -488,10 +488,10 @@ void Game::CombineItems(ItemActor* item1, ItemActor* item2)
         item1->SetState(ActorState::Destroy);
         item2->SetState(ActorState::Destroy);
         
-        SDL_Log("Combined %s + %s = %s", 
-                item1->GetItem().name.c_str(), 
-                item2->GetItem().name.c_str(), 
-                result->name.c_str());
+        // SDL_Log("Combined %s + %s = %s", 
+        //         item1->GetItem().name.c_str(), 
+        //         item2->GetItem().name.c_str(), 
+        //         result->name.c_str());
     }
 }
 
@@ -517,7 +517,7 @@ void Game::LoadNPCsFromJson(const std::string& filePath)
                 RegisterNPC(npc.get());
                 AddActor(std::move(npc));
             }
-            SDL_Log("Loaded NPCs from %s", filePath.c_str());
+            // SDL_Log("Loaded NPCs from %s", filePath.c_str());
         }
     }
     catch (const std::exception& e)

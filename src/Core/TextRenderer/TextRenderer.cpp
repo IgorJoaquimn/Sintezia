@@ -50,7 +50,7 @@ bool TextRenderer::Initialize(float windowWidth, float windowHeight) {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
-    std::cout << "TextRenderer initialized successfully" << std::endl;
+    // std::cout << "TextRenderer initialized successfully" << std::endl;
     return true;
 }
 
@@ -60,7 +60,7 @@ bool TextRenderer::InitializeShaders() {
         return false;
     }
     
-    std::cout << "Text rendering shaders loaded successfully" << std::endl;
+    // std::cout << "Text rendering shaders loaded successfully" << std::endl;
     return true;
 }
 

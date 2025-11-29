@@ -57,7 +57,7 @@ bool Crafting::LoadItemsFromJson(const std::string& filepath) {
             items.push_back(Item::fromJson(itemJson));
         }
         
-        std::cout << "Loaded " << items.size() << " items from " << filepath << std::endl;
+        // std::cout << "Loaded " << items.size() << " items from " << filepath << std::endl;
         return true;
     } catch (const json::exception& e) {
         std::cerr << "JSON parsing error: " << e.what() << std::endl;
@@ -95,7 +95,7 @@ bool Crafting::LoadRecipesFromJson(const std::string& filepath) {
             }
         }
         
-        std::cout << "Loaded " << recipeCount << " recipes from " << filepath << std::endl;
+        // std::cout << "Loaded " << recipeCount << " recipes from " << filepath << std::endl;
         return true;
     } catch (const json::exception& e) {
         std::cerr << "JSON parsing error: " << e.what() << std::endl;

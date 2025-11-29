@@ -30,7 +30,7 @@ bool SpriteRenderer::Initialize(float windowWidth, float windowHeight)
     
     SetupRenderData();
     
-    std::cout << "SpriteRenderer initialized successfully" << std::endl;
+    // std::cout << "SpriteRenderer initialized successfully" << std::endl;
     return true;
 }
 

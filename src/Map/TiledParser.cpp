@@ -163,7 +163,7 @@ bool TiledParser::ParseTSX(const std::string& tsxPath, TilesetInfo& tileset)
     }
     if (collisionCount > 0)
     {
-        std::cout << "  Collision tiles: " << collisionCount << std::endl;
+        // std::cout << "  Collision tiles: " << collisionCount << std::endl;
     }
     
     return true;

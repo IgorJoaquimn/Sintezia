@@ -207,10 +207,10 @@ bool TileMap::LoadFromJSON(const std::string& jsonPath)
             mMapData->layers.push_back(layer);
         }
         
-        std::cout << "Successfully loaded tilemap: " << jsonPath << std::endl;
-        std::cout << "  Map size: " << mMapData->mapWidth << "x" << mMapData->mapHeight << std::endl;
-        std::cout << "  Tilesets: " << mMapData->tilesets.size() << std::endl;
-        std::cout << "  Layers: " << mMapData->layers.size() << std::endl;
+        // std::cout << "Successfully loaded tilemap: " << jsonPath << std::endl;
+        // std::cout << "  Map size: " << mMapData->mapWidth << "x" << mMapData->mapHeight << std::endl;
+        // std::cout << "  Tilesets: " << mMapData->tilesets.size() << std::endl;
+        // std::cout << "  Layers: " << mMapData->layers.size() << std::endl;
         
         return true;
     }
@@ -308,7 +308,7 @@ void TileMap::CacheMap(SpriteRenderer* spriteRenderer)
     static bool debugPrinted = false;
     if (!debugPrinted)
     {
-        std::cout << "Caching Tiled map to texture (" << width << "x" << height << ")" << std::endl;
+        // std::cout << "Caching Tiled map to texture (" << width << "x" << height << ")" << std::endl;
         debugPrinted = true;
     }
     
