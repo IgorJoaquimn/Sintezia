@@ -12,6 +12,7 @@
 #include "../Core/Texture/Texture.hpp"
 #include "../Map/TiledParser.hpp"
 #include "../Actor/ItemActor.hpp"
+#include "../UI/HealthBar.hpp" // adicionado include da HealthBar
 
 Player::Player(Game* game)
     : Actor(game)
@@ -26,6 +27,7 @@ Player::Player(Game* game)
     , mLastDirection(0)
     , mInventory(std::make_unique<Inventory>(20))  // 20 inventory slots
     , mInventoryUI(nullptr)
+    , mHealthBar(nullptr) // inicializa o ponteiro
 {
     SetPosition(Vector2(640.0f, 360.0f)); // Center of screen
     
@@ -44,6 +46,10 @@ Player::Player(Game* game)
         // Player death - quit game
         mGame->Quit();
     });
+
+    // Create health bar UI attached to the player's HealthComponent
+    // Initial position is (0,0) — we'll position it relative to the player each frame in OnDraw
+    mHealthBar = std::make_unique<HealthBar>(mHealthComponent, 0.0f, 0.0f, 100.0f, 12.0f);
 
     // Configure attack component
     AttackConfig attackConfig;
@@ -223,6 +229,12 @@ void Player::OnUpdate(float deltaTime)
         mInventoryUI->Update(deltaTime);
     }
 
+    // Update health bar UI
+    if (mHealthBar)
+    {
+        mHealthBar->Update(deltaTime);
+    }
+
     // Handle attack timer
     if (mState == PlayerState::Attacking)
     {
@@ -293,6 +305,15 @@ void Player::OnDraw(TextRenderer* textRenderer)
     mSpriteComponent->SetCurrentFrame(row, col);
     mSpriteComponent->SetFlipHorizontal(false);
     mSpriteComponent->Draw(spriteRenderer);
+
+    // Draw health bar (HUD) fixed at top-left of the screen
+    if (mHealthBar)
+    {
+        // Position fixed in screen coordinates (10px margin from top-left)
+        mHealthBar->SetPosition(10.0f, 30.0f);
+        mHealthBar->SetSize(200,30);
+        mHealthBar->Draw(textRenderer, mGame->GetRectRenderer());
+    }
 
     // Inventory UI is now drawn in Game::GenerateOutput to ensure it's on top
 }
