@@ -382,7 +382,7 @@ void Game::GenerateOutput()
     // Create a list of active actors to render
     std::vector<Actor*> activeActors;
     activeActors.reserve(mActors.size());
-    
+
     for (auto& actor : mActors)
     {
         if (actor->GetState() == ActorState::Active)

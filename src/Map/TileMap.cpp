@@ -664,3 +664,24 @@ void TileMap::DrawGID(SpriteRenderer* spriteRenderer, int gid, const Vector2& po
         flipV
     );
 }
+
+bool TileMap::CanHarvestBlock(int col, int row, float currentTime, float cooldown) const
+{
+    std::string key = std::to_string(col) + "," + std::to_string(row);
+    
+    auto it = mBlockHarvestTimes.find(key);
+    if (it == mBlockHarvestTimes.end())
+    {
+        // Block has never been harvested, so we can harvest it
+        return true;
+    }
+    
+    // Check if enough time has passed since last harvest
+    return (currentTime - it->second) >= cooldown;
+}
+
+void TileMap::SetBlockHarvestTime(int col, int row, float harvestTime)
+{
+    std::string key = std::to_string(col) + "," + std::to_string(row);
+    mBlockHarvestTimes[key] = harvestTime;
+}
