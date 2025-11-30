@@ -6,19 +6,24 @@
 #include "../Core/Texture/SpriteRenderer.hpp"
 
 MainMenu::MainMenu(SDL_Window* window, SDL_GLContext glContext, TextRenderer* textRenderer)
-    : selection(0), mWindow(window), mGLContext(glContext), mTextRenderer(textRenderer), mLogoTexture(nullptr), mSpriteRenderer(nullptr)
+    : selection(0), mWindow(window), mGLContext(glContext), mTextRenderer(textRenderer), mBackgroundTexture(nullptr), mSpriteRenderer(nullptr)
 {
-    options = {"Iniciar Jogo", "Opções", "Sair"};
-    mLogoTexture = new Texture();
-    mLogoTexture->Load("assets/logo.png");
+    options = {"Iniciar Jogo", "Sair"};
+    
+    mBackgroundTexture = new Texture();
+    if (!mBackgroundTexture->Load("assets/fundo.png")) {
+        // Try fallback
+        mBackgroundTexture->Load("../assets/fundo.png");
+    }
+
     mSpriteRenderer = new SpriteRenderer();
     mSpriteRenderer->Initialize((float)textRenderer->GetWindowWidth(), (float)textRenderer->GetWindowHeight());
 }
 
 MainMenu::~MainMenu() {
-    if (mLogoTexture) {
-        mLogoTexture->Unload();
-        delete mLogoTexture;
+    if (mBackgroundTexture) {
+        mBackgroundTexture->Unload();
+        delete mBackgroundTexture;
     }
     if (mSpriteRenderer) {
         mSpriteRenderer->Shutdown();
@@ -32,8 +37,10 @@ void MainMenu::show() {
         // Limpa a tela
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-        // Renderiza o logo
-        displayLogo();
+        
+        // Renderiza o fundo
+        displayBackground();
+
         // Renderiza as opções
         displayOptions();
         SDL_GL_SwapWindow(mWindow);
@@ -43,31 +50,22 @@ void MainMenu::show() {
     }
 }
 
-void MainMenu::displayLogo() const {
-    if (!mLogoTexture || !mSpriteRenderer) return;
-    float logoWidth = (float)mLogoTexture->GetWidth();
-    float logoHeight = (float)mLogoTexture->GetHeight();
-    if (logoWidth <= 1.0f || logoHeight <= 1.0f) {
-        std::cerr << "Logo: dimensões inválidas: " << logoWidth << "x" << logoHeight << std::endl;
-        return;
-    }
-    float scale = 0.2f; // Fator de escala para diminuir a logo
-    float scaledWidth = logoWidth * scale;
-    float scaledHeight = logoHeight * scale;
+void MainMenu::displayBackground() const {
+    if (!mBackgroundTexture || !mSpriteRenderer) return;
+    
     float windowWidth = (float)mTextRenderer->GetWindowWidth();
-    float x = (windowWidth - scaledWidth) / 2.0f;
-    float y = 40.0f; // margem do topo
-    mSpriteRenderer->DrawSprite(mLogoTexture, Vector2(x, y), Vector2(scaledWidth, scaledHeight));
+    float windowHeight = (float)mTextRenderer->GetWindowHeight();
+    
+    mSpriteRenderer->DrawSprite(mBackgroundTexture, Vector2(0, 0), Vector2(windowWidth, windowHeight));
 }
 
 void MainMenu::displayOptions() const {
     if (!mTextRenderer) return;
     float scale = 1.0f;
     float step = 50.0f;
-    float logoHeight = mLogoTexture ? mLogoTexture->GetHeight() * 0.2f : 0.0f; // altura da logo já escalada
-    float extraMargin = -200.0f; // margem extra após a logo
     float totalHeight = (options.size() - 1) * step;
-    float startY = logoHeight + extraMargin + (mTextRenderer->GetWindowHeight() / 2.0f) - (totalHeight / 2.0f);
+    // Posiciona o centro do menu em 75% da altura da tela (mais para baixo)
+    float startY = (mTextRenderer->GetWindowHeight() * 0.75f) - (totalHeight / 2.0f);
     for (size_t i = 0; i < options.size(); ++i) {
         float textWidth = mTextRenderer->GetTextWidth(options[i], scale);
         float x = (mTextRenderer->GetWindowWidth() - textWidth) / 2.0f;
@@ -85,7 +83,7 @@ void MainMenu::handleInput(bool& running) {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         if (event.type == SDL_QUIT) {
-            selection = 2; // Sair
+            selection = 1; // Sair
             running = false;
         } else if (event.type == SDL_KEYDOWN) {
             switch (event.key.keysym.sym) {

@@ -21,10 +21,10 @@ private:
     SDL_Window* mWindow;
     SDL_GLContext mGLContext;
     TextRenderer* mTextRenderer;
-    Texture* mLogoTexture;
+    Texture* mBackgroundTexture;
     SpriteRenderer* mSpriteRenderer;
     void displayOptions() const;
-    void displayLogo() const;
+    void displayBackground() const;
     void handleInput(bool& running);
 };
 
