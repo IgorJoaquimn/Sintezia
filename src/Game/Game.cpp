@@ -104,8 +104,8 @@ bool Game::Initialize()
     }
 
     // Create tile map
-    // Window is 1200×800, map is 30×20 tiles: perfect fit at 40px per tile
-    mTileMap = std::make_unique<TileMap>(30, 20, 40);
+    // Map is 90x80 tiles (3600x3200 pixels)
+    mTileMap = std::make_unique<TileMap>(90, 80, 40);
 
     // Load your custom Tiled map
     if (!mTileMap->LoadFromJSON("assets/maps/mapa_de_teste.json"))
@@ -142,6 +142,9 @@ bool Game::Initialize()
             // Keep a small margin from the absolute edge
             moveComp->SetBounds(16.0f, 16.0f, mapWidth - 16.0f, mapHeight - 16.0f);
         }
+
+        // Snap camera to player start position
+        mCamera->SnapToPlayer(mPlayer->GetPosition(), static_cast<int>(mapWidth), static_cast<int>(mapHeight));
     }
 
     // Give player some starting items for testing trades

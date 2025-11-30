@@ -175,6 +175,7 @@ bool TileMap::LoadFromJSON(const std::string& jsonPath)
             if (!ts.texture->Load(ts.imagePath))
             {
                 std::cerr << "Failed to load tileset image: " << ts.imagePath << std::endl;
+                SDL_Log("Failed to load tileset image: %s", ts.imagePath.c_str());
                 continue;
             }
             
@@ -225,35 +226,157 @@ void TileMap::Draw(SpriteRenderer* spriteRenderer)
 {
     if (!spriteRenderer) return;
     
-    // If we have loaded map data from Tiled, draw that instead
+    // Use direct drawing with culling instead of caching the whole map
+    // This avoids texture size limits and improves performance for large maps
     if (mMapData && !mMapData->layers.empty() && !mMapData->tilesets.empty())
     {
-        if (!mCachedMapTexture)
-        {
-            CacheMap(spriteRenderer);
-        }
-
-        if (mCachedMapTexture)
-        {
-            // Draw the cached map texture
-            // Note: We need to flip vertically because rendering to FBO results in inverted Y axis
-            // relative to our top-left origin coordinate system when drawn as a texture
-            spriteRenderer->DrawSprite(
-                mCachedMapTexture.get(),
-                Vector2(0, 0),
-                Vector2(mCachedMapTexture->GetWidth(), mCachedMapTexture->GetHeight()),
-                Vector2(0.0f, 0.0f),
-                Vector2(1.0f, 1.0f),
-                0.0f,
-                Vector3(1.0f, 1.0f, 1.0f),
-                false,
-                true // Flip vertical
-            );
-        }
-        return;
+        Vector2 cameraPos = spriteRenderer->GetCameraPosition();
+        Vector2 screenSize(spriteRenderer->GetWindowWidth(), spriteRenderer->GetWindowHeight());
+        DrawVisible(spriteRenderer, cameraPos, screenSize);
     }
+}
+
+void TileMap::DrawVisible(SpriteRenderer* spriteRenderer, const Vector2& cameraPos, const Vector2& screenSize)
+{
+    if (!mMapData) return;
+
+    // Calculate visible tile range
+    int startCol = static_cast<int>(cameraPos.x / mTileSize);
+    int startRow = static_cast<int>(cameraPos.y / mTileSize);
     
-    // Otherwise, do not draw procedural tilemap (no textures)
+    int visibleCols = static_cast<int>(screenSize.x / mTileSize) + 2; // +2 for buffer
+    int visibleRows = static_cast<int>(screenSize.y / mTileSize) + 2;
+    
+    int endCol = startCol + visibleCols;
+    int endRow = startRow + visibleRows;
+    
+    // Clamp to map bounds
+    startCol = std::max(0, startCol);
+    startRow = std::max(0, startRow);
+    endCol = std::min(mMapData->mapWidth, endCol);
+    endRow = std::min(mMapData->mapHeight, endRow);
+    
+    // Draw each layer
+    for (const auto& layer : mMapData->layers)
+    {
+        if (layer.data.empty()) continue;
+        
+        // Skip special layers
+        if (layer.name == "collision" || layer.name.find("gerador_") == 0 || layer.name == "selected_icon")
+            continue;
+            
+        // Draw visible tiles
+        for (int y = startRow; y < endRow; y++)
+        {
+            for (int x = startCol; x < endCol; x++)
+            {
+                int index = y * layer.width + x;
+                if (index >= layer.data.size()) continue;
+                
+                int gid = layer.data[index];
+                if (gid == 0) continue;
+                
+                // Extract flip flags
+                const unsigned FLIPPED_HORIZONTALLY_FLAG = 0x80000000;
+                const unsigned FLIPPED_VERTICALLY_FLAG   = 0x40000000;
+                const unsigned FLIPPED_DIAGONALLY_FLAG   = 0x20000000;
+                
+                bool flippedHorizontally = (gid & FLIPPED_HORIZONTALLY_FLAG);
+                bool flippedVertically = (gid & FLIPPED_VERTICALLY_FLAG);
+                bool flippedDiagonally = (gid & FLIPPED_DIAGONALLY_FLAG);
+                
+                gid &= ~(FLIPPED_HORIZONTALLY_FLAG | FLIPPED_VERTICALLY_FLAG | FLIPPED_DIAGONALLY_FLAG);
+                
+                // Find tileset
+                TilesetInfo* tileset = nullptr;
+                for (auto& ts : mMapData->tilesets)
+                {
+                    if (gid >= ts.firstGid && gid < ts.firstGid + ts.tileCount)
+                    {
+                        tileset = &ts;
+                        break;
+                    }
+                }
+                
+                if (!tileset || !tileset->texture) continue;
+                
+                // Calculate source rect
+                int localId = gid - tileset->firstGid;
+                int tileCol = localId % tileset->columns;
+                int tileRow = localId / tileset->columns;
+                
+                float srcX = tileCol * tileset->tileWidth;
+                float srcY = tileRow * tileset->tileHeight;
+                
+                int texWidth = tileset->texture->GetWidth();
+                int texHeight = tileset->texture->GetHeight();
+                
+                float normalizedSrcX = srcX / static_cast<float>(texWidth);
+                float normalizedSrcY = srcY / static_cast<float>(texHeight);
+                float normalizedWidth = tileset->tileWidth / static_cast<float>(texWidth);
+                float normalizedHeight = tileset->tileHeight / static_cast<float>(texHeight);
+                
+                // Calculate destination position
+                float destX = x * mTileSize;
+                float destY = y * mTileSize;
+                
+                // Apply offsets
+                float scaleFactorX = static_cast<float>(tileset->tileWidth) / static_cast<float>(mMapData->tileWidth);
+                float scaleFactorY = static_cast<float>(tileset->tileHeight) / static_cast<float>(mMapData->tileHeight);
+                
+                float displayWidth = mTileSize * scaleFactorX;
+                float displayHeight = mTileSize * scaleFactorY;
+                
+                float offsetScale = mTileSize / 16.0f;
+                destX += tileset->offsetX * offsetScale;
+                destY -= tileset->offsetY * offsetScale;
+                
+                // Handle rotation/flip
+                float rotation = 0.0f;
+                bool flipH = flippedHorizontally;
+                bool flipV = flippedVertically;
+                
+                if (flippedDiagonally)
+                {
+                    rotation = glm::radians(90.0f);
+                    if (flippedHorizontally && flippedVertically)
+                    {
+                        rotation = glm::radians(270.0f);
+                        flipH = false;
+                    }
+                    else if (flippedVertically)
+                    {
+                        rotation = glm::radians(270.0f);
+                        flipH = false;
+                        flipV = false;
+                    }
+                    else if (flippedHorizontally)
+                    {
+                        flipH = false;
+                        flipV = false;
+                    }
+                }
+                else if (flippedHorizontally && flippedVertically)
+                {
+                    rotation = glm::radians(180.0f);
+                    flipH = false;
+                    flipV = false;
+                }
+                
+                spriteRenderer->DrawSprite(
+                    tileset->texture.get(),
+                    Vector2(destX, destY),
+                    Vector2(displayWidth, displayHeight),
+                    Vector2(normalizedSrcX, normalizedSrcY),
+                    Vector2(normalizedWidth, normalizedHeight),
+                    rotation,
+                    Vector3(1.0f, 1.0f, 1.0f),
+                    flipH,
+                    flipV
+                );
+            }
+        }
+    }
 }
 
 void TileMap::Draw(SpriteRenderer* spriteRenderer, const Vector2& position, float scale)

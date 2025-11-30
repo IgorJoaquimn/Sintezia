@@ -1,6 +1,7 @@
 #include "TiledParser.hpp"
 #include <fstream>
 #include <iostream>
+#include <SDL.h>
 
 std::string TiledParser::ExtractAttribute(const std::string& line, const std::string& attrName)
 {
@@ -139,6 +140,7 @@ bool TiledParser::ParseTSX(const std::string& tsxPath, TilesetInfo& tileset)
     if (!tileset.texture->Load(tileset.imagePath))
     {
         std::cerr << "Failed to load tileset image from TSX: " << tileset.imagePath << std::endl;
+        SDL_Log("Failed to load tileset image from TSX: %s", tileset.imagePath.c_str());
         return false;
     }
     
