@@ -377,21 +377,37 @@ void Game::GenerateOutput()
         mTileMap->Draw(mSpriteRenderer.get());
     }
 
-    // Render all actors on top
+    // Create a list of active actors to render
+    std::vector<Actor*> activeActors;
+    activeActors.reserve(mActors.size());
+    
     for (auto& actor : mActors)
     {
         if (actor->GetState() == ActorState::Active)
         {
-            // For TextRenderer, we might need to adjust position manually if it doesn't use SpriteRenderer
-            // But TextRenderer usually renders UI or world text.
-            // If it's world text, it needs camera offset.
-            // Let's assume TextRenderer handles UI (screen space) for now, or check if it needs update.
-            // The current TextRenderer implementation likely uses screen coordinates.
-            // If actors draw sprites via SpriteComponent, they use SpriteRenderer which now has camera.
-            // If they draw text via TextRenderer, we might need to offset.
-
-            actor->OnDraw(mTextRenderer.get());
+            activeActors.push_back(actor.get());
         }
+    }
+
+    // Sort actors by Y position (ascending) for depth sorting
+    // Lower Y (top of screen) drawn first (behind)
+    // Higher Y (bottom of screen) drawn last (in front)
+    std::sort(activeActors.begin(), activeActors.end(), [](Actor* a, Actor* b) {
+        return a->GetPosition().y < b->GetPosition().y;
+    });
+
+    // Render sorted actors
+    for (auto* actor : activeActors)
+    {
+        // For TextRenderer, we might need to adjust position manually if it doesn't use SpriteRenderer
+        // But TextRenderer usually renders UI or world text.
+        // If it's world text, it needs camera offset.
+        // Let's assume TextRenderer handles UI (screen space) for now, or check if it needs update.
+        // The current TextRenderer implementation likely uses screen coordinates.
+        // If actors draw sprites via SpriteComponent, they use SpriteRenderer which now has camera.
+        // If they draw text via TextRenderer, we might need to offset.
+
+        actor->OnDraw(mTextRenderer.get());
     }
 
     // Render Player UI on top of everything
