@@ -54,6 +54,15 @@ public:
     // Draw using your OpenGL SpriteRenderer
     void Draw(class SpriteRenderer* spriteRenderer);
     
+    // Draw using your OpenGL SpriteRenderer with offset and scale
+    void Draw(class SpriteRenderer* spriteRenderer, const Vector2& position, float scale = 1.0f);
+    
+    // Get GID from a specific layer (useful for finding UI elements)
+    int GetGIDFromLayer(const std::string& layerName);
+    
+    // Draw a specific GID at a position
+    void DrawGID(class SpriteRenderer* spriteRenderer, int gid, const Vector2& position, float scale = 1.0f);
+    
     // Collision checking
     bool IsWalkable(const Vector2& position) const;
     bool CheckCollision(const Vector2& position, float radius) const;

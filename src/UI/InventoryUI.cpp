@@ -2,6 +2,8 @@
 #include "../Game/Game.hpp"
 #include "../Core/TextRenderer/TextRenderer.hpp"
 #include "../Core/RectRenderer/RectRenderer.hpp"
+#include "../Map/TileMap.hpp"
+#include "../Core/Texture/SpriteRenderer.hpp"
 #include <SDL.h>
 #include <algorithm>
 
@@ -11,7 +13,7 @@ InventoryUI::InventoryUI(Game* game, Inventory* inventory)
     , mVisible(false)
     , mPosition(100.0f, 100.0f)
     , mSlotSize(60.0f)
-    , mSlotsPerRow(5)
+    , mSlotsPerRow(4)
     , mPadding(10.0f)
     , mSelectedSlot(-1)
     , mHoveredSlot(-1)
@@ -20,11 +22,28 @@ InventoryUI::InventoryUI(Game* game, Inventory* inventory)
     , mSlotHoverColor(0.4f, 0.4f, 0.45f)
     , mSlotSelectedColor(0.5f, 0.6f, 0.7f)
     , mTextColor(1.0f, 1.0f, 1.0f)
+    , mCraftInputSlot1(-1)
+    , mCraftInputSlot2(-1)
+    , mCraftResult(nullptr)
+    , mBackgroundMap(nullptr)
+    , mMapScale(4.0f)
+    , mSelectionCursorGID(0)
 {
     // Initialize key states
     for (int i = 0; i < 10; i++)
     {
         mKeyPressed[i] = false;
+    }
+
+    // Load background map
+    mBackgroundMap = std::make_unique<TileMap>(12, 6, 16);
+    if (!mBackgroundMap->LoadFromJSON("assets/maps/inventario.json"))
+    {
+        SDL_Log("Failed to load inventory background map");
+    }
+    else
+    {
+        mSelectionCursorGID = mBackgroundMap->GetGIDFromLayer("selected_icon");
     }
 }
 
@@ -42,6 +61,7 @@ void InventoryUI::Hide()
     mVisible = false;
     mSelectedSlot = -1;
     mHoveredSlot = -1;
+    ClearCraftingSlots();
 }
 
 void InventoryUI::Toggle()
@@ -59,12 +79,18 @@ void InventoryUI::Update(float deltaTime)
     // Update logic here if needed
 }
 
-void InventoryUI::Draw(TextRenderer* textRenderer, RectRenderer* rectRenderer)
+void InventoryUI::Draw(TextRenderer* textRenderer, RectRenderer* rectRenderer, SpriteRenderer* spriteRenderer)
 {
     if (!mVisible || !mInventory) return;
 
-    DrawInventoryBackground(rectRenderer);
+    // Draw background map
+    if (mBackgroundMap && spriteRenderer)
+    {
+        mBackgroundMap->Draw(spriteRenderer, mPosition, mMapScale);
+    }
+
     DrawInventorySlots(textRenderer, rectRenderer);
+    DrawCraftingPanel(textRenderer, rectRenderer);
 }
 
 void InventoryUI::HandleInput(const uint8_t* keyState)
@@ -97,25 +123,56 @@ void InventoryUI::HandleMouseClick(const Vector2& mousePos)
 {
     if (!mVisible) return;
 
+    // Check crafting slots first
+    Vector2 resultPos = GetCraftingSlotPosition(2);
+    Vector2 input1Pos = GetCraftingSlotPosition(0);
+    Vector2 input2Pos = GetCraftingSlotPosition(1);
+    float resultSize = mSlotSize * 1.5f;
+
+    // Check Result Slot
+    if (IsPointInRect(mousePos, resultPos, Vector2(resultSize, resultSize)))
+    {
+        PerformCraft();
+        return;
+    }
+
+    // Check Input 1
+    if (IsPointInRect(mousePos, input1Pos, Vector2(mSlotSize, mSlotSize)))
+    {
+        mCraftInputSlot1 = -1;
+        UpdateCraftingResult();
+        return;
+    }
+
+    // Check Input 2
+    if (IsPointInRect(mousePos, input2Pos, Vector2(mSlotSize, mSlotSize)))
+    {
+        mCraftInputSlot2 = -1;
+        UpdateCraftingResult();
+        return;
+    }
+
+    // Check Inventory Slots
     int clickedSlot = GetSlotAtPosition(mousePos);
     
     if (clickedSlot != -1 && clickedSlot < mInventory->GetUsedSlots())
     {
-        mSelectedSlot = clickedSlot;
-        
-        // Trigger callback
-        if (mOnItemSelected)
+        // Add to crafting slots
+        if (mCraftInputSlot1 == -1)
         {
-            const InventorySlot* slot = mInventory->GetSlot(clickedSlot);
-            if (slot)
-            {
-                mOnItemSelected(slot->item.id);
-            }
+            mCraftInputSlot1 = clickedSlot;
         }
-    }
-    else
-    {
-        mSelectedSlot = -1;
+        else if (mCraftInputSlot2 == -1)
+        {
+            mCraftInputSlot2 = clickedSlot;
+        }
+        else
+        {
+            // Both full, replace slot 1 (cycle)
+            mCraftInputSlot1 = mCraftInputSlot2;
+            mCraftInputSlot2 = clickedSlot;
+        }
+        UpdateCraftingResult();
     }
 }
 
@@ -128,11 +185,19 @@ void InventoryUI::HandleMouseMove(const Vector2& mousePos)
 
 Vector2 InventoryUI::GetDimensions() const
 {
+    if (mBackgroundMap)
+    {
+        return Vector2(
+            mBackgroundMap->GetWidth() * mBackgroundMap->GetTileSize() * mMapScale,
+            mBackgroundMap->GetHeight() * mBackgroundMap->GetTileSize() * mMapScale
+        );
+    }
+
     if (!mInventory) return Vector2::Zero;
 
     int rows = (mInventory->GetMaxSlots() + mSlotsPerRow - 1) / mSlotsPerRow;
     float width = mSlotsPerRow * mSlotSize + (mSlotsPerRow + 1) * mPadding;
-    float height = rows * mSlotSize + (rows + 1) * mPadding + 40.0f; // Extra space for title
+    float height = rows * mSlotSize + (rows + 1) * mPadding + 70.0f; // Extra space for title and instructions
     
     return Vector2(width, height);
 }
@@ -144,28 +209,9 @@ void InventoryUI::CenterOnScreen(float screenWidth, float screenHeight)
     mPosition.y = (screenHeight - dims.y) / 2.0f;
 }
 
-void InventoryUI::DrawInventoryBackground(RectRenderer* rectRenderer)
-{
-    if (!rectRenderer) return;
-
-    Vector2 dims = GetDimensions();
-
-    rectRenderer->RenderRect(
-        mPosition.x,
-        mPosition.y,
-        dims.x,
-        dims.y,
-        mBackgroundColor,
-        0.95f
-    );
-}
-
 void InventoryUI::DrawInventorySlots(TextRenderer* textRenderer, RectRenderer* rectRenderer)
 {
     if (!textRenderer || !rectRenderer) return;
-
-    // Draw title
-    textRenderer->RenderText("Inventory", mPosition.x + mPadding, mPosition.y + mPadding + 20.0f, 0.8f);
 
     // Draw slots
     int maxSlots = mInventory->GetMaxSlots();
@@ -173,22 +219,29 @@ void InventoryUI::DrawInventorySlots(TextRenderer* textRenderer, RectRenderer* r
     {
         Vector2 slotPos = GetSlotPosition(i);
         
-        // Determine slot color
-        Vector3 slotColor = mSlotColor;
-        if (i == mSelectedSlot)
-            slotColor = mSlotSelectedColor;
+        // Only draw selection/hover highlight if using map
+        // The map already has slot backgrounds
+        bool isSelected = (i == mSelectedSlot) || (i == mCraftInputSlot1) || (i == mCraftInputSlot2);
+        
+        if (isSelected)
+        {
+            if (mBackgroundMap && mSelectionCursorGID != 0 && mGame && mGame->GetSpriteRenderer())
+            {
+                // Draw selection cursor from map
+                mBackgroundMap->DrawGID(mGame->GetSpriteRenderer(), mSelectionCursorGID, slotPos, mMapScale);
+            }
+        }
         else if (i == mHoveredSlot)
-            slotColor = mSlotHoverColor;
-
-        // Draw slot background
-        rectRenderer->RenderRect(
-            slotPos.x,
-            slotPos.y,
-            mSlotSize,
-            mSlotSize,
-            slotColor,
-            0.9f
-        );
+        {
+             rectRenderer->RenderRect(
+                slotPos.x,
+                slotPos.y,
+                16.0f * mMapScale,
+                16.0f * mMapScale,
+                mSlotHoverColor,
+                0.3f // Semi-transparent
+            );
+        }
 
         // Draw item if slot is filled
         if (i < mInventory->GetUsedSlots())
@@ -229,27 +282,26 @@ void InventoryUI::DrawItemInSlot(int slotIndex, const Vector2& slotPos, TextRend
         float nameX = slotPos.x + (mSlotSize - nameSize.x) / 2.0f;
         float nameY = slotPos.y - 15.0f;
         
-        // Draw name background
-        rectRenderer->RenderRect(
-            nameX - 5.0f,
-            nameY - nameSize.y - 2.0f,
-            nameSize.x + 10.0f,
-            nameSize.y + 4.0f,
-            Vector3(0.1f, 0.1f, 0.15f),
-            0.95f
-        );
-        
         textRenderer->RenderText(slot->item.name, nameX, nameY, nameScale);
     }
 }
 
 Vector2 InventoryUI::GetSlotPosition(int slotIndex) const
 {
-    int row = slotIndex / mSlotsPerRow;
-    int col = slotIndex % mSlotsPerRow;
+    // Map layout:
+    // Inventory slots start at (1, 1) in tiles (0-indexed)
+    // 3 columns, 4 rows
+    // Tile size 16, Scale 4.0 -> 64 pixels per tile
+    
+    int row = slotIndex / 3; // 3 slots per row in map
+    int col = slotIndex % 3;
 
-    float x = mPosition.x + mPadding + col * (mSlotSize + mPadding);
-    float y = mPosition.y + 40.0f + mPadding + row * (mSlotSize + mPadding);
+    // Offset (1, 1) tiles
+    float startX = mPosition.x + (1 * 16.0f * mMapScale);
+    float startY = mPosition.y + (1 * 16.0f * mMapScale);
+
+    float x = startX + col * (16.0f * mMapScale);
+    float y = startY + row * (16.0f * mMapScale);
 
     return Vector2(x, y);
 }
@@ -275,4 +327,207 @@ int InventoryUI::GetSlotAtPosition(const Vector2& mousePos) const
 void InventoryUI::UpdateKeyState(const uint8_t* keyState)
 {
     // Track key states for debouncing
+}
+
+void InventoryUI::AttemptCombination(int slotIndex1, int slotIndex2)
+{
+    if (!mGame || !mInventory) return;
+    
+    InventorySlot* slot1 = mInventory->GetSlot(slotIndex1);
+    InventorySlot* slot2 = mInventory->GetSlot(slotIndex2);
+
+    if (!slot1 || !slot2) return;
+
+    Crafting* crafting = mGame->GetCrafting();
+    if (!crafting) return;
+
+    // Check if combination is valid
+    std::unique_ptr<Item> result = crafting->combine_items(slot1->item, slot2->item);
+
+    if (result)
+    {
+        bool success = false;
+        
+        if (slotIndex1 == slotIndex2)
+        {
+            // Same slot (stack) - need at least 2 items
+            if (slot1->quantity >= 2)
+            {
+                mInventory->RemoveItemAt(slotIndex1, 2);
+                success = true;
+            }
+        }
+        else
+        {
+            // Different slots
+            // Remove from higher index first to avoid shifting issues for the lower index
+            int first = std::max(slotIndex1, slotIndex2);
+            int second = std::min(slotIndex1, slotIndex2);
+            
+            // We need to check if removal is possible before removing
+            // But RemoveItemAt checks quantity.
+            
+            if (mInventory->RemoveItemAt(first, 1))
+            {
+                if (mInventory->RemoveItemAt(second, 1))
+                {
+                    success = true;
+                }
+                else
+                {
+                    // This shouldn't happen if logic is correct and single threaded
+                    // But if it does, we are in inconsistent state.
+                }
+            }
+        }
+        
+        if (success)
+        {
+            mInventory->AddItem(*result, 1);
+            SDL_Log("Combined items to create: %s", result->name.c_str());
+        }
+    }
+    else
+    {
+        SDL_Log("Invalid combination");
+    }
+}
+
+void InventoryUI::DrawCraftingPanel(TextRenderer* textRenderer, RectRenderer* rectRenderer)
+{
+    if (!textRenderer || !rectRenderer) return;
+
+    // Calculate positions
+    Vector2 input1Pos = GetCraftingSlotPosition(0);
+    Vector2 input2Pos = GetCraftingSlotPosition(1);
+    Vector2 resultPos = GetCraftingSlotPosition(2);
+    float resultSize = mSlotSize; // Use standard slot size for result too, or adjust if map has larger slot
+
+    // Draw Input 1 Item
+    if (mCraftInputSlot1 != -1)
+    {
+        DrawItemInSlot(mCraftInputSlot1, input1Pos, textRenderer, rectRenderer);
+    }
+
+    // Draw Input 2 Item
+    if (mCraftInputSlot2 != -1)
+    {
+        DrawItemInSlot(mCraftInputSlot2, input2Pos, textRenderer, rectRenderer);
+    }
+
+    // Draw Result Item if available
+    if (mCraftResult)
+    {
+        // Manually draw item since it's not in inventory
+        float emojiScale = 1.2f;
+        Vector2 emojiSize = textRenderer->MeasureText(mCraftResult->emoji, emojiScale);
+        float emojiX = resultPos.x + (resultSize - emojiSize.x) / 2.0f;
+        float emojiY = resultPos.y + (resultSize / 2.0f) + (emojiSize.y / 2.0f) - 5.0f;
+        textRenderer->RenderText(mCraftResult->emoji, emojiX, emojiY, emojiScale);
+        
+        // Draw name below result
+        float nameScale = 0.6f;
+        Vector2 nameSize = textRenderer->MeasureText(mCraftResult->name, nameScale);
+        float nameX = resultPos.x + (resultSize - nameSize.x) / 2.0f;
+        float nameY = resultPos.y - 20.0f;
+        
+        // Draw name background
+        rectRenderer->RenderRect(
+            nameX - 5.0f,
+            nameY - nameSize.y - 2.0f,
+            nameSize.x + 10.0f,
+            nameSize.y + 4.0f,
+            Vector3(0.1f, 0.1f, 0.15f),
+            0.95f
+        );
+
+        textRenderer->RenderText(mCraftResult->name, nameX, nameY, nameScale);
+    }
+}
+
+void InventoryUI::UpdateCraftingResult()
+{
+    mCraftResult.reset();
+
+    if (mCraftInputSlot1 != -1 && mCraftInputSlot2 != -1)
+    {
+        InventorySlot* slot1 = mInventory->GetSlot(mCraftInputSlot1);
+        InventorySlot* slot2 = mInventory->GetSlot(mCraftInputSlot2);
+
+        if (slot1 && slot2 && mGame && mGame->GetCrafting())
+        {
+            mCraftResult = mGame->GetCrafting()->combine_items(slot1->item, slot2->item);
+        }
+    }
+}
+
+void InventoryUI::PerformCraft()
+{
+    if (mCraftResult && mCraftInputSlot1 != -1 && mCraftInputSlot2 != -1)
+    {
+        // Remove items
+        bool removed = false;
+        if (mCraftInputSlot1 == mCraftInputSlot2)
+        {
+            // Same slot
+            removed = mInventory->RemoveItemAt(mCraftInputSlot1, 2);
+        }
+        else
+        {
+            // Different slots - remove higher index first
+            int first = std::max(mCraftInputSlot1, mCraftInputSlot2);
+            int second = std::min(mCraftInputSlot1, mCraftInputSlot2);
+            if (mInventory->RemoveItemAt(first, 1))
+            {
+                removed = mInventory->RemoveItemAt(second, 1);
+            }
+        }
+
+        if (removed)
+        {
+            mInventory->AddItem(*mCraftResult, 1);
+            ClearCraftingSlots();
+        }
+    }
+}
+
+void InventoryUI::ClearCraftingSlots()
+{
+    mCraftInputSlot1 = -1;
+    mCraftInputSlot2 = -1;
+    mCraftResult.reset();
+}
+
+Vector2 InventoryUI::GetCraftingSlotPosition(int slotIndex) const
+{
+    // Map layout:
+    // Input 1: (8, 1) tiles
+    // Input 2: (10, 1) tiles
+    // Result: (10, 4) tiles? Or maybe (9, 4)?
+    // Let's assume inputs are top row, result is bottom row
+    
+    // Tile size 16, Scale 4.0
+    float tileSize = 16.0f * mMapScale;
+
+    if (slotIndex == 0) // Input 1
+    {
+        // (8, 1)
+        return Vector2(mPosition.x + 8 * tileSize, mPosition.y + 1 * tileSize);
+    }
+    else if (slotIndex == 1) // Input 2
+    {
+        // (10, 1)
+        return Vector2(mPosition.x + 10 * tileSize, mPosition.y + 1 * tileSize);
+    }
+    else // Result
+    {
+        // (10, 4) - Based on visual inspection of map data (row 4 has tile at col 10)
+        return Vector2(mPosition.x + 10 * tileSize, mPosition.y + 4 * tileSize);
+    }
+}
+
+bool InventoryUI::IsPointInRect(const Vector2& point, const Vector2& rectPos, const Vector2& rectSize) const
+{
+    return point.x >= rectPos.x && point.x <= rectPos.x + rectSize.x &&
+           point.y >= rectPos.y && point.y <= rectPos.y + rectSize.y;
 }

@@ -8,6 +8,8 @@
 class Game;
 class TextRenderer;
 class RectRenderer;
+class SpriteRenderer;
+class TileMap;
 
 class InventoryUI
 {
@@ -23,7 +25,7 @@ public:
 
     // Update and render
     void Update(float deltaTime);
-    void Draw(TextRenderer* textRenderer, RectRenderer* rectRenderer);
+    void Draw(TextRenderer* textRenderer, RectRenderer* rectRenderer, SpriteRenderer* spriteRenderer);
 
     // Input handling
     void HandleInput(const uint8_t* keyState);
@@ -68,14 +70,32 @@ private:
     bool mKeyPressed[10];
 
     // Helper methods
-    void DrawInventoryBackground(RectRenderer* rectRenderer);
     void DrawInventorySlots(TextRenderer* textRenderer, RectRenderer* rectRenderer);
     void DrawItemInSlot(int slotIndex, const Vector2& slotPos, TextRenderer* textRenderer, RectRenderer* rectRenderer);
     Vector2 GetSlotPosition(int slotIndex) const;
     int GetSlotAtPosition(const Vector2& mousePos) const;
     void UpdateKeyState(const uint8_t* keyState);
+    void AttemptCombination(int slotIndex1, int slotIndex2); // Add this line
+
+    // Crafting state
+    int mCraftInputSlot1; // Index in inventory
+    int mCraftInputSlot2; // Index in inventory
+    std::unique_ptr<Item> mCraftResult;
+
+    // Crafting UI helpers
+    void DrawCraftingPanel(TextRenderer* textRenderer, RectRenderer* rectRenderer);
+    void UpdateCraftingResult();
+    void PerformCraft();
+    void ClearCraftingSlots();
+    Vector2 GetCraftingSlotPosition(int slotIndex) const; // 0=Input1, 1=Input2, 2=Result
+    bool IsPointInRect(const Vector2& point, const Vector2& rectPos, const Vector2& rectSize) const;
 
     // Callbacks
     std::function<void(int itemId)> mOnItemSelected;
     std::function<void(int itemId)> mOnItemUsed;
+
+    // Tiled Map Background
+    std::unique_ptr<TileMap> mBackgroundMap;
+    float mMapScale;
+    int mSelectionCursorGID; // Add this line
 };

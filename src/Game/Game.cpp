@@ -202,6 +202,25 @@ void Game::ProcessInput()
             case SDL_QUIT:
                 Quit();
                 break;
+            case SDL_MOUSEMOTION:
+                mMousePos.x = static_cast<float>(event.motion.x);
+                mMousePos.y = static_cast<float>(event.motion.y);
+                if (mPlayer && mPlayer->GetInventoryUI())
+                {
+                    mPlayer->GetInventoryUI()->HandleMouseMove(mMousePos);
+                }
+                break;
+            case SDL_MOUSEBUTTONDOWN:
+                if (event.button.button == SDL_BUTTON_LEFT)
+                {
+                    mMousePos.x = static_cast<float>(event.button.x);
+                    mMousePos.y = static_cast<float>(event.button.y);
+                    if (mPlayer && mPlayer->GetInventoryUI())
+                    {
+                        mPlayer->GetInventoryUI()->HandleMouseClick(mMousePos);
+                    }
+                }
+                break;
             default:
                 // Ignore other events
                 break;
@@ -378,7 +397,7 @@ void Game::GenerateOutput()
     // Render Player UI on top of everything
     if (mPlayer && mPlayer->GetInventoryUI())
     {
-        mPlayer->GetInventoryUI()->Draw(mTextRenderer.get(), mRectRenderer.get());
+        mPlayer->GetInventoryUI()->Draw(mTextRenderer.get(), mRectRenderer.get(), mSpriteRenderer.get());
     }
 
     mRenderer->EndFrame();
