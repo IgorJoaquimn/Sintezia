@@ -127,9 +127,13 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     ${CMAKE_SOURCE_DIR}/shaders $<TARGET_FILE_DIR:${PROJECT_NAME}>/shaders
 )
 
-# Copy assets folder on every build (updates when files change)
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+# Create a custom target to copy assets that runs on every build
+# This ensures assets are updated even if source code hasn't changed
+add_custom_target(CopyAssets ALL
     COMMAND ${CMAKE_COMMAND} -E copy_directory
     ${CMAKE_SOURCE_DIR}/assets ${CMAKE_BINARY_DIR}/assets
     COMMENT "Copying assets to build directory..."
 )
+
+# Make sure the project depends on CopyAssets
+add_dependencies(${PROJECT_NAME} CopyAssets)
