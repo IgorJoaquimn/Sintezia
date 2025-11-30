@@ -18,6 +18,7 @@ class AttackComponent;
 class Texture;
 class Inventory;
 class InventoryUI;
+class HealthBar; // adicionado forward-declaration para HealthBar
 
 enum class PlayerState
 {
@@ -75,6 +76,9 @@ private:
     // Inventory system
     std::unique_ptr<Inventory> mInventory;
     std::unique_ptr<InventoryUI> mInventoryUI;
+
+    // Health bar UI
+    std::unique_ptr<HealthBar> mHealthBar; // adicionado para desenhar a barra de vida
 
     // Animation constants
     static constexpr float ANIM_SPEED = 8.0f; // Frames per second

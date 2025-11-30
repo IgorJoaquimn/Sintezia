@@ -8,3 +8,5 @@ build/
 # Ignore local editor/IDE files (optional)
 .vscode/
 .idea/
+
+cmake-build-debug/

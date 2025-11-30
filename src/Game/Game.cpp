@@ -47,7 +47,7 @@ Game::Game(SDL_Window* window, SDL_GLContext glContext)
     , mInteractingNPC(nullptr)
     , mMousePos(Vector2::Zero)
     , mCamera(std::make_unique<Camera>(static_cast<float>(WINDOW_WIDTH), static_cast<float>(WINDOW_HEIGHT)))
-    ,mAudio(nullptr)
+    , mAudio(nullptr)
 {
 }
 
@@ -105,7 +105,7 @@ bool Game::Initialize()
     mTileMap = std::make_unique<TileMap>(30, 20, 40);
 
     // Load your custom Tiled map
-    if (!mTileMap->LoadFromJSON("assets/maps/mapa_de_teste.tmj"))
+    if (!mTileMap->LoadFromJSON("assets/maps/mapa_de_teste.json"))
     {
         SDL_Log("Warning: Failed to load custom map, using procedural generation");
     }
@@ -116,9 +116,11 @@ bool Game::Initialize()
         mAudio->PlaySound("background.ogg", true, 50);
     }
 
-    // Spawn items from map using ItemGenerator
-    ItemGenerator itemGenerator(this);
-    itemGenerator.GenerateItemsFromMap(mTileMap.get());
+    // NOTE: Items are no longer spawned automatically. They are generated
+    // when the player attacks resource blocks (gerador_agua, gerador_fogo, gerador_madeira)
+    // This is handled in AttackComponent::TryHarvestResource()
+    // ItemGenerator itemGenerator(this);
+    // itemGenerator.GenerateItemsFromMap(mTileMap.get());
 
     // Create player
     auto player = std::make_unique<Player>(this);
@@ -392,7 +394,7 @@ void Game::GenerateOutput()
     // Create a list of active actors to render
     std::vector<Actor*> activeActors;
     activeActors.reserve(mActors.size());
-    
+
     for (auto& actor : mActors)
     {
         if (actor->GetState() == ActorState::Active)

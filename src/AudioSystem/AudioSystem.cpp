@@ -92,12 +92,6 @@ SoundHandle AudioSystem::PlaySound(const std::string& soundName, bool looping, i
         return SoundHandle::Invalid;
     }
 
-    if (volume > 128) volume = 128;
-    if (volume < 0) volume = 0;
-
-    // Define o volume APENAS para este canal tocando agora
-    Mix_Volume(channelPlayed, volume);
-
     mChannels[availableChannel] = newHandle;
     HandleInfo info;
     info.mSoundName = soundName;
@@ -187,6 +181,27 @@ void AudioSystem::StopAllSounds()
     }
 
     mHandleMap.clear();
+}
+
+// Sets the volume of a currently playing sound (0-100)
+void AudioSystem::SetSoundVolume(SoundHandle sound, int volume)
+{
+    // Clamp volume to valid range
+    volume = std::max(0, std::min(100, volume));
+
+    auto it = mHandleMap.find(sound);
+    if (it == mHandleMap.end())
+    {
+        SDL_Log("[AudioSystem] SetSoundVolume: Invalid sound handle");
+        return;
+    }
+
+    HandleInfo& info = it->second;
+    info.mVolume = volume;
+
+    // Set the channel volume (SDL_mixer uses 0-128 scale, we convert from 0-100)
+    int mixVolume = (volume * 128) / 100;
+    Mix_Volume(info.mChannel, mixVolume);
 }
 
 // Cache all sounds under Assets/Sounds

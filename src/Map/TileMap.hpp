@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include <map>
 #include "../MathUtils.h"
 #include "../Core/Texture/Texture.hpp"
 #include "TiledParser.hpp"
@@ -74,6 +75,10 @@ public:
     int GetTileSize() const { return mTileSize; }
     MapData* GetMapData() { return mMapData.get(); }
     
+    // Resource block harvest tracking
+    bool CanHarvestBlock(int col, int row, float currentTime, float cooldown = 5.0f) const;
+    void SetBlockHarvestTime(int col, int row, float harvestTime);
+    
 private:
     int mWidth;
     int mHeight;
@@ -81,6 +86,10 @@ private:
     std::vector<std::vector<Tile>> mTiles;
     std::unique_ptr<MapData> mMapData;
     Tile CreateTile(TileType type);
+    
+    // Track harvest cooldown for resource blocks
+    // Key: "col,row", Value: last harvest timestamp
+    mutable std::map<std::string, float> mBlockHarvestTimes;
 
     // Cached rendering
     std::unique_ptr<Texture> mCachedMapTexture;

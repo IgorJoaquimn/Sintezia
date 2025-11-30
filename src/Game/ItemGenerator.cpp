@@ -12,6 +12,8 @@ void ItemGenerator::InitializeMappings() {
     // Map layer names to item names
     // Format: "layer_name" -> "Item Name"
     mLayerToItemMap["gerador_agua"] = "Água";
+    mLayerToItemMap["gerador_fogo"] = "Fogo";
+    mLayerToItemMap["gerador_madeira"] = "Madeira";
     // Future layers can be added here
 }
 

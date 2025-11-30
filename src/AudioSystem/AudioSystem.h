@@ -100,6 +100,7 @@ public:
     // Cache all sounds under Assets/Sounds
     void CacheAllSounds();
 
+    void SetSoundVolume(SoundHandle sound, int volume);
     // Used to preload the sound data of a sound
     // NOTE: The soundName is without the "Assets/Sounds/" part of the file
     //       For example, pass in "ChompLoop.wav" rather than
