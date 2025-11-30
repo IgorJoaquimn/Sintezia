@@ -599,7 +599,6 @@ void Game::UpdateComponents(float deltaTime)
 
         if (hunger)
         {
-            SDL_Log("Updating hunger for actor ID");
             hunger->Update(deltaTime); // Update hunger periodically
         }
 
