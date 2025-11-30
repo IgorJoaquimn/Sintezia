@@ -1,0 +1,50 @@
+#include "ThirstComponent.hpp"
+#include "../Actor/Actor.hpp"
+#include <algorithm>
+
+ThirstComponent::ThirstComponent(Actor* owner, int updateOrder)
+    : Component(owner, updateOrder)
+    , mCurrentThirst(0.0f)
+    , mMaxThirst(100.0f)
+    , mDehydrationCallback(nullptr)
+    , mTimeAccumulator(0.0f)
+{
+}
+
+void ThirstComponent::IncreaseThirst(float amount)
+{
+    mCurrentThirst += amount;
+    mCurrentThirst = std::min(mMaxThirst, mCurrentThirst);
+
+    // Check if we are dehydrated
+    if (IsDehydrated() && mDehydrationCallback)
+    {
+        mDehydrationCallback();
+    }
+}
+
+void ThirstComponent::DecreaseThirst(float amount)
+{
+    mCurrentThirst -= amount;
+    mCurrentThirst = std::max(0.0f, mCurrentThirst);
+}
+
+void ThirstComponent::SetMaxThirst(float maxThirst)
+{
+    mMaxThirst = maxThirst;
+}
+
+void ThirstComponent::SetCurrentThirst(float thirst)
+{
+    mCurrentThirst = thirst;
+}
+
+void ThirstComponent::Update(float deltaTime)
+{
+    mTimeAccumulator += deltaTime;
+    if (mTimeAccumulator >= 5.0f)
+    {
+        IncreaseThirst(1.0f);
+        mTimeAccumulator = 0.0f;
+    }
+}

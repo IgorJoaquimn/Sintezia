@@ -15,6 +15,9 @@
 #include "../Crafting/Crafting.hpp"
 #include "../Core/Camera.hpp"
 #include "../AudioSystem/AudioSystem.h"
+#include "../Component/HungerComponent.hpp"
+#include "../Component/ThirstComponent.hpp"
+#include "../Component/HealthComponent.hpp"
 
 // Forward declarations
 class TileMap;
@@ -77,6 +80,8 @@ public:
     
     // Get current game time in seconds
     float GetGameTime() const { return mTicksCount / 1000.0f; }
+
+    void UpdateComponents(float deltaTime);
 
     static const int WINDOW_WIDTH = 1200;  // 30 tiles × 40px = 1200px
     static const int WINDOW_HEIGHT = 800;  // 20 tiles × 40px = 800px

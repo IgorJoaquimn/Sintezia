@@ -65,6 +65,8 @@ set(SOURCES
     ${SRC_DIR}/Component/SpriteComponent.cpp
     ${SRC_DIR}/Component/HealthComponent.cpp
     ${SRC_DIR}/Component/AttackComponent.cpp
+    ${SRC_DIR}/Component/HungerComponent.cpp
+    ${SRC_DIR}/Component/ThirstComponent.cpp
     ${SRC_DIR}/Shader/ShaderProgram.cpp
     ${SRC_DIR}/Font/FontManager.cpp
     ${SRC_DIR}/Core/Renderer/Renderer.cpp
