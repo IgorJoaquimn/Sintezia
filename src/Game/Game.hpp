@@ -71,6 +71,12 @@ public:
 
     // Get renderer
     Renderer* GetRenderer() { return mRenderer.get(); }
+    
+    // Get audio system
+    AudioSystem* GetAudioSystem() { return mAudio; }
+    
+    // Get current game time in seconds
+    float GetGameTime() const { return mTicksCount / 1000.0f; }
 
     static const int WINDOW_WIDTH = 1200;  // 30 tiles × 40px = 1200px
     static const int WINDOW_HEIGHT = 800;  // 20 tiles × 40px = 800px

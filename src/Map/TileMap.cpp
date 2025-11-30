@@ -523,3 +523,27 @@ bool TileMap::CheckCollision(const Vector2& position, float radius) const
     // Fallback to simple tile checking
     return !IsWalkable(position);
 }
+
+bool TileMap::CanHarvestBlock(int col, int row, float currentTime, float cooldown) const
+{
+    // Create unique key for this block
+    std::string key = std::to_string(col) + "," + std::to_string(row);
+    
+    // Check if block has been harvested before
+    auto it = mBlockHarvestTimes.find(key);
+    if (it == mBlockHarvestTimes.end())
+    {
+        // Block has never been harvested, so we can harvest it
+        return true;
+    }
+    
+    // Check if cooldown has expired
+    float timeSinceLastHarvest = currentTime - it->second;
+    return timeSinceLastHarvest >= cooldown;
+}
+
+void TileMap::SetBlockHarvestTime(int col, int row, float harvestTime)
+{
+    std::string key = std::to_string(col) + "," + std::to_string(row);
+    mBlockHarvestTimes[key] = harvestTime;
+}
