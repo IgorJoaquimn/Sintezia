@@ -431,16 +431,6 @@ void InventoryUI::DrawCraftingPanel(TextRenderer* textRenderer, RectRenderer* re
         float nameX = resultPos.x + (resultSize - nameSize.x) / 2.0f;
         float nameY = resultPos.y - 20.0f;
         
-        // Draw name background
-        rectRenderer->RenderRect(
-            nameX - 5.0f,
-            nameY - nameSize.y - 2.0f,
-            nameSize.x + 10.0f,
-            nameSize.y + 4.0f,
-            Vector3(0.1f, 0.1f, 0.15f),
-            0.95f
-        );
-
         textRenderer->RenderText(mCraftResult->name, nameX, nameY, nameScale);
     }
 }
@@ -521,8 +511,8 @@ Vector2 InventoryUI::GetCraftingSlotPosition(int slotIndex) const
     }
     else // Result
     {
-        // (10, 4) - Based on visual inspection of map data (row 4 has tile at col 10)
-        return Vector2(mPosition.x + 10 * tileSize, mPosition.y + 4 * tileSize);
+        // (10, 3) - Based on visual inspection of map data (row 3 has tile at col 10)
+        return Vector2(mPosition.x + 10 * tileSize, mPosition.y + 3 * tileSize);
     }
 }
 
