@@ -151,6 +151,7 @@ private:
 
     // Animation
     std::shared_ptr<class Texture> mDialogInfoTexture;
+    std::shared_ptr<class Texture> mKeySpaceTexture;
     float mAnimTime;
     int mAnimFrame;
     int mMaxFrames;

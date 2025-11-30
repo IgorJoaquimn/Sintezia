@@ -75,6 +75,8 @@ namespace UIConstants
     constexpr float INDICATOR_BUBBLE_SCALE = 2.5f;
     constexpr float INDICATOR_GAP_ABOVE_SPRITE = 20.0f;
     constexpr float INDICATOR_CENTER_OFFSET = 0.5f;
+    constexpr float INDICATOR_KEY_SCALE = 1.5f;
+    constexpr float INDICATOR_KEY_GAP_BELOW_BUBBLE = 10.0f;
 }
 
 // ============================================================================
@@ -620,6 +622,13 @@ InteractionIndicator::InteractionIndicator(Game* game)
         SDL_Log("Failed to load DialogInfo.png");
         mDialogInfoTexture.reset();
     }
+
+    // Load KeySpace texture
+    mKeySpaceTexture = std::make_shared<Texture>();
+    if (!mKeySpaceTexture->Load("assets/third_party/Ninja Adventure - Asset Pack/Ui/Input/Keyboard/KeySpace.png")) {
+        SDL_Log("Failed to load KeySpace.png");
+        mKeySpaceTexture.reset();
+    }
 }
 
 InteractionIndicator::~InteractionIndicator()
@@ -705,6 +714,25 @@ void InteractionIndicator::Draw(TextRenderer* textRenderer, RectRenderer* rectRe
         0.0f,  // rotation
         UIConstants::COLOR_WHITE_TINT  // white color (no tint)
     );
+
+    // Draw the KeySpace indicator below the bubble
+    if (mKeySpaceTexture)
+    {
+        float keyWidth = mKeySpaceTexture->GetWidth() * UIConstants::INDICATOR_KEY_SCALE;
+        float keyHeight = mKeySpaceTexture->GetHeight() * UIConstants::INDICATOR_KEY_SCALE;
+
+        // Center the key indicator horizontally and position below the bubble
+        float keyX = mScreenPosition.x - keyWidth * UIConstants::INDICATOR_CENTER_OFFSET;
+        float keyY = bubbleY + bubbleHeight + UIConstants::INDICATOR_KEY_GAP_BELOW_BUBBLE;
+
+        mGame->GetSpriteRenderer()->DrawSprite(
+            mKeySpaceTexture.get(),
+            Vector2(keyX, keyY),
+            Vector2(keyWidth, keyHeight),
+            0.0f,  // rotation
+            UIConstants::COLOR_WHITE_TINT  // white color (no tint)
+        );
+    }
 }
 
 void InteractionIndicator::UpdateScreenPosition()
