@@ -362,12 +362,27 @@ void NPCDialogUI::DrawDialogBoxBackground(const DialogBoxLayout& layout, RectRen
     }
 }
 
-void NPCDialogUI::DrawNavigationHint(const std::string& hint, const DialogBoxLayout& layout, TextRenderer* textRenderer)
+void NPCDialogUI::DrawNavigationHint(const std::string& hint, const DialogBoxLayout& layout, TextRenderer* textRenderer, bool alignRight)
 {
     textRenderer->SetTextColor(UIConstants::COLOR_HINT_TEXT.x, UIConstants::COLOR_HINT_TEXT.y, UIConstants::COLOR_HINT_TEXT.z);
     float hintY = layout.boxY + layout.boxHeight - UIConstants::MARGIN_BOTTOM;
-    float marginLeft = UIConstants::MARGIN_LEFT * UIConstants::UI_SCALE;
-    textRenderer->RenderText(hint, layout.boxX + marginLeft, hintY, UIConstants::TEXT_SCALE_HINT);
+
+    float hintX;
+    if (alignRight)
+    {
+        // Right align
+        float hintWidth = textRenderer->GetTextWidth(hint, UIConstants::TEXT_SCALE_HINT);
+        float marginRight = UIConstants::MARGIN_RIGHT * UIConstants::UI_SCALE;
+        hintX = layout.boxX + layout.boxWidth - hintWidth - marginRight;
+    }
+    else
+    {
+        // Left align
+        float marginLeft = UIConstants::MARGIN_LEFT * UIConstants::UI_SCALE;
+        hintX = layout.boxX + marginLeft;
+    }
+
+    textRenderer->RenderText(hint, hintX, hintY, UIConstants::TEXT_SCALE_HINT);
 }
 
 // ============================================================================
@@ -424,6 +439,8 @@ void NPCDialogUI::DrawGreetingUI(TextRenderer* textRenderer, RectRenderer* rectR
     RenderWrappedText(mCurrentText, textX, textY, textWidth,
                      UIConstants::TEXT_SCALE_NORMAL,
                      UIConstants::LINE_SPACING, textRenderer);
+
+    DrawNavigationHint("[ENTER] Continue", layout, textRenderer, true);
 }
 
 void NPCDialogUI::DrawButton(const std::string& text, float x, float y, bool isSelected,
@@ -572,6 +589,8 @@ void NPCDialogUI::DrawMessageUI(TextRenderer* textRenderer, RectRenderer* rectRe
     RenderWrappedText(mCurrentText, layout.textX, layout.textY, layout.maxTextWidth,
                      UIConstants::TEXT_SCALE_NORMAL,
                      UIConstants::LINE_SPACING, textRenderer);
+
+    DrawNavigationHint("[ENTER] Continue", layout, textRenderer, true);
 }
 
 void NPCDialogUI::SetFacesetTexture(const std::string& path)
