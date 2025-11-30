@@ -70,6 +70,8 @@ public:
     // Attack end callback - called when attack animation finishes
     void SetAttackEndCallback(std::function<void()> callback) { mAttackEndCallback = callback; }
 
+    void TryHarvestResource(const Vector2& attackDir);
+
 private:
     void PerformAttack();
     void FindTargetsInRange(std::vector<class Actor*>& targets);

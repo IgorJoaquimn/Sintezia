@@ -116,7 +116,7 @@ private:
     // Layout and structure helpers
     DialogBoxLayout CalculateDialogBoxLayout() const;
     void DrawDialogBoxBackground(const DialogBoxLayout& layout, RectRenderer* rectRenderer);
-    void DrawNavigationHint(const std::string& hint, const DialogBoxLayout& layout, TextRenderer* textRenderer);
+    void DrawNavigationHint(const std::string& hint, const DialogBoxLayout& layout, TextRenderer* textRenderer, bool alignRight = false);
     void DrawFaceset(const DialogBoxLayout& layout, float& outTextX, float& outTextWidth, float& outTextY);
 
     // UI component helpers
@@ -151,6 +151,7 @@ private:
 
     // Animation
     std::shared_ptr<class Texture> mDialogInfoTexture;
+    std::shared_ptr<class Texture> mKeySpaceTexture;
     float mAnimTime;
     int mAnimFrame;
     int mMaxFrames;

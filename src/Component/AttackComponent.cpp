@@ -6,6 +6,10 @@
 #include <SDL.h>
 #include <cmath>
 
+#include "../Map/TileMap.hpp"      // Necessário para ler o mapa
+#include "../Actor/ItemActor.hpp"  // Necessário para spawnar o item
+#include "../AudioSystem/AudioSystem.h"  // Necessário para tocar som
+
 AttackComponent::AttackComponent(Actor* owner, int updateOrder)
     : Component(owner, updateOrder)
     , mConfig()
@@ -81,8 +85,8 @@ void AttackComponent::PerformAttack()
         default: attackDir = Vector2(0.0f, 1.0f); break;
     }
 
-    // SDL_Log("Attack triggered! Direction: %d, Found %zu targets in range %.1f",
-    //         mAttackDirection, targets.size(), mConfig.range);
+    TryHarvestResource(attackDir);
+
 
     // Apply damage and knockback to all targets
     for (Actor* target : targets)
@@ -138,6 +142,114 @@ void AttackComponent::FindTargetsInRange(std::vector<Actor*>& targets)
         if (distance <= mConfig.range)
         {
             targets.push_back(actor);
+        }
+    }
+}
+
+void AttackComponent::TryHarvestResource(const Vector2& attackDir)
+{
+    Game* game = mOwner->GetGame();
+    TileMap* tileMap = game->GetTileMap();
+    if (!game || !tileMap) return;
+
+    // 1. Calcular a posição do tile alvo
+    int tileSize = tileMap->GetTileSize();
+    Vector2 ownerPos = mOwner->GetPosition();
+
+    // O ponto alvo é a posição do jogador + (Direção * tamanho do tile)
+    // Isso garante que estamos olhando para o tile imediatamente à frente
+    Vector2 targetPos = ownerPos + (attackDir * static_cast<float>(tileSize));
+
+    // Converter posição do mundo para coordenadas da grade (Grid)
+    int col = static_cast<int>(targetPos.x / tileSize);
+    int row = static_cast<int>(targetPos.y / tileSize);
+
+    // Pegar dados do mapa
+    auto mapData = tileMap->GetMapData();
+    if (!mapData) return;
+
+    // Verificar limites do mapa
+    if (col < 0 || row < 0 || col >= tileMap->GetWidth() || row >= tileMap->GetHeight()) return;
+
+    // 2. Definir o mapeamento (Igual ao ItemGenerator)
+    // Layer Name -> Item Name
+    std::map<std::string, std::string> resourceLayers = {
+        {"gerador_agua", "Água"},
+        {"gerador_fogo", "Fogo"},
+        {"gerador_madeira", "Madeira"}
+    };
+
+    int index = row * tileMap->GetWidth() + col;
+    
+    // Get current game time in seconds
+    float currentTime = game->GetGameTime();
+    const float HARVEST_COOLDOWN = 5.0f; // 5 seconds cooldown
+
+    // 3. Iterar pelas camadas para ver se existe um bloco gerador nessa coordenada
+    for (const auto& layer : mapData->layers)
+    {
+        // Verifica se é uma camada de recurso conhecida
+        auto it = resourceLayers.find(layer.name);
+        if (it != resourceLayers.end())
+        {
+            // Verifica se existe um tile nessa posição (diferente de 0)
+            if (index < layer.data.size() && layer.data[index] != 0)
+            {
+                // Check if this block's cooldown has expired
+                if (!tileMap->CanHarvestBlock(col, row, currentTime, HARVEST_COOLDOWN))
+                {
+                    // Block is still on cooldown
+                    return;
+                }
+                
+                std::string itemName = it->second;
+
+                // 4. Buscar definição do item (Lógica copiada do ItemGenerator)
+                const Item* itemDef = nullptr;
+                if (game->GetCrafting()) {
+                    for (const auto& item : game->GetCrafting()->GetAllItems()) {
+                        if (item.name == itemName) {
+                            itemDef = &item;
+                            break;
+                        }
+                    }
+                }
+
+                if (itemDef)
+                {
+                    // 5. Spawnar o Item (Dropado no mundo)
+                    auto itemActor = std::make_unique<ItemActor>(game, *itemDef);
+
+                    // Centralizar o item no tile alvo
+                    Vector2 itemPos(col * tileSize + tileSize / 2.0f, row * tileSize + tileSize / 2.0f);
+                    itemActor->SetPosition(itemPos);
+
+                    // 6. Tocar som baseado no tipo de item
+                    AudioSystem* audioSystem = game->GetAudioSystem();
+                    if (audioSystem)
+                    {
+                        if (itemName == "Fogo")
+                        {
+                            audioSystem->PlaySound("fire.wav", false, 128);
+                        }
+                        else if (itemName == "Água")
+                        {
+                            audioSystem->PlaySound("water.wav", false, 128);
+                        }
+                        else if (itemName == "Madeira")
+                        {
+                            audioSystem->PlaySound("wood.wav", false, 128);
+                        }
+                    }
+
+                    game->AddActor(std::move(itemActor));
+                    
+                    // Update the harvest time for this block
+                    tileMap->SetBlockHarvestTime(col, row, currentTime);
+
+                    return;
+                }
+            }
         }
     }
 }

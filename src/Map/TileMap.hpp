@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include <map>
 #include "../MathUtils.h"
 #include "../Core/Texture/Texture.hpp"
 #include "TiledParser.hpp"
@@ -54,6 +55,15 @@ public:
     // Draw using your OpenGL SpriteRenderer
     void Draw(class SpriteRenderer* spriteRenderer);
     
+    // Draw using your OpenGL SpriteRenderer with offset and scale
+    void Draw(class SpriteRenderer* spriteRenderer, const Vector2& position, float scale = 1.0f);
+    
+    // Get GID from a specific layer (useful for finding UI elements)
+    int GetGIDFromLayer(const std::string& layerName);
+    
+    // Draw a specific GID at a position
+    void DrawGID(class SpriteRenderer* spriteRenderer, int gid, const Vector2& position, float scale = 1.0f);
+    
     // Collision checking
     bool IsWalkable(const Vector2& position) const;
     bool CheckCollision(const Vector2& position, float radius) const;
@@ -65,6 +75,10 @@ public:
     int GetTileSize() const { return mTileSize; }
     MapData* GetMapData() { return mMapData.get(); }
     
+    // Resource block harvest tracking
+    bool CanHarvestBlock(int col, int row, float currentTime, float cooldown = 5.0f) const;
+    void SetBlockHarvestTime(int col, int row, float harvestTime);
+    
 private:
     int mWidth;
     int mHeight;
@@ -72,6 +86,10 @@ private:
     std::vector<std::vector<Tile>> mTiles;
     std::unique_ptr<MapData> mMapData;
     Tile CreateTile(TileType type);
+    
+    // Track harvest cooldown for resource blocks
+    // Key: "col,row", Value: last harvest timestamp
+    mutable std::map<std::string, float> mBlockHarvestTimes;
 
     // Cached rendering
     std::unique_ptr<Texture> mCachedMapTexture;
