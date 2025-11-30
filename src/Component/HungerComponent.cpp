@@ -17,7 +17,7 @@ void HungerComponent::IncreaseHunger(float amount)
     mCurrentHunger += amount;
     mCurrentHunger = std::min(mMaxHunger, mCurrentHunger);
 
-    SDL_Log("Hunger increased by %f. Current hunger: %f", amount, mCurrentHunger);
+    // SDL_Log("Hunger increased by %f. Current hunger: %f", amount, mCurrentHunger);
 
     // Check if we are starving
     if (IsStarving() && mStarvationCallback)
