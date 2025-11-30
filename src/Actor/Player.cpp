@@ -29,7 +29,7 @@ Player::Player(Game* game)
     , mInventoryUI(nullptr)
     , mHealthBar(nullptr) // inicializa o ponteiro
 {
-    SetPosition(Vector2(640.0f, 360.0f)); // Center of screen
+    SetGridPosition(45, 70); // Start at (45, 75) tiles
     
     // Create and add components
     mInputComponent = AddComponent<PlayerInputComponent>();

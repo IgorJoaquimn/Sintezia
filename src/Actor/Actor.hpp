@@ -35,6 +35,7 @@ public:
     // Position getter/setter
     const Vector2& GetPosition() const { return mPosition; }
     void SetPosition(const Vector2& pos) { mPosition = pos; }
+    void SetGridPosition(int x, int y);
 
     // Scale getter/setter
     const Vector2& GetScale() const { return mScale; }

@@ -5,6 +5,7 @@
 #include "Actor.hpp"
 #include "../Game/Game.hpp"
 #include "../Component/Component.hpp"
+#include "../Map/TileMap.hpp"
 #include <algorithm>
 #include <SDL_stdinc.h>
 
@@ -82,4 +83,14 @@ Matrix4 Actor::GetModelMatrix() const
     Matrix4 rotMat = Matrix4::CreateRotationZ(mRotation);
     Matrix4 transMat = Matrix4::CreateTranslation(Vector3(mPosition.x, mPosition.y, 0.0f));
     return scaleMat * rotMat * transMat;
+}
+
+void Actor::SetGridPosition(int x, int y)
+{
+    if (mGame && mGame->GetTileMap())
+    {
+        int tileSize = mGame->GetTileMap()->GetTileSize();
+        mPosition.x = static_cast<float>(x * tileSize);
+        mPosition.y = static_cast<float>(y * tileSize);
+    }
 }

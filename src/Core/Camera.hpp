@@ -7,6 +7,7 @@ public:
     Camera(float width, float height);
     
     void Update(float deltaTime, const Vector2& playerPos, int mapWidth, int mapHeight);
+    void SnapToPlayer(const Vector2& playerPos, int mapWidth, int mapHeight);
     
     const Vector2& GetPosition() const { return mPosition; }
     void SetPosition(const Vector2& pos) { mPosition = pos; mTargetPosition = pos; }

@@ -58,6 +58,9 @@ public:
     // Draw using your OpenGL SpriteRenderer with offset and scale
     void Draw(class SpriteRenderer* spriteRenderer, const Vector2& position, float scale = 1.0f);
     
+    // Draw visible tiles directly (culling)
+    void DrawVisible(class SpriteRenderer* spriteRenderer, const Vector2& cameraPos, const Vector2& screenSize);
+    
     // Get GID from a specific layer (useful for finding UI elements)
     int GetGIDFromLayer(const std::string& layerName);
     
