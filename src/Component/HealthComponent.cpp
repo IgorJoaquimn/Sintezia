@@ -19,6 +19,9 @@ void HealthComponent::TakeDamage(float damage)
     mCurrentHealth -= damage;
     mCurrentHealth = std::max(0.0f, mCurrentHealth);
 
+    // Update recent damage
+    mRecentDamage = damage;
+
     // Notify damage
     if (mOnDamageCallback)
     {
@@ -56,5 +59,11 @@ void HealthComponent::SetCurrentHealth(float health)
     {
         mDeathCallback();
     }
+}
+
+void HealthComponent::UpdateVitalityBar(float hunger, float thirst)
+{
+    // Logic to update the vitality bar based on health, hunger, and thirst
+    SDL_Log("Updating vitality bar: Health=%f, Hunger=%f, Thirst=%f", mCurrentHealth, hunger, thirst);
 }
 

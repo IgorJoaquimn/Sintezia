@@ -38,6 +38,8 @@ Player::Player(Game* game)
     mSpriteComponent = AddComponent<SpriteComponent>(200); // Higher update order for rendering
     mHealthComponent = AddComponent<HealthComponent>();
     mAttackComponent = AddComponent<AttackComponent>();
+    mHungerComponent = AddComponent<HungerComponent>();
+    mThirstComponent = AddComponent<ThirstComponent>();
 
     // Configure health component
     mHealthComponent->SetMaxHealth(100.0f);
@@ -49,7 +51,7 @@ Player::Player(Game* game)
 
     // Create health bar UI attached to the player's HealthComponent
     // Initial position is (0,0) — we'll position it relative to the player each frame in OnDraw
-    mHealthBar = std::make_unique<HealthBar>(mHealthComponent, 0.0f, 0.0f, 100.0f, 12.0f);
+    mHealthBar = std::make_unique<HealthBar>(mHealthComponent, mHungerComponent, mThirstComponent, mGame->GetRectRenderer(), 0.0f, 0.0f, 100.0f, 12.0f);
 
     // Configure attack component
     AttackConfig attackConfig;
@@ -229,7 +231,7 @@ void Player::OnUpdate(float deltaTime)
         mInventoryUI->Update(deltaTime);
     }
 
-    // Update health bar UI
+        // Update health bar UI
     if (mHealthBar)
     {
         mHealthBar->Update(deltaTime);
@@ -243,6 +245,12 @@ void Player::OnUpdate(float deltaTime)
         {
             mState = PlayerState::Idle;
         }
+    }
+
+    // Reset recent damage over time
+    if (mHealthComponent)
+    {
+        mHealthComponent->ResetRecentDamage(deltaTime);
     }
 }
 
@@ -310,8 +318,8 @@ void Player::OnDraw(TextRenderer* textRenderer)
     if (mHealthBar)
     {
         // Position fixed in screen coordinates (10px margin from top-left)
-        mHealthBar->SetPosition(10.0f, 30.0f);
-        mHealthBar->SetSize(200,30);
+        mHealthBar->SetPosition(10.0f, 50.0f); // Moved down slightly to make room for icons
+        mHealthBar->SetSize(300, 40); // Increased size
         mHealthBar->Draw(textRenderer, mGame->GetRectRenderer());
     }
 

@@ -95,13 +95,44 @@ void RectRenderer::RenderRect(float x, float y, float width, float height, const
     rectShader->SetUniformMatrix4fv("uProjection", projection.GetAsFloatPtr());
     rectShader->SetUniform3f("uColor", color.x, color.y, color.z);
     rectShader->SetUniform1f("uAlpha", alpha);
+    
+    // Default values for standard rect
+    rectShader->SetUniform2f("uSize", width, height);
+    rectShader->SetUniform1f("uRadius", 0.0f);
+    rectShader->SetUniform1i("uStripes", 0);
+    rectShader->SetUniform1i("uRoundCorners", 0);
 
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-    glBindVertexArray(0);
-    
-    RenderUtils::DisableBlending();
 }
+
+void RectRenderer::RenderRoundedRect(float x, float y, float width, float height, const Vector3& color, float alpha, float radius, bool stripes, int corners)
+{
+    if (!rectShader)
+        return;
+
+    RenderUtils::EnableBlending();
+    rectShader->Use();
+
+    Matrix4 model = Matrix4::CreateScale(width, height, 1.0f) *
+                   Matrix4::CreateTranslation(Vector3(x, y, 0.0f));
+
+    Matrix4 projection = RenderUtils::CreateTextProjection(mWindowWidth, mWindowHeight);
+
+    rectShader->SetUniformMatrix4fv("uModel", model.GetAsFloatPtr());
+    rectShader->SetUniformMatrix4fv("uProjection", projection.GetAsFloatPtr());
+    rectShader->SetUniform3f("uColor", color.x, color.y, color.z);
+    rectShader->SetUniform1f("uAlpha", alpha);
+    
+    rectShader->SetUniform2f("uSize", width, height);
+    rectShader->SetUniform1f("uRadius", radius);
+    rectShader->SetUniform1i("uStripes", stripes ? 1 : 0);
+    rectShader->SetUniform1i("uRoundCorners", corners);
+
+    glBindVertexArray(VAO);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+}
+
 
 void RectRenderer::RenderRectOutline(float x, float y, float width, float height, const Vector3& color, float alpha, float thickness)
 {

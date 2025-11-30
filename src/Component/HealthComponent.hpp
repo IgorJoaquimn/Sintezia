@@ -14,6 +14,9 @@ public:
     void SetMaxHealth(float maxHealth);
     void SetCurrentHealth(float health);
 
+    // Hunger and thirst management
+    void UpdateVitalityBar(float hunger, float thirst);
+
     // Getters
     float GetCurrentHealth() const { return mCurrentHealth; }
     float GetMaxHealth() const { return mMaxHealth; }
@@ -28,7 +31,14 @@ public:
 private:
     float mCurrentHealth;
     float mMaxHealth;
+    float mRecentDamage; // Tracks recent damage for the health bar
     std::function<void()> mDeathCallback;
     std::function<void(float)> mOnDamageCallback;
+
+public:
+    // Removed logic to decay recent damage over time
+    void ResetRecentDamage(float deltaTime) {}
+
+    float GetRecentDamage() const { return mRecentDamage; }
 };
 

@@ -30,6 +30,9 @@
 #include <nlohmann/json.hpp>
 #include "../Actor/NPC/Concrete/GenericNPC.hpp"
 #include "../Component/MovementComponent.hpp"
+#include "../Component/HealthComponent.hpp"
+#include "../Component/HungerComponent.hpp"
+#include "../Component/ThirstComponent.hpp"
 
 Game::Game(SDL_Window* window, SDL_GLContext glContext)
     : mWindow(window)
@@ -325,6 +328,8 @@ void Game::UpdateGame()
 
     mTicksCount = SDL_GetTicks();
 
+    
+
     // Check if game is paused (interacting with NPC)
     bool isPaused = mInteractingNPC && mInteractingNPC->IsInteracting();
 
@@ -373,6 +378,8 @@ void Game::UpdateGame()
 
         mCamera->Update(deltaTime, mPlayer->GetPosition(), mapWidth, mapHeight);
     }
+
+    UpdateComponents(deltaTime);
 }
 
 void Game::GenerateOutput()
@@ -590,5 +597,33 @@ void Game::LoadNPCsFromJson(const std::string& filePath)
     catch (const std::exception& e)
     {
         SDL_Log("Error parsing NPC JSON: %s", e.what());
+    }
+}
+
+void Game::UpdateComponents(float deltaTime)
+{
+    for (auto& actor : mActors)
+    {
+        auto health = actor->GetComponent<HealthComponent>();
+        auto hunger = actor->GetComponent<HungerComponent>();
+        auto thirst = actor->GetComponent<ThirstComponent>();
+
+        if (hunger)
+        {
+            SDL_Log("Updating hunger for actor ID");
+            hunger->Update(deltaTime); // Update hunger periodically
+        }
+
+        if (thirst)
+        {
+            thirst->IncreaseThirst(deltaTime * 0.1f); // Example rate
+        }
+
+        if (health && hunger && thirst)
+        {
+            float hungerRatio = hunger->GetCurrentHunger() / hunger->GetMaxHunger();
+            float thirstRatio = thirst->GetCurrentThirst() / thirst->GetMaxThirst();
+            health->UpdateVitalityBar(hungerRatio, thirstRatio);
+        }
     }
 }
