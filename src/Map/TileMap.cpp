@@ -256,6 +256,37 @@ void TileMap::Draw(SpriteRenderer* spriteRenderer)
     // Otherwise, do not draw procedural tilemap (no textures)
 }
 
+void TileMap::Draw(SpriteRenderer* spriteRenderer, const Vector2& position, float scale)
+{
+    if (!spriteRenderer) return;
+    
+    // If we have loaded map data from Tiled, draw that instead
+    if (mMapData && !mMapData->layers.empty() && !mMapData->tilesets.empty())
+    {
+        if (!mCachedMapTexture)
+        {
+            CacheMap(spriteRenderer);
+        }
+
+        if (mCachedMapTexture)
+        {
+            // Draw the cached map texture
+            spriteRenderer->DrawSprite(
+                mCachedMapTexture.get(),
+                position,
+                Vector2(mCachedMapTexture->GetWidth() * scale, mCachedMapTexture->GetHeight() * scale),
+                Vector2(0.0f, 0.0f),
+                Vector2(1.0f, 1.0f),
+                0.0f,
+                Vector3(1.0f, 1.0f, 1.0f),
+                false,
+                true // Flip vertical
+            );
+        }
+        return;
+    }
+}
+
 void TileMap::CacheMap(SpriteRenderer* spriteRenderer)
 {
     if (!mMapData) return;
@@ -318,7 +349,7 @@ void TileMap::CacheMap(SpriteRenderer* spriteRenderer)
         if (layer.data.empty()) continue;
         
         // Skip special layers
-        if (layer.name == "collision" || layer.name.find("gerador_") == 0)
+        if (layer.name == "collision" || layer.name.find("gerador_") == 0 || layer.name == "selected_icon")
             continue;
         
         // Draw each tile in the layer
@@ -524,26 +555,112 @@ bool TileMap::CheckCollision(const Vector2& position, float radius) const
     return !IsWalkable(position);
 }
 
-bool TileMap::CanHarvestBlock(int col, int row, float currentTime, float cooldown) const
+int TileMap::GetGIDFromLayer(const std::string& layerName)
 {
-    // Create unique key for this block
-    std::string key = std::to_string(col) + "," + std::to_string(row);
+    if (!mMapData) return 0;
     
-    // Check if block has been harvested before
-    auto it = mBlockHarvestTimes.find(key);
-    if (it == mBlockHarvestTimes.end())
+    for (const auto& layer : mMapData->layers)
     {
-        // Block has never been harvested, so we can harvest it
-        return true;
+        if (layer.name == layerName)
+        {
+            for (int gid : layer.data)
+            {
+                if (gid != 0) return gid;
+            }
+        }
     }
-    
-    // Check if cooldown has expired
-    float timeSinceLastHarvest = currentTime - it->second;
-    return timeSinceLastHarvest >= cooldown;
+    return 0;
 }
 
-void TileMap::SetBlockHarvestTime(int col, int row, float harvestTime)
+void TileMap::DrawGID(SpriteRenderer* spriteRenderer, int gid, const Vector2& position, float scale)
 {
-    std::string key = std::to_string(col) + "," + std::to_string(row);
-    mBlockHarvestTimes[key] = harvestTime;
+    if (!spriteRenderer || !mMapData || gid == 0) return;
+
+    // Extract flip flags
+    const unsigned FLIPPED_HORIZONTALLY_FLAG = 0x80000000;
+    const unsigned FLIPPED_VERTICALLY_FLAG   = 0x40000000;
+    const unsigned FLIPPED_DIAGONALLY_FLAG   = 0x20000000;
+    
+    bool flippedHorizontally = (gid & FLIPPED_HORIZONTALLY_FLAG);
+    bool flippedVertically = (gid & FLIPPED_VERTICALLY_FLAG);
+    bool flippedDiagonally = (gid & FLIPPED_DIAGONALLY_FLAG);
+    
+    gid &= ~(FLIPPED_HORIZONTALLY_FLAG | FLIPPED_VERTICALLY_FLAG | FLIPPED_DIAGONALLY_FLAG);
+    
+    // Find tileset
+    TilesetInfo* tileset = nullptr;
+    for (auto& ts : mMapData->tilesets)
+    {
+        if (gid >= ts.firstGid && gid < ts.firstGid + ts.tileCount)
+        {
+            tileset = &ts;
+            break;
+        }
+    }
+    
+    if (!tileset || !tileset->texture) return;
+    
+    // Calculate source rect
+    int localId = gid - tileset->firstGid;
+    int tileCol = localId % tileset->columns;
+    int tileRow = localId / tileset->columns;
+    
+    float srcX = tileCol * tileset->tileWidth;
+    float srcY = tileRow * tileset->tileHeight;
+    
+    int texWidth = tileset->texture->GetWidth();
+    int texHeight = tileset->texture->GetHeight();
+    
+    float normalizedSrcX = srcX / static_cast<float>(texWidth);
+    float normalizedSrcY = srcY / static_cast<float>(texHeight);
+    float normalizedWidth = tileset->tileWidth / static_cast<float>(texWidth);
+    float normalizedHeight = tileset->tileHeight / static_cast<float>(texHeight);
+    
+    // Calculate display size
+    float displayWidth = tileset->tileWidth * scale;
+    float displayHeight = tileset->tileHeight * scale;
+    
+    // Handle rotation/flip
+    float rotation = 0.0f;
+    bool flipH = flippedHorizontally;
+    bool flipV = flippedVertically;
+    
+    if (flippedDiagonally)
+    {
+        rotation = glm::radians(90.0f);
+        if (flippedHorizontally && flippedVertically)
+        {
+            rotation = glm::radians(270.0f);
+            flipH = false;
+        }
+        else if (flippedVertically)
+        {
+            rotation = glm::radians(270.0f);
+            flipH = false;
+            flipV = false;
+        }
+        else if (flippedHorizontally)
+        {
+            flipH = false;
+            flipV = false;
+        }
+    }
+    else if (flippedHorizontally && flippedVertically)
+    {
+        rotation = glm::radians(180.0f);
+        flipH = false;
+        flipV = false;
+    }
+    
+    spriteRenderer->DrawSprite(
+        tileset->texture.get(),
+        position,
+        Vector2(displayWidth, displayHeight),
+        Vector2(normalizedSrcX, normalizedSrcY),
+        Vector2(normalizedWidth, normalizedHeight),
+        rotation,
+        Vector3(1.0f, 1.0f, 1.0f),
+        flipH,
+        flipV
+    );
 }
