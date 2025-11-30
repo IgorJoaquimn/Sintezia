@@ -97,5 +97,5 @@ private:
     // Tiled Map Background
     std::unique_ptr<TileMap> mBackgroundMap;
     float mMapScale;
-    int mSelectionCursorGID; // Add this line
+    int mSelectionCursorGID;
 };
