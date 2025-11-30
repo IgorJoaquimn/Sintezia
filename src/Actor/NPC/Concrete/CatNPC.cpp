@@ -6,7 +6,7 @@
 #include "../../../Component/MovementComponent.hpp"
 
 CatNPC::CatNPC(Game* game)
-    : DialogNPC(game)
+    : NPC(game)
     , mCurrentFrame(0)
     , mHomePosition(600.0f, 300.0f)
     , mIsFleeing(false)
@@ -17,33 +17,6 @@ CatNPC::CatNPC(Game* game)
 
     // Configure sprite to use Cat sprite sheet from tsx
     LoadSpriteSheetFromTSX("assets/tiled/tilesets/Cat.tsx");
-
-    // Set greeting
-    SetGreeting("Meow! *purrs softly* I'm a friendly cat. Want to chat?");
-
-    // Add dialog options
-    AddDialogOption(
-        "Pet the cat",
-        "Purrrr... *nuzzles your hand* That feels nice! You're very kind."
-    );
-
-    AddDialogOption(
-        "Ask about the island",
-        "Meow! I've explored every corner of this island. There are many secrets hidden here. "
-        "The old ruins to the east hold ancient knowledge, if you're brave enough to explore them."
-    );
-
-    AddDialogOption(
-        "Ask for help",
-        "Meow meow! I may be small, but I know many things. If you bring me fish, "
-        "I might share some of my treasures with you!"
-    );
-
-    // Add a simple trade offer: Fish for a special item
-    // Assuming fish item exists or using placeholder IDs
-    TradeOffer fishTrade("Cat's Gift: Trade for Fish", 7, 1); // Gives item #7 (placeholder)
-    fishTrade.AddRequirement(4, 2); // Requires 2 of item #4 (assuming fish or similar)
-    AddTradeOffer(fishTrade);
 }
 
 CatNPC::~CatNPC()
@@ -52,21 +25,6 @@ CatNPC::~CatNPC()
 
 void CatNPC::OnUpdate(float deltaTime)
 {
-    // Don't flee if currently interacting with player
-    if (IsInteracting())
-    {
-        if (mMovementComponent)
-        {
-            mMovementComponent->SetVelocity(Vector2::Zero);
-        }
-        mIsFleeing = false;
-        mFleeTimer = 0.0f;
-        
-        // Call parent update for dialog handling
-        DialogNPC::OnUpdate(deltaTime);
-        return;
-    }
-    
     // Get player position
     Player* player = mGame->GetPlayer();
     if (player)
@@ -168,5 +126,5 @@ void CatNPC::OnUpdate(float deltaTime)
         mSpriteComponent->SetCurrentFrame(0, mCurrentFrame); // Row 0, alternating columns
     }
 
-    DialogNPC::OnUpdate(deltaTime);
+    NPC::OnUpdate(deltaTime);
 }

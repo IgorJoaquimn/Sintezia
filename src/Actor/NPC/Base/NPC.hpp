@@ -28,6 +28,10 @@ public:
     void SetUseHorizontalFlip(bool useFlip) { mUseHorizontalFlip = useFlip; }
     void SetUseColumnBasedDirection(bool useColumn) { mUseColumnBasedDirection = useColumn; }
 
+    // Update function
+    void OnUpdate(float deltaTime) override;
+    void OnDraw(class TextRenderer* textRenderer) override;
+
 protected:
     // Helper to get direction from velocity
     int GetDirectionRow(const Vector2& velocity) const;
@@ -36,6 +40,7 @@ protected:
     AnimationComponent* mAnimationComponent;
     SpriteComponent* mSpriteComponent;
     MovementComponent* mMovementComponent;
+    class HealthComponent* mHealthComponent;
     
     // Sprite configuration
     int mSpriteWidth;
@@ -47,6 +52,9 @@ protected:
     // Animation state
     int mCurrentDirection;  // 0=down, 1=left, 2=right, 3=up
     bool mIsMoving;
+    
+    // Hit flash effect
+    float mHitFlashTimer;
     
     // Custom animation row mappings
     int mIdleRows[4];  // [down, left, right, up]

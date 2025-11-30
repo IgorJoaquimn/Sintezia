@@ -13,6 +13,9 @@
 #include "../Actor/NPC/Concrete/TestPassivePatrolNPC.hpp"
 #include "../Actor/NPC/Concrete/TestAggressivePatrolNPC.hpp"
 #include "../Actor/NPC/Concrete/CatNPC.hpp"
+#include "../Actor/NPC/Concrete/CowNPC.hpp"
+#include "../Actor/NPC/Concrete/ChickenNPC.hpp"
+#include "../Actor/NPC/Concrete/PigNPC.hpp"
 #include "../Map/TileMap.hpp"
 #include "../Core/Renderer/Renderer.hpp"
 #include "../Core/TextRenderer/TextRenderer.hpp"
@@ -169,8 +172,17 @@ bool Game::Initialize()
 
     // Create cat NPC (friendly dialog NPC with simple animation)
     auto catNPC = std::make_unique<CatNPC>(this);
-    RegisterNPC(catNPC.get());
     AddActor(std::move(catNPC));
+
+    // Create farm animals
+    auto cowNPC = std::make_unique<CowNPC>(this);
+    AddActor(std::move(cowNPC));
+
+    auto chickenNPC = std::make_unique<ChickenNPC>(this);
+    AddActor(std::move(chickenNPC));
+
+    auto pigNPC = std::make_unique<PigNPC>(this);
+    AddActor(std::move(pigNPC));
 
     // Load NPCs from JSON
     LoadNPCsFromJson("assets/npcs.json");

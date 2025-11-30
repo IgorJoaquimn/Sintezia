@@ -24,7 +24,6 @@ PatrolNPC::PatrolNPC(Game* game, bool isAggressive)
     , mDeaggroRange(400.0f)
     , mChaseSpeed(150.0f)
     , mMaxChaseDistance(300.0f)
-    , mHealthComponent(nullptr)
     , mAttackComponent(nullptr)
     , mCurrentDirection(0)
     , mIsMoving(false)
@@ -34,16 +33,16 @@ PatrolNPC::PatrolNPC(Game* game, bool isAggressive)
     // Attack rows: down=6, left=7, right=7, up=8 (as specified)
     mAttackRows[0] = 6; mAttackRows[1] = 7; mAttackRows[2] = 7; mAttackRows[3] = 8;
 
-    // Create patrol-specific components
-    mHealthComponent = AddComponent<HealthComponent>();
-
-    // Configure health component
-    mHealthComponent->SetMaxHealth(50.0f);
-    mHealthComponent->SetCurrentHealth(50.0f);
-    mHealthComponent->SetDeathCallback([this]() {
-        // NPC death - mark for destruction
-        SetState(ActorState::Destroy);
-    });
+    // Configure health component (created in base NPC class)
+    if (mHealthComponent)
+    {
+        mHealthComponent->SetMaxHealth(50.0f);
+        mHealthComponent->SetCurrentHealth(50.0f);
+        mHealthComponent->SetDeathCallback([this]() {
+            // NPC death - mark for destruction
+            SetState(ActorState::Destroy);
+        });
+    }
 
     // Only add attack component if aggressive
     if (isAggressive)
@@ -91,6 +90,9 @@ PatrolNPC::~PatrolNPC()
 
 void PatrolNPC::OnUpdate(float deltaTime)
 {
+    // Call base class update (handles hit flash)
+    NPC::OnUpdate(deltaTime);
+
     switch (mState)
     {
         case PatrolNPCState::Patrolling:

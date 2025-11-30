@@ -37,10 +37,17 @@ DialogNPC::DialogNPC(Game* game)
 
 DialogNPC::~DialogNPC()
 {
+    if (mGame)
+    {
+        mGame->UnregisterNPC(this);
+    }
 }
 
 void DialogNPC::OnUpdate(float deltaTime)
 {
+    // Call base class update (handles hit flash)
+    NPC::OnUpdate(deltaTime);
+
     // Update interaction indicator animation
     if (mInteractionIndicator)
     {
@@ -52,21 +59,11 @@ void DialogNPC::OnUpdate(float deltaTime)
 
 void DialogNPC::OnDraw(TextRenderer* textRenderer)
 {
-    auto* spriteRenderer = mGame->GetSpriteRenderer();
+    // Call base class draw (handles sprite)
+    NPC::OnDraw(textRenderer);
+
     auto* rectRenderer = mGame->GetRectRenderer();
-    if (!spriteRenderer || !mSpriteComponent || !mAnimationComponent) return;
-
-    // For stationary NPCs, just show idle frame
-    // Row 0, Column 0 = idle facing down
-    int row = 0;
-    int col = 0;  // Fixed at frame 0 for stationary idle
-
-    // Configure sprite component for rendering
-    mSpriteComponent->SetCurrentFrame(row, col);
-    mSpriteComponent->SetFlipHorizontal(false);
-
-    // Draw the sprite
-    mSpriteComponent->Draw(spriteRenderer);
+    if (!mAnimationComponent) return;
 
     // Draw interaction indicator if visible
     if (mInteractionIndicator)

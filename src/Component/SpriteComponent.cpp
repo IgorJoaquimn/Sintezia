@@ -12,6 +12,7 @@ SpriteComponent::SpriteComponent(Actor* owner, int updateOrder)
     , mCurrentCol(0)
     , mRenderSize(80.0f)
     , mFlipHorizontal(false)
+    , mColor(1.0f, 1.0f, 1.0f)
 {
 }
 
@@ -74,5 +75,5 @@ void SpriteComponent::Draw(SpriteRenderer* renderer)
     
     // Draw using sprite sheet with source rectangle
     renderer->DrawSprite(mTexture.get(), drawPos, drawSize, srcPos, srcSize, 0.0f, 
-                        Vector3(1.0f, 1.0f, 1.0f), mFlipHorizontal, false);
+                        mColor, mFlipHorizontal, false);
 }

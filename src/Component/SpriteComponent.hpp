@@ -30,6 +30,10 @@ public:
     // Set texture directly
     void SetTexture(std::shared_ptr<Texture> texture);
 
+    // Set color tint (RGB)
+    void SetColor(const Vector3& color) { mColor = color; }
+    const Vector3& GetColor() const { return mColor; }
+
 private:
     std::shared_ptr<Texture> mTexture;
     int mSpriteWidth;
@@ -38,4 +42,5 @@ private:
     int mCurrentCol;
     float mRenderSize;
     bool mFlipHorizontal;
+    Vector3 mColor;
 };

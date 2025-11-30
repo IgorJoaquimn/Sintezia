@@ -1,8 +1,8 @@
 #pragma once
-#include "../Base/DialogNPC.hpp"
+#include "../Base/NPC.hpp"
 
 // Cat NPC - a friendly cat that runs away when player gets close
-class CatNPC : public DialogNPC
+class CatNPC : public NPC
 {
 public:
     CatNPC(class Game* game);

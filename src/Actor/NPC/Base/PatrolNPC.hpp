@@ -81,7 +81,6 @@ protected:
     float mMaxChaseDistance;   // Max distance from NPC to chase player before giving up
 
     // Components
-    HealthComponent* mHealthComponent;
     AttackComponent* mAttackComponent;
 
     // Animation state

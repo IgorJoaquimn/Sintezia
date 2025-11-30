@@ -3,6 +3,7 @@
 #include "../../../Component/AnimationComponent.hpp"
 #include "../../../Component/SpriteComponent.hpp"
 #include "../../../Component/MovementComponent.hpp"
+#include "../../../Component/HealthComponent.hpp"
 #include "../../../Map/TiledParser.hpp"
 #include <cmath>
 
@@ -11,6 +12,7 @@ NPC::NPC(Game* game)
     , mAnimationComponent(nullptr)
     , mSpriteComponent(nullptr)
     , mMovementComponent(nullptr)
+    , mHealthComponent(nullptr)
     , mSpriteWidth(16)
     , mSpriteHeight(16)
     , mIdleFrames(1)
@@ -20,6 +22,7 @@ NPC::NPC(Game* game)
     , mIsMoving(false)
     , mUseHorizontalFlip(false)
     , mUseColumnBasedDirection(true)
+    , mHitFlashTimer(0.0f)
 {
     // Initialize default animation row mappings for column-based sprites
     // For column-based: each direction is a column, idle=row0, walk=rows0-3
@@ -30,14 +33,59 @@ NPC::NPC(Game* game)
     mAnimationComponent = AddComponent<AnimationComponent>();
     mSpriteComponent = AddComponent<SpriteComponent>(200); // Higher update order for rendering
     mMovementComponent = AddComponent<MovementComponent>();
+    mHealthComponent = AddComponent<HealthComponent>();
 
     // Configure animation component with default values
     mAnimationComponent->SetFrameCount(mIdleFrames);
     mAnimationComponent->SetAnimSpeed(mAnimSpeed);
+
+    // Setup damage callback for hit flash
+    if (mHealthComponent)
+    {
+        mHealthComponent->SetOnDamageCallback([this](float damage) {
+            mHitFlashTimer = 0.2f; // Flash red for 0.2 seconds
+            if (mSpriteComponent)
+            {
+                mSpriteComponent->SetColor(Vector3(1.0f, 0.0f, 0.0f)); // Red
+            }
+        });
+
+        mHealthComponent->SetDeathCallback([this]() {
+            SetState(ActorState::Destroy);
+        });
+    }
 }
 
 NPC::~NPC()
 {
+}
+
+void NPC::OnUpdate(float deltaTime)
+{
+    // Handle hit flash timer
+    if (mHitFlashTimer > 0.0f)
+    {
+        mHitFlashTimer -= deltaTime;
+        if (mHitFlashTimer <= 0.0f)
+        {
+            if (mSpriteComponent)
+            {
+                mSpriteComponent->SetColor(Vector3(1.0f, 1.0f, 1.0f)); // Reset to white
+            }
+        }
+    }
+}
+
+void NPC::OnDraw(TextRenderer* textRenderer)
+{
+    if (mSpriteComponent)
+    {
+        auto* spriteRenderer = mGame->GetSpriteRenderer();
+        if (spriteRenderer)
+        {
+            mSpriteComponent->Draw(spriteRenderer);
+        }
+    }
 }
 
 void NPC::LoadSpriteSheetFromTSX(const std::string& tsxPath)

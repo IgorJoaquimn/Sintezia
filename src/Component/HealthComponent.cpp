@@ -8,6 +8,7 @@ HealthComponent::HealthComponent(Actor* owner, int updateOrder)
     , mCurrentHealth(100.0f)
     , mMaxHealth(100.0f)
     , mDeathCallback(nullptr)
+    , mOnDamageCallback(nullptr)
 {
 }
 
@@ -17,6 +18,12 @@ void HealthComponent::TakeDamage(float damage)
 
     mCurrentHealth -= damage;
     mCurrentHealth = std::max(0.0f, mCurrentHealth);
+
+    // Notify damage
+    if (mOnDamageCallback)
+    {
+        mOnDamageCallback(damage);
+    }
 
     // Check if we just died
     if (IsDead() && mDeathCallback)
