@@ -75,6 +75,8 @@ namespace UIConstants
     constexpr float INDICATOR_BUBBLE_SCALE = 2.5f;
     constexpr float INDICATOR_GAP_ABOVE_SPRITE = 20.0f;
     constexpr float INDICATOR_CENTER_OFFSET = 0.5f;
+    constexpr float INDICATOR_KEY_SCALE = 1.5f;
+    constexpr float INDICATOR_KEY_GAP_BELOW_BUBBLE = 10.0f;
 }
 
 // ============================================================================
@@ -362,12 +364,27 @@ void NPCDialogUI::DrawDialogBoxBackground(const DialogBoxLayout& layout, RectRen
     }
 }
 
-void NPCDialogUI::DrawNavigationHint(const std::string& hint, const DialogBoxLayout& layout, TextRenderer* textRenderer)
+void NPCDialogUI::DrawNavigationHint(const std::string& hint, const DialogBoxLayout& layout, TextRenderer* textRenderer, bool alignRight)
 {
     textRenderer->SetTextColor(UIConstants::COLOR_HINT_TEXT.x, UIConstants::COLOR_HINT_TEXT.y, UIConstants::COLOR_HINT_TEXT.z);
     float hintY = layout.boxY + layout.boxHeight - UIConstants::MARGIN_BOTTOM;
-    float marginLeft = UIConstants::MARGIN_LEFT * UIConstants::UI_SCALE;
-    textRenderer->RenderText(hint, layout.boxX + marginLeft, hintY, UIConstants::TEXT_SCALE_HINT);
+
+    float hintX;
+    if (alignRight)
+    {
+        // Right align
+        float hintWidth = textRenderer->GetTextWidth(hint, UIConstants::TEXT_SCALE_HINT);
+        float marginRight = UIConstants::MARGIN_RIGHT * UIConstants::UI_SCALE;
+        hintX = layout.boxX + layout.boxWidth - hintWidth - marginRight;
+    }
+    else
+    {
+        // Left align
+        float marginLeft = UIConstants::MARGIN_LEFT * UIConstants::UI_SCALE;
+        hintX = layout.boxX + marginLeft;
+    }
+
+    textRenderer->RenderText(hint, hintX, hintY, UIConstants::TEXT_SCALE_HINT);
 }
 
 // ============================================================================
@@ -424,6 +441,8 @@ void NPCDialogUI::DrawGreetingUI(TextRenderer* textRenderer, RectRenderer* rectR
     RenderWrappedText(mCurrentText, textX, textY, textWidth,
                      UIConstants::TEXT_SCALE_NORMAL,
                      UIConstants::LINE_SPACING, textRenderer);
+
+    DrawNavigationHint("[ENTER] Continue", layout, textRenderer, true);
 }
 
 void NPCDialogUI::DrawButton(const std::string& text, float x, float y, bool isSelected,
@@ -572,6 +591,8 @@ void NPCDialogUI::DrawMessageUI(TextRenderer* textRenderer, RectRenderer* rectRe
     RenderWrappedText(mCurrentText, layout.textX, layout.textY, layout.maxTextWidth,
                      UIConstants::TEXT_SCALE_NORMAL,
                      UIConstants::LINE_SPACING, textRenderer);
+
+    DrawNavigationHint("[ENTER] Continue", layout, textRenderer, true);
 }
 
 void NPCDialogUI::SetFacesetTexture(const std::string& path)
@@ -600,6 +621,13 @@ InteractionIndicator::InteractionIndicator(Game* game)
     if (!mDialogInfoTexture->Load("assets/third_party/Ninja Adventure - Asset Pack/Ui/Dialog/DialogInfo.png")) {
         SDL_Log("Failed to load DialogInfo.png");
         mDialogInfoTexture.reset();
+    }
+
+    // Load KeySpace texture
+    mKeySpaceTexture = std::make_shared<Texture>();
+    if (!mKeySpaceTexture->Load("assets/third_party/Ninja Adventure - Asset Pack/Ui/Input/Keyboard/KeySpace.png")) {
+        SDL_Log("Failed to load KeySpace.png");
+        mKeySpaceTexture.reset();
     }
 }
 
@@ -686,6 +714,25 @@ void InteractionIndicator::Draw(TextRenderer* textRenderer, RectRenderer* rectRe
         0.0f,  // rotation
         UIConstants::COLOR_WHITE_TINT  // white color (no tint)
     );
+
+    // Draw the KeySpace indicator below the bubble
+    if (mKeySpaceTexture)
+    {
+        float keyWidth = mKeySpaceTexture->GetWidth() * UIConstants::INDICATOR_KEY_SCALE;
+        float keyHeight = mKeySpaceTexture->GetHeight() * UIConstants::INDICATOR_KEY_SCALE;
+
+        // Center the key indicator horizontally and position below the bubble
+        float keyX = mScreenPosition.x - keyWidth * UIConstants::INDICATOR_CENTER_OFFSET;
+        float keyY = bubbleY + bubbleHeight + UIConstants::INDICATOR_KEY_GAP_BELOW_BUBBLE;
+
+        mGame->GetSpriteRenderer()->DrawSprite(
+            mKeySpaceTexture.get(),
+            Vector2(keyX, keyY),
+            Vector2(keyWidth, keyHeight),
+            0.0f,  // rotation
+            UIConstants::COLOR_WHITE_TINT  // white color (no tint)
+        );
+    }
 }
 
 void InteractionIndicator::UpdateScreenPosition()
