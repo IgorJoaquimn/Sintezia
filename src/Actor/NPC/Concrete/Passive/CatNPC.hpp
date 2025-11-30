@@ -1,5 +1,5 @@
 #pragma once
-#include "../Base/NPC.hpp"
+#include "../../Base/NPC.hpp"
 
 // Cat NPC - a friendly cat that runs away when player gets close
 class CatNPC : public NPC

@@ -1,5 +1,5 @@
 #pragma once
-#include "../Base/DialogNPC.hpp"
+#include "../../Base/DialogNPC.hpp"
 #include <string>
 #include <vector>
 #include <nlohmann/json.hpp>
