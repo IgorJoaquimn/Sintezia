@@ -9,13 +9,11 @@
 #include "../Actor/Player.hpp"
 #include "../UI/InventoryUI.hpp"
 #include "../Actor/NPC/Base/DialogNPC.hpp"
-#include "../Actor/NPC/Concrete/TestShopkeeperNPC.hpp"
-#include "../Actor/NPC/Concrete/TestPassivePatrolNPC.hpp"
-#include "../Actor/NPC/Concrete/TestAggressivePatrolNPC.hpp"
-#include "../Actor/NPC/Concrete/CatNPC.hpp"
-#include "../Actor/NPC/Concrete/CowNPC.hpp"
-#include "../Actor/NPC/Concrete/ChickenNPC.hpp"
-#include "../Actor/NPC/Concrete/PigNPC.hpp"
+#include "../Actor/NPC/Concrete/Aggressive/Skeleton.hpp"
+#include "../Actor/NPC/Concrete/Passive/CatNPC.hpp"
+#include "../Actor/NPC/Concrete/Passive/CowNPC.hpp"
+#include "../Actor/NPC/Concrete/Passive/ChickenNPC.hpp"
+#include "../Actor/NPC/Concrete/Passive/PigNPC.hpp"
 #include "../Map/TileMap.hpp"
 #include "../Core/Renderer/Renderer.hpp"
 #include "../Core/TextRenderer/TextRenderer.hpp"
@@ -28,7 +26,7 @@
 #include <algorithm>
 #include <fstream>
 #include <nlohmann/json.hpp>
-#include "../Actor/NPC/Concrete/GenericNPC.hpp"
+#include "../Actor/NPC/Concrete/Passive/GenericNPC.hpp"
 #include "../Component/MovementComponent.hpp"
 #include "../Component/HealthComponent.hpp"
 #include "../Component/HungerComponent.hpp"
@@ -165,18 +163,9 @@ bool Game::Initialize()
                     // SDL_Log("Added starting items to player inventory");
     }
 
-    // Create test shopkeeper NPC (dialog NPC with trading)
-    auto testShopkeeperNPC = std::make_unique<TestShopkeeperNPC>(this);
-    RegisterNPC(testShopkeeperNPC.get());
-    AddActor(std::move(testShopkeeperNPC));
-
-    // Create test passive patrol NPC (patrols in a loop)
-    auto testPassivePatrolNPC = std::make_unique<TestPassivePatrolNPC>(this);
-    AddActor(std::move(testPassivePatrolNPC));
-
     // Create test aggressive patrol NPC (patrols and chases player)
-    auto testAggressivePatrolNPC = std::make_unique<TestAggressivePatrolNPC>(this);
-    AddActor(std::move(testAggressivePatrolNPC));
+    auto skeletonNPC = std::make_unique<SkeletonNPC>(this);
+    AddActor(std::move(skeletonNPC));
 
     // Create cat NPC (friendly dialog NPC with simple animation)
     auto catNPC = std::make_unique<CatNPC>(this);

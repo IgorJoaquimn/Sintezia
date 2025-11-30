@@ -1,9 +1,9 @@
 #include "CatNPC.hpp"
-#include "../../../Game/Game.hpp"
-#include "../../../Actor/Player.hpp"
-#include "../../../Component/SpriteComponent.hpp"
-#include "../../../Component/AnimationComponent.hpp"
-#include "../../../Component/MovementComponent.hpp"
+#include "../../../../Game/Game.hpp"
+#include "../../../Player.hpp"
+#include "../../../../Component/SpriteComponent.hpp"
+#include "../../../../Component/AnimationComponent.hpp"
+#include "../../../../Component/MovementComponent.hpp"
 
 CatNPC::CatNPC(Game* game)
     : NPC(game)
