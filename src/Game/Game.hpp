@@ -137,4 +137,7 @@ private:
 
     // Load NPCs from JSON
     void LoadNPCsFromJson(const std::string& filePath);
+
+    // Load enemies from JSON (assets/enemies.json) - creates aggressive NPCs from data
+    void LoadEnemiesFromJson(const std::string& filePath);
 };
