@@ -8,6 +8,8 @@
 #include "../Actor/ItemActor.hpp"
 #include "../Actor/Player.hpp"
 #include "../UI/InventoryUI.hpp"
+#include "../UI/WarningPopup.hpp"
+#include "../UI/ControlsUI.hpp"
 #include "../Actor/NPC/Base/DialogNPC.hpp"
 #include "../Actor/NPC/Concrete/Aggressive/Skeleton.hpp"
 #include "../Actor/NPC/Concrete/Aggressive/Flam.hpp"
@@ -98,6 +100,9 @@ bool Game::Initialize()
 
     // Initialize warning popup
     mWarningPopup = std::make_unique<WarningPopup>();
+
+    // Initialize controls UI
+    mControlsUI = std::make_unique<ControlsUI>();
 
     // Load items and recipes from JSON
     if (!mCrafting->LoadItemsFromJson("assets/items.json"))
@@ -474,6 +479,11 @@ void Game::GenerateOutput()
     if (mPlayer && mPlayer->GetInventoryUI())
     {
         mPlayer->GetInventoryUI()->Draw(mTextRenderer.get(), mRectRenderer.get(), mSpriteRenderer.get());
+    }
+
+    if (mControlsUI)
+    {
+        mControlsUI->Draw(mSpriteRenderer.get(), mTextRenderer.get());
     }
 
     if (mWarningPopup)
