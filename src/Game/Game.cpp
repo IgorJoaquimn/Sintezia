@@ -691,50 +691,50 @@ void Game::LoadEnemiesFromJson(const std::string& filePath)
         for (const auto& e : j["enemies"])
         {
             std::string type = e.value("type", "");
-            float x = e.value("x", 0.0f);
-            float y = e.value("y", 0.0f);
+            int x = e.value("x", 0);
+            int y = e.value("y", 0);
 
             std::unique_ptr<Actor> enemyActor;
 
             if (type == "Flam")
             {
                 auto ptr = std::make_unique<FlamNPC>(this);
-                ptr->SetPosition(Vector2(x, y));
+                ptr->SetGridPosition(x, y);
                 ptr->SetAnchorPosition(ptr->GetPosition());
                 enemyActor = std::move(ptr);
             }
             else if (type == "GoldenStatue")
             {
                 auto ptr = std::make_unique<GoldenStatueNPC>(this);
-                ptr->SetPosition(Vector2(x, y));
+                ptr->SetGridPosition(x, y);
                 ptr->SetAnchorPosition(ptr->GetPosition());
                 enemyActor = std::move(ptr);
             }
             else if (type == "Shaman")
             {
                 auto ptr = std::make_unique<ShamanNPC>(this);
-                ptr->SetPosition(Vector2(x, y));
+                ptr->SetGridPosition(x, y);
                 ptr->SetAnchorPosition(ptr->GetPosition());
                 enemyActor = std::move(ptr);
             }
             else if (type == "Spirit")
             {
                 auto ptr = std::make_unique<SpiritNPC>(this);
-                ptr->SetPosition(Vector2(x, y));
+                ptr->SetGridPosition(x, y);
                 ptr->SetAnchorPosition(ptr->GetPosition());
                 enemyActor = std::move(ptr);
             }
             else if (type == "Statue")
             {
                 auto ptr = std::make_unique<StatueNPC>(this);
-                ptr->SetPosition(Vector2(x, y));
+                ptr->SetGridPosition(x, y);
                 ptr->SetAnchorPosition(ptr->GetPosition());
                 enemyActor = std::move(ptr);
             }
             else if (type == "Skeleton")
             {
                 auto ptr = std::make_unique<SkeletonNPC>(this);
-                ptr->SetPosition(Vector2(x, y));
+                ptr->SetGridPosition(x, y);
                 ptr->SetAnchorPosition(ptr->GetPosition());
                 enemyActor = std::move(ptr);
             }

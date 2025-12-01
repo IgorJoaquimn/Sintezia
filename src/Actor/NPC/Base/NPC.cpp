@@ -165,9 +165,6 @@ void NPC::LoadSpriteSheetFromTSX(const std::string& tsxPath)
         return;
     }
 
-    // Log parsed tileset info for debugging
-    SDL_Log("Parsed TSX: %s -> image: %s (tile %dx%d) columns=%d", tsxPath.c_str(), tileset.imagePath.c_str(), tileset.tileWidth, tileset.tileHeight, tileset.columns);
-
     // Load the sprite sheet and configure
     if (mSpriteComponent)
     {
@@ -175,10 +172,6 @@ void NPC::LoadSpriteSheetFromTSX(const std::string& tsxPath)
         if (!ok)
         {
             SDL_Log("SpriteComponent failed to load image: %s", tileset.imagePath.c_str());
-        }
-        else
-        {
-            SDL_Log("SpriteComponent loaded image: %s", tileset.imagePath.c_str());
         }
     }
     SetSpriteConfiguration(tileset.tileWidth, tileset.tileHeight, tileset.columns, tileset.columns, 8.0f);

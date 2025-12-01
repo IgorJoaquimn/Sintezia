@@ -381,6 +381,9 @@ void NPCDialogUI::DrawDialogBoxBackground(const DialogBoxLayout& layout, RectRen
 
 void NPCDialogUI::DrawNavigationHint(const std::string& hint, const DialogBoxLayout& layout, TextRenderer* textRenderer, bool alignRight)
 {
+    // Guard against null TextRenderer
+    if (!textRenderer) return;
+
     textRenderer->SetTextColor(UIConstants::COLOR_HINT_TEXT.x, UIConstants::COLOR_HINT_TEXT.y, UIConstants::COLOR_HINT_TEXT.z);
     float hintY = layout.boxY + layout.boxHeight - UIConstants::MARGIN_BOTTOM;
 
@@ -437,10 +440,14 @@ void NPCDialogUI::DrawFaceset(const DialogBoxLayout& layout, float& outTextX, fl
 
 void NPCDialogUI::DrawGreetingUI(TextRenderer* textRenderer, RectRenderer* rectRenderer)
 {
-    if (!textRenderer || !rectRenderer) return;
+    // Require at least one renderer (text OR rect/sprite for background)
+    if (!textRenderer && !rectRenderer) return;
 
     DialogBoxLayout layout = CalculateDialogBoxLayout();
     DrawDialogBoxBackground(layout, rectRenderer);
+
+    // If no text renderer, we stop after drawing the background
+    if (!textRenderer) return;
 
     float textX = layout.textX;
     float textY = layout.textY;
@@ -463,6 +470,9 @@ void NPCDialogUI::DrawGreetingUI(TextRenderer* textRenderer, RectRenderer* rectR
 void NPCDialogUI::DrawButton(const std::string& text, float x, float y, bool isSelected,
                             TextRenderer* textRenderer, RectRenderer* rectRenderer)
 {
+    // Guard against null TextRenderer (we need it to measure and draw text)
+    if (!textRenderer) return;
+
     // Measure text
     Vector2 textSize = textRenderer->MeasureText(text, UIConstants::TEXT_SCALE_NORMAL);
     float buttonWidth = textSize.x + (UIConstants::BUTTON_PADDING_X * 2);
@@ -495,10 +505,14 @@ void NPCDialogUI::DrawButton(const std::string& text, float x, float y, bool isS
 
 void NPCDialogUI::DrawMainMenuUI(TextRenderer* textRenderer, RectRenderer* rectRenderer)
 {
-    if (!textRenderer || !rectRenderer) return;
+    // Require at least one renderer (text OR rect/sprite for background)
+    if (!textRenderer && !rectRenderer) return;
 
     DialogBoxLayout layout = CalculateDialogBoxLayout();
     DrawDialogBoxBackground(layout, rectRenderer);
+
+    // If no text renderer, stop after drawing background
+    if (!textRenderer) return;
 
     float buttonY = layout.textY + UIConstants::MAIN_MENU_BUTTON_OFFSET_Y;
     float currentX = layout.textX;
@@ -535,6 +549,9 @@ std::string NPCDialogUI::TruncateText(const std::string& text, float maxWidth, f
 void NPCDialogUI::DrawListOption(const std::string& text, float x, float y, bool isSelected,
                                  float maxWidth, float textScale, TextRenderer* textRenderer)
 {
+    // Guard against null TextRenderer
+    if (!textRenderer) return;
+
     // Draw selection indicator
     if (isSelected) {
         textRenderer->SetTextColor(UIConstants::COLOR_SELECTION_ARROW.x, UIConstants::COLOR_SELECTION_ARROW.y, UIConstants::COLOR_SELECTION_ARROW.z);
@@ -552,10 +569,14 @@ void NPCDialogUI::DrawListOption(const std::string& text, float x, float y, bool
 
 void NPCDialogUI::DrawDialogMenuUI(TextRenderer* textRenderer, RectRenderer* rectRenderer)
 {
-    if (!textRenderer || !rectRenderer) return;
+    // Require at least one renderer (text OR rect/sprite for background)
+    if (!textRenderer && !rectRenderer) return;
 
     DialogBoxLayout layout = CalculateDialogBoxLayout();
     DrawDialogBoxBackground(layout, rectRenderer);
+
+    // If no text renderer, stop after drawing background
+    if (!textRenderer) return;
 
     float optionY = layout.textY;
 
@@ -574,10 +595,14 @@ void NPCDialogUI::DrawDialogMenuUI(TextRenderer* textRenderer, RectRenderer* rec
 
 void NPCDialogUI::DrawTradeMenuUI(TextRenderer* textRenderer, RectRenderer* rectRenderer)
 {
-    if (!textRenderer || !rectRenderer) return;
+    // Require at least one renderer (text OR rect/sprite for background)
+    if (!textRenderer && !rectRenderer) return;
 
     DialogBoxLayout layout = CalculateDialogBoxLayout();
     DrawDialogBoxBackground(layout, rectRenderer);
+
+    // If no text renderer, stop after drawing background
+    if (!textRenderer) return;
 
     float optionY = layout.textY;
 
@@ -596,10 +621,14 @@ void NPCDialogUI::DrawTradeMenuUI(TextRenderer* textRenderer, RectRenderer* rect
 
 void NPCDialogUI::DrawMessageUI(TextRenderer* textRenderer, RectRenderer* rectRenderer)
 {
-    if (!textRenderer || !rectRenderer) return;
+    // Require at least one renderer (text OR rect/sprite for background)
+    if (!textRenderer && !rectRenderer) return;
 
     DialogBoxLayout layout = CalculateDialogBoxLayout();
     DrawDialogBoxBackground(layout, rectRenderer);
+
+    // If no text renderer, stop after drawing background
+    if (!textRenderer) return;
 
     // Draw message text with wrapping
     textRenderer->SetTextColor(UIConstants::COLOR_TEXT_DEFAULT.x, UIConstants::COLOR_TEXT_DEFAULT.y, UIConstants::COLOR_TEXT_DEFAULT.z);
@@ -757,4 +786,3 @@ void InteractionIndicator::UpdateScreenPosition()
     // using the camera transform
     mScreenPosition = mWorldPosition;
 }
-
