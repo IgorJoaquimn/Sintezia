@@ -5,7 +5,7 @@
       "name": "Ancião de Sintézia",
       "sprite": "OldMan",
       "faceset": "assets/third_party/Ninja Adventure - Asset Pack/Actor/Characters/OldMan/Faceset.png",
-      "position": { "x": 42, "y": 70 },
+      "position": { "x": 45, "y": 70 },
       "dialogues": {
         "intro": [
           "Bem-vindo a Sintézia, jovem náufrago.",
@@ -41,7 +41,7 @@
       "name": "Clara, a Náufraga",
       "sprite": "Villager",
       "faceset": "assets/third_party/Ninja Adventure - Asset Pack/Actor/Characters/Villager/Faceset.png",
-      "position": { "x": 43, "y": 70 },
+      "position": { "x": 75, "y": 50 },
       "dialogues": {
         "intro": [
           "Ei! Você também sobreviveu?",
@@ -66,7 +66,7 @@
       "name": "Monge Silencioso",
       "sprite": "Monk",
       "faceset": "assets/third_party/Ninja Adventure - Asset Pack/Actor/Characters/Monk/Faceset.png",
-      "position": { "x": 44, "y": 70 },
+      "position": { "x": 15, "y": 50 },
       "dialogues": {
         "intro": [
           "...",
@@ -91,7 +91,7 @@
       "name": "Caçador de Relíquias",
       "sprite": "Hunter",
       "faceset": "assets/third_party/Ninja Adventure - Asset Pack/Actor/Characters/Hunter/Faceset.png",
-      "position": { "x": 46, "y": 70 },
+      "position": { "x": 45, "y": 75 },
       "dialogues": {
         "intro": [
           "Cuidado onde pisa. Esta ilha tem dentes.",
@@ -116,7 +116,7 @@
       "name": "Esqueleto",
       "sprite": "Skeleton",
       "faceset": "assets/third_party/Ninja Adventure - Asset Pack/Actor/Characters/Skeleton/Faceset.png",
-      "position": { "x": 47, "y": 70 },
+      "position": { "x": 45, "y": 10 },
       "dialogues": {
         "intro": [
           "Clack... Clack...",
@@ -141,7 +141,7 @@
       "name": "Ferreiro da Vila",
       "sprite": "Villager2",
       "faceset": "assets/third_party/Ninja Adventure - Asset Pack/Actor/Characters/Villager2/Faceset.png",
-      "position": { "x": 48, "y": 70 },
+      "position": { "x": 75, "y": 30 },
       "dialogues": {
         "intro": [
           "Eu costumava trabalhar na mina...",
