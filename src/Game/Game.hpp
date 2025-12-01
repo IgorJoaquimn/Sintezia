@@ -135,6 +135,9 @@ private:
     // Warning Popup
     std::unique_ptr<WarningPopup> mWarningPopup;
 
+    // Controls UI
+    std::unique_ptr<class ControlsUI> mControlsUI;
+
     // Load NPCs from JSON
     void LoadNPCsFromJson(const std::string& filePath);
 

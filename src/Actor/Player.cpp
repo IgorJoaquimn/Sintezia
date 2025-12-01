@@ -399,12 +399,15 @@ void Player::OnDraw(TextRenderer* textRenderer)
     mSpriteComponent->SetFlipHorizontal(false);
     mSpriteComponent->Draw(spriteRenderer);
 
-    // Draw health bar (HUD) fixed at top-left of the screen
+    // Draw health bar (HUD) fixed at top-right of the screen
     if (mHealthBar)
     {
-        // Position fixed in screen coordinates (10px margin from top-left)
-        mHealthBar->SetPosition(10.0f, 50.0f); // Moved down slightly to make room for icons
-        mHealthBar->SetSize(300, 40); // Increased size
+        // Position fixed in screen coordinates (10px margin from top-right)
+        float windowWidth = static_cast<float>(Game::WINDOW_WIDTH);
+        float barWidth = 300.0f;
+        float margin = 10.0f;
+        mHealthBar->SetPosition(windowWidth - barWidth - margin, 50.0f); 
+        mHealthBar->SetSize(barWidth, 40); // Increased size
         mHealthBar->Draw(textRenderer, mGame->GetRectRenderer());
     }
 
