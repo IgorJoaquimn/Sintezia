@@ -55,6 +55,9 @@ public:
     
     // Movement control
     void StopMovement();
+    
+    // Check for interaction with generator tiles
+    bool CheckForGeneratorInteraction();
 
 private:
     void LoadTextures();

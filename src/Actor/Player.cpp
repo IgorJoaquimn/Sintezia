@@ -13,6 +13,7 @@
 #include "../Map/TiledParser.hpp"
 #include "../Actor/ItemActor.hpp"
 #include "../UI/HealthBar.hpp" // adicionado include da HealthBar
+#include "../Map/TileMap.hpp"
 
 Player::Player(Game* game)
     : Actor(game)
@@ -176,6 +177,25 @@ void Player::OnProcessInput(const Uint8* keyState)
         if (mInputComponent->IsMoving())
         {
             mLastDirection = mInputComponent->GetDirection();
+        }
+
+        // Handle Generator Interaction (K key)
+        static bool kKeyPressed = false;
+        if (keyState[SDL_SCANCODE_K])
+        {
+            if (!kKeyPressed)
+            {
+                if (CheckForGeneratorInteraction())
+                {
+                    kKeyPressed = true;
+                    return; // Skip attack if interacted
+                }
+                kKeyPressed = true;
+            }
+        }
+        else
+        {
+            kKeyPressed = false;
         }
 
         // Handle Attack State (Priority)
@@ -398,4 +418,99 @@ void Player::StopMovement()
         mMovementComponent->SetVelocity(Vector2::Zero);
     }
     mState = PlayerState::Idle;
+}
+
+bool Player::CheckForGeneratorInteraction()
+{
+    auto* tileMap = mGame->GetTileMap();
+    if (!tileMap) return false;
+
+    Vector2 pos = GetPosition();
+    int tileSize = tileMap->GetTileSize();
+    
+    // Calculate tile coordinates of the player
+    int playerCol = static_cast<int>(pos.x / tileSize);
+    int playerRow = static_cast<int>(pos.y / tileSize);
+
+    // Define generator layers and their corresponding items
+    std::map<std::string, std::string> generatorMap = {
+        {"gerador_agua", "Água"},
+        {"gerador_fogo", "Fogo"},
+        {"gerador_madeira", "Madeira"}
+    };
+
+    // Check surrounding tiles (including current)
+    // 3x3 grid centered on player
+    for (int y = -1; y <= 1; y++)
+    {
+        for (int x = -1; x <= 1; x++)
+        {
+            int col = playerCol + x;
+            int row = playerRow + y;
+
+            // Check bounds
+            if (col < 0 || col >= tileMap->GetWidth() || row < 0 || row >= tileMap->GetHeight())
+                continue;
+
+            // Check each generator layer
+            for (const auto& pair : generatorMap)
+            {
+                std::string layerName = pair.first;
+                std::string itemName = pair.second;
+
+                auto* mapData = tileMap->GetMapData();
+                if (!mapData) continue;
+
+                for (const auto& layer : mapData->layers)
+                {
+                    if (layer.name == layerName)
+                    {
+                        int index = row * layer.width + col;
+                        if (index >= 0 && index < static_cast<int>(layer.data.size()) && layer.data[index] != 0)
+                        {
+                            // Found a generator tile!
+                            
+                            // Check cooldown (e.g. 0.5 seconds)
+                            if (tileMap->CanHarvestBlock(col, row, mGame->GetGameTime(), 0.5f))
+                            {
+                                // Find item definition
+                                const Item* itemDef = nullptr;
+                                if (mGame->GetCrafting())
+                                {
+                                    for (const auto& item : mGame->GetCrafting()->GetAllItems())
+                                    {
+                                        if (item.name == itemName)
+                                        {
+                                            itemDef = &item;
+                                            break;
+                                        }
+                                    }
+                                }
+
+                                if (itemDef)
+                                {
+                                    // Spawn item
+                                    auto itemActor = std::make_unique<ItemActor>(mGame, *itemDef);
+                                    Vector2 spawnPos(col * tileSize + tileSize / 2.0f, row * tileSize + tileSize / 2.0f);
+                                    itemActor->SetPosition(spawnPos);
+                                    
+                                    // Make it go to user
+                                    itemActor->StartPickup(this);
+                                    
+                                    mGame->AddActor(std::move(itemActor));
+                                    
+                                    // Set cooldown
+                                    tileMap->SetBlockHarvestTime(col, row, mGame->GetGameTime());
+                                    
+                                    // Only harvest one block per press
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return false;
 }
