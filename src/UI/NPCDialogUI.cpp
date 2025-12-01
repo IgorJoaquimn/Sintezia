@@ -15,9 +15,9 @@ namespace UIConstants
     constexpr float DIALOG_BOX_Y_OFFSET = 50.0f;
 
     // Margins and Padding
-    constexpr float MARGIN_LEFT = 20.0f;
-    constexpr float MARGIN_TOP = 14.0f;
-    constexpr float MARGIN_RIGHT = 20.0f;
+    constexpr float MARGIN_LEFT = 15.0f;
+    constexpr float MARGIN_TOP = 15.0f;
+    constexpr float MARGIN_RIGHT = 15.0f;
     constexpr float MARGIN_BOTTOM = 25.0f;
     constexpr float CONTENT_TOP_PADDING = 10.0f;
 
@@ -37,7 +37,7 @@ namespace UIConstants
     // Faceset Settings
     constexpr float FACESET_MARGIN = 6.0f;
     constexpr float FACESET_SIZE = 38.0f;
-    constexpr float FACESET_TEXT_OFFSET = 50.0f;
+    constexpr float FACESET_TEXT_OFFSET = 65.0f;
     constexpr float FACESET_VERTICAL_OFFSET = 20.0f;
 
     // Selection Indicator
@@ -114,6 +114,15 @@ void NPCDialogUI::Draw(TextRenderer* textRenderer, RectRenderer* rectRenderer)
 {
     if (!IsVisible()) return;
 
+    // Save current camera position and reset to zero for UI rendering
+    Vector2 oldCameraPos = Vector2::Zero;
+    SpriteRenderer* spriteRenderer = mGame->GetSpriteRenderer();
+    if (spriteRenderer)
+    {
+        oldCameraPos = spriteRenderer->GetCameraPosition();
+        spriteRenderer->SetCameraPosition(Vector2::Zero);
+    }
+
     switch (mState)
     {
         case DialogUIState::Greeting:
@@ -133,6 +142,12 @@ void NPCDialogUI::Draw(TextRenderer* textRenderer, RectRenderer* rectRenderer)
             break;
         default:
             break;
+    }
+
+    // Restore camera position
+    if (spriteRenderer)
+    {
+        spriteRenderer->SetCameraPosition(oldCameraPos);
     }
 }
 
