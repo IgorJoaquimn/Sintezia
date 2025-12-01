@@ -168,7 +168,7 @@ void NPCDialogUI::ShowMainMenu()
     mState = DialogUIState::MainMenu;
     mSelectedIndex = 0;
     mCurrentOptions.clear();
-    mCurrentOptions = {"Talk", "Trade", "Leave"};
+    mCurrentOptions = {"Conversar", "Trocar", "Sair"};
 }
 
 void NPCDialogUI::ShowDialogMenu(const std::vector<std::string>& options)
@@ -457,7 +457,7 @@ void NPCDialogUI::DrawGreetingUI(TextRenderer* textRenderer, RectRenderer* rectR
                      UIConstants::TEXT_SCALE_NORMAL,
                      UIConstants::LINE_SPACING, textRenderer);
 
-    DrawNavigationHint("[ENTER] Continue", layout, textRenderer, true);
+    DrawNavigationHint("[ENTER] Continuar", layout, textRenderer, true);
 }
 
 void NPCDialogUI::DrawButton(const std::string& text, float x, float y, bool isSelected,
@@ -513,7 +513,7 @@ void NPCDialogUI::DrawMainMenuUI(TextRenderer* textRenderer, RectRenderer* rectR
         currentX += textSize.x + (UIConstants::BUTTON_PADDING_X * 2) + UIConstants::BUTTON_SPACING;
     }
 
-    DrawNavigationHint("[A/D] Navigate  [ENTER] Select  [ESC] Close", layout, textRenderer);
+    DrawNavigationHint("[A/D] Navegar  [ENTER] Selecionar  [ESC] Fechar", layout, textRenderer);
 }
 
 std::string NPCDialogUI::TruncateText(const std::string& text, float maxWidth, float scale, TextRenderer* textRenderer)
@@ -569,7 +569,7 @@ void NPCDialogUI::DrawDialogMenuUI(TextRenderer* textRenderer, RectRenderer* rec
                       layout.maxTextWidth, UIConstants::TEXT_SCALE_SMALL, textRenderer);
     }
 
-    DrawNavigationHint("[W/S] Navigate  [ENTER] Select  [ESC] Back", layout, textRenderer);
+    DrawNavigationHint("[W/S] Navegar  [ENTER] Selecionar  [ESC] Voltar", layout, textRenderer);
 }
 
 void NPCDialogUI::DrawTradeMenuUI(TextRenderer* textRenderer, RectRenderer* rectRenderer)
@@ -591,7 +591,7 @@ void NPCDialogUI::DrawTradeMenuUI(TextRenderer* textRenderer, RectRenderer* rect
                       layout.maxTextWidth, UIConstants::TEXT_SCALE_SMALL, textRenderer);
     }
 
-    DrawNavigationHint("[W/S] Navigate  [ENTER] Select  [ESC] Back", layout, textRenderer);
+    DrawNavigationHint("[W/S] Navegar  [ENTER] Selecionar  [ESC] Voltar", layout, textRenderer);
 }
 
 void NPCDialogUI::DrawMessageUI(TextRenderer* textRenderer, RectRenderer* rectRenderer)
@@ -607,7 +607,7 @@ void NPCDialogUI::DrawMessageUI(TextRenderer* textRenderer, RectRenderer* rectRe
                      UIConstants::TEXT_SCALE_NORMAL,
                      UIConstants::LINE_SPACING, textRenderer);
 
-    DrawNavigationHint("[ENTER] Continue", layout, textRenderer, true);
+    DrawNavigationHint("[ENTER] Continuar", layout, textRenderer, true);
 }
 
 void NPCDialogUI::SetFacesetTexture(const std::string& path)

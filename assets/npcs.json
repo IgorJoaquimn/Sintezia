@@ -39,9 +39,9 @@
     {
       "id": 2,
       "name": "Clara, a Náufraga",
-      "sprite": "Villager",
-      "faceset": "assets/third_party/Ninja Adventure - Asset Pack/Actor/Characters/Villager/Faceset.png",
-      "position": { "x": 75, "y": 50 },
+      "sprite": "Cavegirl",
+      "faceset": "assets/third_party/Ninja Adventure - Asset Pack/Actor/Characters/Cavegirl/Faceset.png",
+      "position": { "x": 31, "y": 73 },
       "dialogues": {
         "intro": [
           "Ei! Você também sobreviveu?",
@@ -56,7 +56,7 @@
           "required_items": [104],
           "reward_text": "Sua generosidade gera Esperança.",
           "reward_item": 106,
-          "start_dialogue": "Eu não como há dias. Consegui caçar algo, mas não tenho como cozinhar. Se você me trouxer 'Carne Assada', serei eternamente grata.",
+          "start_dialogue": "Eu não como há dias. Consegui caçar algo, mas não tenho como cozinhar. Se você me trouxer '🦴 Carne Assada', serei eternamente grata.",
           "end_dialogue": "Obrigada! Isso está delicioso. Sinto que agora temos uma chance. Tome, isso é 'Esperança'. Guarde-a."
         }
       ]
@@ -158,6 +158,46 @@
           "reward_item": 202,
           "start_dialogue": "Se eu tivesse um 'Osso' forte, poderia fazer um cabo novo para minha picareta.",
           "end_dialogue": "Perfeito! Isso servirá. Aqui, fique com esta 'Picareta'. Eu farei outra."
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "name": "Sultão",
+      "sprite": "Sultan",
+      "faceset": "assets/third_party/Ninja Adventure - Asset Pack/Actor/Characters/Sultan/Faceset.png",
+      "position": { "x": 38, "y": 42 },
+      "dialogues": {
+        "intro": [
+          "Olá viajante.",
+          "Você viu aquele tronco de madeira ali?",
+          "Se você tiver um machado, pode cortá-lo para obter madeira."
+        ]
+      },
+      "quests": []
+    },
+    {
+      "id": 8,
+      "name": "Espírito",
+      "sprite": "Spirit",
+      "faceset": "assets/third_party/Ninja Adventure - Asset Pack/Actor/Characters/Spirit/Faceset.png",
+      "position": { "x": 45, "y": 6 },
+      "dialogues": {
+        "intro": [
+          "Eu sou o espírito destas águas.",
+          "O mar é perigoso para quem não está preparado."
+        ]
+      },
+      "quests": [
+        {
+          "id": 801,
+          "title": "O Chamado do Mar",
+          "description": "O Espírito pode lhe conceder um barco em troca de madeira.",
+          "required_items": [100],
+          "reward_text": "O Espírito cria um barco para você.",
+          "reward_item": 109,
+          "start_dialogue": "Vejo que você quer partir. Traga-me 'Madeira' e lhe darei um meio de transporte.",
+          "end_dialogue": "Aqui está o seu 'Barco'. Vá para a praia para escapar e vencer o jogo!"
         }
       ]
     }
