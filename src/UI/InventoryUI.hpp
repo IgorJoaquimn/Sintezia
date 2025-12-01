@@ -1,6 +1,7 @@
 #pragma once
 #include "../Game/Inventory.hpp"
 #include "../MathUtils.h"
+#include "../Core/Texture/Texture.hpp"
 #include <functional>
 #include <memory>
 
@@ -30,6 +31,7 @@ public:
     // Input handling
     void HandleInput(const uint8_t* keyState);
     void HandleMouseClick(const Vector2& mousePos);
+    void HandleRightClick(const Vector2& mousePos);
     void HandleMouseMove(const Vector2& mousePos);
 
     // UI configuration
@@ -44,7 +46,7 @@ public:
 
     // Callbacks
     void SetOnItemSelected(std::function<void(int itemId)> callback) { mOnItemSelected = callback; }
-    void SetOnItemUsed(std::function<void(int itemId)> callback) { mOnItemUsed = callback; }
+    void SetOnItemUsed(std::function<void(const Item& item)> callback) { mOnItemUsed = callback; }
 
 private:
     Game* mGame;
@@ -68,14 +70,7 @@ private:
 
     // Input state
     bool mKeyPressed[10];
-
-    // Helper methods
-    void DrawInventorySlots(TextRenderer* textRenderer, RectRenderer* rectRenderer);
-    void DrawItemInSlot(int slotIndex, const Vector2& slotPos, TextRenderer* textRenderer, RectRenderer* rectRenderer);
-    Vector2 GetSlotPosition(int slotIndex) const;
-    int GetSlotAtPosition(const Vector2& mousePos) const;
-    void UpdateKeyState(const uint8_t* keyState);
-    void AttemptCombination(int slotIndex1, int slotIndex2); // Add this line
+    Vector2 mCurrentMousePos;
 
     // Crafting state
     int mCraftInputSlot1; // Index in inventory
@@ -83,7 +78,7 @@ private:
     std::unique_ptr<Item> mCraftResult;
 
     // Crafting UI helpers
-    void DrawCraftingPanel(TextRenderer* textRenderer, RectRenderer* rectRenderer);
+    void DrawCraftingPanel(TextRenderer* textRenderer, RectRenderer* rectRenderer, SpriteRenderer* spriteRenderer);
     void UpdateCraftingResult();
     void PerformCraft();
     void ClearCraftingSlots();
@@ -92,10 +87,22 @@ private:
 
     // Callbacks
     std::function<void(int itemId)> mOnItemSelected;
-    std::function<void(int itemId)> mOnItemUsed;
+    std::function<void(const Item& item)> mOnItemUsed;
 
     // Tiled Map Background
     std::unique_ptr<TileMap> mBackgroundMap;
     float mMapScale;
     int mSelectionCursorGID;
+
+    // Icons
+    std::shared_ptr<Texture> mMouseRightIcon;
+    
+    // Helper methods
+    void DrawInventorySlots(TextRenderer* textRenderer, RectRenderer* rectRenderer, SpriteRenderer* spriteRenderer);
+    void DrawItemInSlot(int slotIndex, const Vector2& slotPos, TextRenderer* textRenderer, RectRenderer* rectRenderer, SpriteRenderer* spriteRenderer);
+    void DrawConsumeCursor(TextRenderer* textRenderer, RectRenderer* rectRenderer, SpriteRenderer* spriteRenderer);
+    Vector2 GetSlotPosition(int slotIndex) const;
+    int GetSlotAtPosition(const Vector2& mousePos) const;
+    void UpdateKeyState(const uint8_t* keyState);
+    void AttemptCombination(int slotIndex1, int slotIndex2);
 };

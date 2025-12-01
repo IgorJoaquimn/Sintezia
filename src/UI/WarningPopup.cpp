@@ -77,5 +77,6 @@ void WarningPopup::Draw(TextRenderer* textRenderer, RectRenderer* rectRenderer, 
         
         textRenderer->SetTextColor(0.0f, 0.0f, 0.0f); // Black text
         textRenderer->RenderText(mMessage, textX, textY, scale);
+        textRenderer->SetTextColor(1.0f, 1.0f, 1.0f); // Reset to white
     }
 }

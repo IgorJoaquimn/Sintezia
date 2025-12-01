@@ -3,7 +3,8 @@
         {
             "id": 1,
             "name": "Água",
-            "emoji": "💧"
+            "emoji": "💧",
+            "thirstRestoration": 40.0
         },
         {
             "id": 2,
@@ -83,12 +84,14 @@
         {
             "id": 103,
             "name": "Carne",
-            "emoji": "🥩"
+            "emoji": "🥩",
+            "hungerRestoration": 20.0
         },
         {
             "id": 104,
             "name": "Carne Assada",
-            "emoji": "🍖"
+            "emoji": "🍖",
+            "hungerRestoration": 50.0
         },
         {
             "id": 105,
