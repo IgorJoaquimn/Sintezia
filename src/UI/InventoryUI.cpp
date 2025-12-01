@@ -28,6 +28,8 @@ InventoryUI::InventoryUI(Game* game, Inventory* inventory)
     , mBackgroundMap(nullptr)
     , mMapScale(4.0f)
     , mSelectionCursorGID(0)
+    , mMouseRightIcon(nullptr)
+    , mCurrentMousePos(Vector2::Zero)
 {
     // Initialize key states
     for (int i = 0; i < 10; i++)
@@ -44,6 +46,13 @@ InventoryUI::InventoryUI(Game* game, Inventory* inventory)
     else
     {
         mSelectionCursorGID = mBackgroundMap->GetGIDFromLayer("selected_icon");
+    }
+
+    // Load mouse icon
+    mMouseRightIcon = std::make_shared<Texture>();
+    if (!mMouseRightIcon->Load("assets/third_party/Ninja Adventure - Asset Pack/Ui/Input/Mouse/MouseButtonRight.png"))
+    {
+        SDL_Log("Failed to load mouse right icon");
     }
 }
 
@@ -62,6 +71,7 @@ void InventoryUI::Hide()
     mSelectedSlot = -1;
     mHoveredSlot = -1;
     ClearCraftingSlots();
+    SDL_ShowCursor(SDL_ENABLE);
 }
 
 void InventoryUI::Toggle()
@@ -89,8 +99,9 @@ void InventoryUI::Draw(TextRenderer* textRenderer, RectRenderer* rectRenderer, S
         mBackgroundMap->Draw(spriteRenderer, mPosition, mMapScale);
     }
 
-    DrawInventorySlots(textRenderer, rectRenderer);
-    DrawCraftingPanel(textRenderer, rectRenderer);
+    DrawInventorySlots(textRenderer, rectRenderer, spriteRenderer);
+    DrawCraftingPanel(textRenderer, rectRenderer, spriteRenderer);
+    DrawConsumeCursor(textRenderer, rectRenderer, spriteRenderer);
 }
 
 void InventoryUI::HandleInput(const uint8_t* keyState)
@@ -176,11 +187,48 @@ void InventoryUI::HandleMouseClick(const Vector2& mousePos)
     }
 }
 
+void InventoryUI::HandleRightClick(const Vector2& mousePos)
+{
+    if (!mVisible) return;
+
+    int clickedSlot = GetSlotAtPosition(mousePos);
+    
+    if (clickedSlot != -1 && clickedSlot < mInventory->GetUsedSlots())
+    {
+        const InventorySlot* slot = mInventory->GetSlot(clickedSlot);
+        if (slot && mOnItemUsed)
+        {
+            mOnItemUsed(slot->item);
+        }
+    }
+}
+
 void InventoryUI::HandleMouseMove(const Vector2& mousePos)
 {
     if (!mVisible) return;
 
+    mCurrentMousePos = mousePos;
     mHoveredSlot = GetSlotAtPosition(mousePos);
+
+    // Handle cursor visibility
+    bool showCustomCursor = false;
+    if (mHoveredSlot != -1 && mInventory)
+    {
+        const InventorySlot* slot = mInventory->GetSlot(mHoveredSlot);
+        if (slot && (slot->item.hungerRestoration > 0.0f || slot->item.thirstRestoration > 0.0f))
+        {
+            showCustomCursor = true;
+        }
+    }
+
+    if (showCustomCursor)
+    {
+        SDL_ShowCursor(SDL_DISABLE);
+    }
+    else
+    {
+        SDL_ShowCursor(SDL_ENABLE);
+    }
 }
 
 Vector2 InventoryUI::GetDimensions() const
@@ -209,7 +257,7 @@ void InventoryUI::CenterOnScreen(float screenWidth, float screenHeight)
     mPosition.y = (screenHeight - dims.y) / 2.0f;
 }
 
-void InventoryUI::DrawInventorySlots(TextRenderer* textRenderer, RectRenderer* rectRenderer)
+void InventoryUI::DrawInventorySlots(TextRenderer* textRenderer, RectRenderer* rectRenderer, SpriteRenderer* spriteRenderer)
 {
     if (!textRenderer || !rectRenderer) return;
 
@@ -246,12 +294,12 @@ void InventoryUI::DrawInventorySlots(TextRenderer* textRenderer, RectRenderer* r
         // Draw item if slot is filled
         if (i < mInventory->GetUsedSlots())
         {
-            DrawItemInSlot(i, slotPos, textRenderer, rectRenderer);
+            DrawItemInSlot(i, slotPos, textRenderer, rectRenderer, spriteRenderer);
         }
     }
 }
 
-void InventoryUI::DrawItemInSlot(int slotIndex, const Vector2& slotPos, TextRenderer* textRenderer, RectRenderer* rectRenderer)
+void InventoryUI::DrawItemInSlot(int slotIndex, const Vector2& slotPos, TextRenderer* textRenderer, RectRenderer* rectRenderer, SpriteRenderer* spriteRenderer)
 {
     const InventorySlot* slot = mInventory->GetSlot(slotIndex);
     if (!slot) return;
@@ -283,6 +331,58 @@ void InventoryUI::DrawItemInSlot(int slotIndex, const Vector2& slotPos, TextRend
         float nameY = slotPos.y - 15.0f;
         
         textRenderer->RenderText(slot->item.name, nameX, nameY, nameScale);
+    }
+}
+
+void InventoryUI::DrawConsumeCursor(TextRenderer* textRenderer, RectRenderer* rectRenderer, SpriteRenderer* spriteRenderer)
+{
+    if (!mVisible || mHoveredSlot == -1 || !mInventory || !textRenderer || !rectRenderer || !spriteRenderer || !mMouseRightIcon) return;
+
+    const InventorySlot* slot = mInventory->GetSlot(mHoveredSlot);
+    if (!slot) return;
+
+    if (slot->item.hungerRestoration > 0.0f || slot->item.thirstRestoration > 0.0f)
+    {
+        std::string hintText = "consumir";
+        if (slot->item.hungerRestoration > 0.0f) hintText = "comer";
+        else if (slot->item.thirstRestoration > 0.0f) hintText = "beber";
+
+        float hintScale = 0.25f;
+        Vector2 textSize = textRenderer->MeasureText(hintText, hintScale);
+        
+        float iconSize = 20.0f;
+        float spacing = 8.0f;
+        float totalWidth = iconSize + spacing + textSize.x;
+        
+        // Position relative to mouse cursor
+        // Center the hint block on the mouse cursor, but slightly offset to not block the exact point
+        float startX = mCurrentMousePos.x - totalWidth / 2.0f;
+        float startY = mCurrentMousePos.y - 25.0f; 
+        
+        // Padding
+        float padX = 8.0f;
+        float padY = 6.0f;
+
+        // Calculate height based on the tallest element
+        float contentHeight = std::max(iconSize, textSize.y);
+
+        // Draw background
+        rectRenderer->RenderRect(
+            startX - padX,
+            startY - padY,
+            totalWidth + padX * 2.0f,
+            contentHeight + padY * 2.0f,
+            Vector3(0.0f, 0.0f, 0.0f),
+            0.8f
+        );
+
+        // Draw Icon (centered vertically relative to content height)
+        float iconY = startY + (contentHeight - iconSize) / 2.0f;
+        spriteRenderer->DrawSprite(mMouseRightIcon.get(), Vector2(startX, iconY), Vector2(iconSize, iconSize));
+        
+        // Draw Text (centered vertically relative to content height)
+        float textY = startY + (contentHeight - textSize.y) / 2.0f;
+        textRenderer->RenderText(hintText, startX + iconSize + spacing, textY, hintScale);
     }
 }
 
@@ -393,7 +493,7 @@ void InventoryUI::AttemptCombination(int slotIndex1, int slotIndex2)
     }
 }
 
-void InventoryUI::DrawCraftingPanel(TextRenderer* textRenderer, RectRenderer* rectRenderer)
+void InventoryUI::DrawCraftingPanel(TextRenderer* textRenderer, RectRenderer* rectRenderer, SpriteRenderer* spriteRenderer)
 {
     if (!textRenderer || !rectRenderer) return;
 
@@ -406,13 +506,13 @@ void InventoryUI::DrawCraftingPanel(TextRenderer* textRenderer, RectRenderer* re
     // Draw Input 1 Item
     if (mCraftInputSlot1 != -1)
     {
-        DrawItemInSlot(mCraftInputSlot1, input1Pos, textRenderer, rectRenderer);
+        DrawItemInSlot(mCraftInputSlot1, input1Pos, textRenderer, rectRenderer, spriteRenderer);
     }
 
     // Draw Input 2 Item
     if (mCraftInputSlot2 != -1)
     {
-        DrawItemInSlot(mCraftInputSlot2, input2Pos, textRenderer, rectRenderer);
+        DrawItemInSlot(mCraftInputSlot2, input2Pos, textRenderer, rectRenderer, spriteRenderer);
     }
 
     // Draw Result Item if available

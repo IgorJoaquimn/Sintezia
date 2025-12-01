@@ -112,6 +112,28 @@ Player::Player(Game* game)
     
     // Create inventory UI
     mInventoryUI = std::make_unique<InventoryUI>(game, mInventory.get());
+    mInventoryUI->SetOnItemUsed([this](const Item& item) {
+        bool consumed = false;
+        
+        if (item.hungerRestoration > 0.0f && mHungerComponent) {
+            // Treat restoration as absolute value
+            float amount = item.hungerRestoration;
+            mHungerComponent->DecreaseHunger(amount);
+            consumed = true;
+        }
+        
+        if (item.thirstRestoration > 0.0f && mThirstComponent) {
+            // Treat restoration as absolute value
+            float amount = item.thirstRestoration;
+            mThirstComponent->DecreaseThirst(amount);
+            consumed = true;
+        }
+        
+        if (consumed) {
+            mInventory->RemoveItem(item.id, 1);
+            SDL_Log("Consumed item: %s", item.name.c_str());
+        }
+    });
     // Center on screen (assuming 1200x800 resolution from Game.hpp)
     mInventoryUI->CenterOnScreen(1200.0f, 800.0f);
     

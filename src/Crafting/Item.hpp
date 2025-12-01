@@ -10,9 +10,11 @@ public:
     int id;
     std::string name;
     std::string emoji;
+    float hungerRestoration;
+    float thirstRestoration;
 
-    Item(int id, const std::string& name, const std::string& emoji = "🔹") 
-        : id(id), name(name), emoji(emoji) {}
+    Item(int id, const std::string& name, const std::string& emoji = "🔹", float hungerRestoration = 0.0f, float thirstRestoration = 0.0f) 
+        : id(id), name(name), emoji(emoji), hungerRestoration(hungerRestoration), thirstRestoration(thirstRestoration) {}
     
     // JSON serialization
     json toJson() const;
@@ -26,7 +28,9 @@ inline void to_json(json& j, const Item& item) {
     j = json{
         {"id", item.id},
         {"name", item.name},
-        {"emoji", item.emoji}
+        {"emoji", item.emoji},
+        {"hungerRestoration", item.hungerRestoration},
+        {"thirstRestoration", item.thirstRestoration}
     };
 }
 

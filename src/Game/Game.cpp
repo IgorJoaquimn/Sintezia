@@ -256,6 +256,15 @@ void Game::ProcessInput()
                         mPlayer->GetInventoryUI()->HandleMouseClick(mMousePos);
                     }
                 }
+                else if (event.button.button == SDL_BUTTON_RIGHT)
+                {
+                    mMousePos.x = static_cast<float>(event.button.x);
+                    mMousePos.y = static_cast<float>(event.button.y);
+                    if (mPlayer && mPlayer->GetInventoryUI())
+                    {
+                        mPlayer->GetInventoryUI()->HandleRightClick(mMousePos);
+                    }
+                }
                 break;
             default:
                 // Ignore other events
