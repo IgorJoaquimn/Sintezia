@@ -360,8 +360,9 @@ void Game::UpdateGame()
 
     
 
-    // Check if game is paused (interacting with NPC)
-    bool isPaused = mInteractingNPC && mInteractingNPC->IsInteracting();
+    // Check if game is paused (interacting with NPC or Warning Popup)
+    bool isPaused = (mInteractingNPC && mInteractingNPC->IsInteracting()) || 
+                    (mWarningPopup && mWarningPopup->IsVisible());
 
     // Update all actors
     mUpdatingActors = true;
@@ -371,7 +372,7 @@ void Game::UpdateGame()
         // When paused, only update the interacting NPC (for dialog UI)
         if (isPaused)
         {
-            if (actor.get() == mInteractingNPC)
+            if (mInteractingNPC && actor.get() == mInteractingNPC)
             {
                 actor->Update(deltaTime);
             }
@@ -401,7 +402,7 @@ void Game::UpdateGame()
     );
 
     // Update camera position to follow player
-    if (mPlayer && mTileMap)
+    if (!isPaused && mPlayer && mTileMap)
     {
         int mapWidth = mTileMap->GetWidth() * mTileMap->GetTileSize();
         int mapHeight = mTileMap->GetHeight() * mTileMap->GetTileSize();
@@ -409,7 +410,10 @@ void Game::UpdateGame()
         mCamera->Update(deltaTime, mPlayer->GetPosition(), mapWidth, mapHeight);
     }
 
-    UpdateComponents(deltaTime);
+    if (!isPaused)
+    {
+        UpdateComponents(deltaTime);
+    }
 
     if (mWarningPopup)
     {

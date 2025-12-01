@@ -16,6 +16,7 @@ public:
     void Show(const std::string& message, float duration = 3.0f);
     void Update(float deltaTime);
     void Draw(TextRenderer* textRenderer, RectRenderer* rectRenderer, SpriteRenderer* spriteRenderer);
+    bool IsVisible() const { return mIsVisible; }
 
 private:
     std::string mMessage;

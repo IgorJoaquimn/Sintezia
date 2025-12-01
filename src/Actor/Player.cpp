@@ -55,7 +55,7 @@ Player::Player(Game* game)
     
     mHealthComponent->SetOnDamageCallback([this](float damage) {
         if (!mHasShownDamageWarning) {
-            mGame->ShowWarning("Ah nao! Voce esta ferido. Procure uma maneira de se curar.");
+            mGame->ShowWarning("Voce esta ferido e perdendo vida. Busque cura.");
             mHasShownDamageWarning = true;
         }
     });
@@ -63,7 +63,7 @@ Player::Player(Game* game)
     mHungerComponent->SetStarvationCallback([this]() {
         mHealthComponent->TakeDamage(5.0f);
         if (!mHasShownHungerWarning) {
-            mGame->ShowWarning("Ah nao! Voce esta sofrendo dano por fome. Busque comida.");
+            mGame->ShowWarning("A fome esta lhe causando dano. Voce precisa comer.");
             mHasShownHungerWarning = true;
         }
     });
@@ -71,7 +71,7 @@ Player::Player(Game* game)
     mThirstComponent->SetDehydrationCallback([this]() {
         mHealthComponent->TakeDamage(5.0f);
         if (!mHasShownThirstWarning) {
-            mGame->ShowWarning("Ah nao! Voce esta sofrendo dano por sede. Busque agua para tomar.");
+            mGame->ShowWarning("A sede esta lhe causando dano. Voce precisa beber.");
             mHasShownThirstWarning = true;
         }
     });
@@ -274,13 +274,13 @@ void Player::OnUpdate(float deltaTime)
     // Check for hunger/thirst appearance (threshold > 0)
     if (!mHasShownHungerWarning && mHungerComponent && mHungerComponent->GetCurrentHunger() >= 1.0f)
     {
-        mGame->ShowWarning("Voce esta com fome! Nao deixe a barra amarela encher.");
+        mGame->ShowWarning("A fome esta lhe causando dano. Voce precisa comer.");
         mHasShownHungerWarning = true;
     }
 
     if (!mHasShownThirstWarning && mThirstComponent && mThirstComponent->GetCurrentThirst() >= 1.0f)
     {
-        mGame->ShowWarning("Voce esta com sede! Nao deixe a barra azul encher.");
+        mGame->ShowWarning("A sede esta lhe causando dano. Voce precisa beber.");
         mHasShownThirstWarning = true;
     }
 
