@@ -20,6 +20,7 @@
 #include "../Component/HealthComponent.hpp"
 #include "../UI/WarningPopup.hpp"
 #include "../UI/GameOverUI.hpp"
+#include "../UI/VictoryUI.hpp"
 
 // Forward declarations
 class TileMap;
@@ -40,6 +41,11 @@ public:
     // Game Over
     void SetGameOver(bool gameOver);
     bool IsGameOver() const { return mIsGameOver; }
+    
+    // Victory
+    void SetVictory(bool victory);
+    bool IsVictory() const { return mIsVictory; }
+
     void RestartGame();
     void LoadLevel();
 
@@ -148,6 +154,10 @@ private:
     // Game Over UI
     std::unique_ptr<GameOverUI> mGameOverUI;
     bool mIsGameOver;
+
+    // Victory UI
+    std::unique_ptr<VictoryUI> mVictoryUI;
+    bool mIsVictory;
 
     // Load NPCs from JSON
     void LoadNPCsFromJson(const std::string& filePath);

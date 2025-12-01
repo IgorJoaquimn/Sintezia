@@ -50,6 +50,7 @@ Player::Player(Game* game)
     mHealthComponent->SetCurrentHealth(100.0f);
     mHealthComponent->SetDeathCallback([this]() {
         // Player death - show game over screen
+        SDL_Log("PLAYER DIED! Triggering Game Over.");
         mGame->SetGameOver(true);
     });
     

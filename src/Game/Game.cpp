@@ -59,6 +59,7 @@ Game::Game(SDL_Window* window, SDL_GLContext glContext)
     , mCamera(std::make_unique<Camera>(static_cast<float>(WINDOW_WIDTH), static_cast<float>(WINDOW_HEIGHT)))
     , mAudio(nullptr)
     , mIsGameOver(false)
+    , mIsVictory(false)
 {
 }
 
@@ -108,6 +109,9 @@ bool Game::Initialize()
 
     // Initialize game over UI
     mGameOverUI = std::make_unique<GameOverUI>();
+
+    // Initialize victory UI
+    mVictoryUI = std::make_unique<VictoryUI>();
 
     // Load items and recipes from JSON
     if (!mCrafting->LoadItemsFromJson("assets/items.json"))
@@ -220,6 +224,7 @@ void Game::LoadLevel()
 void Game::RestartGame()
 {
     mIsGameOver = false;
+    mIsVictory = false;
     mActors.clear();
     mPendingActors.clear();
     mNPCs.clear();
@@ -287,6 +292,20 @@ void Game::ProcessInput()
 
     // Handle Game Over Input
     if (mIsGameOver)
+    {
+        if (keyState[SDL_SCANCODE_R])
+        {
+            RestartGame();
+        }
+        else if (keyState[SDL_SCANCODE_ESCAPE])
+        {
+            Quit();
+        }
+        return; // Don't process other inputs
+    }
+
+    // Handle Victory Input
+    if (mIsVictory)
     {
         if (keyState[SDL_SCANCODE_R])
         {
@@ -379,10 +398,10 @@ void Game::UpdateGame()
 
     
 
-    // Check if game is paused (interacting with NPC or Warning Popup or Game Over)
+    // Check if game is paused (interacting with NPC or Warning Popup or Game Over or Victory)
     bool isPaused = (mInteractingNPC && mInteractingNPC->IsInteracting()) || 
                     (mWarningPopup && mWarningPopup->IsVisible()) ||
-                    mIsGameOver;
+                    mIsGameOver || mIsVictory;
 
     // Update all actors
     mUpdatingActors = true;
@@ -521,6 +540,12 @@ void Game::GenerateOutput()
         mGameOverUI->Draw(mTextRenderer.get(), mRectRenderer.get(), mSpriteRenderer.get());
     }
 
+    // Draw Victory UI
+    if (mIsVictory && mVictoryUI)
+    {
+        mVictoryUI->Draw(mTextRenderer.get(), mRectRenderer.get(), mSpriteRenderer.get());
+    }
+
     mRenderer->EndFrame();
 
     SDL_GL_SwapWindow(mWindow);
@@ -575,6 +600,15 @@ void Game::SetGameOver(bool gameOver)
     {
         mIsGameOver = gameOver;
         SDL_Log("Game Over state changed to: %s", gameOver ? "TRUE" : "FALSE");
+    }
+}
+
+void Game::SetVictory(bool victory)
+{
+    if (mIsVictory != victory)
+    {
+        mIsVictory = victory;
+        SDL_Log("Victory state changed to: %s", victory ? "TRUE" : "FALSE");
     }
 }
 
@@ -698,13 +732,7 @@ void Game::LoadNPCsFromJson(const std::string& filePath)
     }
 }
 
-// Load enemies from JSON file. Expected schema:
-// {
-//   "enemies": [
-//     { "type": "Flam", "x": 100, "y": 200, "movementSpeed": 70, "waypoints": [{"x":..,"y":..,"wait":..}, ...] },
-//     ...
-//   ]
-// }
+
 void Game::LoadEnemiesFromJson(const std::string& filePath)
 {
     std::ifstream file(filePath);
@@ -873,18 +901,6 @@ void Game::UpdateComponents(float deltaTime)
         auto hunger = actor->GetComponent<HungerComponent>();
         auto thirst = actor->GetComponent<ThirstComponent>();
 
-        if (hunger)
-        {
-            // Hunger updates itself in its own Update method called by Actor::Update
-            // But here we might want to do global game logic if needed
-            // hunger->Update(deltaTime); 
-        }
-
-        if (thirst)
-        {
-            // Thirst updates itself in its own Update method called by Actor::Update
-            // thirst->IncreaseThirst(deltaTime * 0.1f); 
-        }
 
         if (health && hunger && thirst)
         {

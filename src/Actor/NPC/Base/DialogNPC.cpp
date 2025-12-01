@@ -419,7 +419,8 @@ void DialogNPC::OnTradeOptionSelected(int index)
                         if (req.itemId == 109) // Barco
                         {
                             mGameEnding = true;
-                            successMsg = "Você entregou o barco para Clara!\nVocês navegam para longe da ilha.\n\nFIM DE JOGO";
+                            successMsg = "Você entregou o barco para Clara!\nVocês navegam para longe da ilha.";
+                            mGame->SetVictory(true);
                         }
                     }
                 }

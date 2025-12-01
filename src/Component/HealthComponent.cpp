@@ -2,6 +2,7 @@
 #include "../Actor/Actor.hpp"
 #include <SDL.h>
 #include <algorithm>
+#include <typeinfo>
 
 HealthComponent::HealthComponent(Actor* owner, int updateOrder)
     : Component(owner, updateOrder)
@@ -31,7 +32,8 @@ void HealthComponent::TakeDamage(float damage)
     // Check if we just died
     if (IsDead() && mDeathCallback)
     {
-        SDL_Log("Actor died! Final health: 0.0");
+        const char* actorType = typeid(*mOwner).name();
+        SDL_Log("Actor died! Type: %s, Final health: 0.0", actorType);
         mDeathCallback();
     }
 }
