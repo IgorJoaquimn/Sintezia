@@ -78,6 +78,7 @@ set(SOURCES
     ${SRC_DIR}/UI/NPCDialogUI.cpp
     ${SRC_DIR}/UI/InventoryUI.cpp
     ${SRC_DIR}/UI/MainMenu.cpp
+    ${SRC_DIR}/UI/WarningPopup.cpp
         src/UI/HealthBar.hpp
         src/UI/HealthBar.cpp
         src/AudioSystem/AudioSystem.cpp

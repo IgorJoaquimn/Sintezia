@@ -90,6 +90,9 @@ bool Game::Initialize()
     // Initialize crafting system
     mCrafting = std::make_unique<Crafting>();
 
+    // Initialize warning popup
+    mWarningPopup = std::make_unique<WarningPopup>();
+
     // Load items and recipes from JSON
     if (!mCrafting->LoadItemsFromJson("assets/items.json"))
     {
@@ -369,6 +372,11 @@ void Game::UpdateGame()
     }
 
     UpdateComponents(deltaTime);
+
+    if (mWarningPopup)
+    {
+        mWarningPopup->Update(deltaTime);
+    }
 }
 
 void Game::GenerateOutput()
@@ -423,10 +431,21 @@ void Game::GenerateOutput()
         actor->OnDraw(mTextRenderer.get());
     }
 
+    // Reset camera for UI rendering
+    if (mSpriteRenderer)
+    {
+        mSpriteRenderer->SetCameraPosition(Vector2::Zero);
+    }
+
     // Render Player UI on top of everything
     if (mPlayer && mPlayer->GetInventoryUI())
     {
         mPlayer->GetInventoryUI()->Draw(mTextRenderer.get(), mRectRenderer.get(), mSpriteRenderer.get());
+    }
+
+    if (mWarningPopup)
+    {
+        mWarningPopup->Draw(mTextRenderer.get(), mRectRenderer.get(), mSpriteRenderer.get());
     }
 
     mRenderer->EndFrame();
@@ -466,6 +485,14 @@ void Game::RemoveActor(Actor* actor)
     if (pendingIt != mPendingActors.end())
     {
         mPendingActors.erase(pendingIt);
+    }
+}
+
+void Game::ShowWarning(const std::string& message)
+{
+    if (mWarningPopup)
+    {
+        mWarningPopup->Show(message);
     }
 }
 
@@ -599,12 +626,15 @@ void Game::UpdateComponents(float deltaTime)
 
         if (hunger)
         {
-            hunger->Update(deltaTime); // Update hunger periodically
+            // Hunger updates itself in its own Update method called by Actor::Update
+            // But here we might want to do global game logic if needed
+            // hunger->Update(deltaTime); 
         }
 
         if (thirst)
         {
-            thirst->IncreaseThirst(deltaTime * 0.1f); // Example rate
+            // Thirst updates itself in its own Update method called by Actor::Update
+            // thirst->IncreaseThirst(deltaTime * 0.1f); 
         }
 
         if (health && hunger && thirst)

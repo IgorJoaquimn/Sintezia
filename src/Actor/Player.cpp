@@ -28,6 +28,9 @@ Player::Player(Game* game)
     , mInventory(std::make_unique<Inventory>(20))  // 20 inventory slots
     , mInventoryUI(nullptr)
     , mHealthBar(nullptr) // inicializa o ponteiro
+    , mHasShownHungerWarning(false)
+    , mHasShownThirstWarning(false)
+    , mHasShownDamageWarning(false)
 {
     SetGridPosition(45, 70); // Start at (45, 75) tiles
     
@@ -48,6 +51,33 @@ Player::Player(Game* game)
         // Player death - quit game
         mGame->Quit();
     });
+    
+    mHealthComponent->SetOnDamageCallback([this](float damage) {
+        if (!mHasShownDamageWarning) {
+            mGame->ShowWarning("Ah nao! Voce esta ferido. Procure uma maneira de se curar.");
+            mHasShownDamageWarning = true;
+        }
+    });
+
+    mHungerComponent->SetStarvationCallback([this]() {
+        mHealthComponent->TakeDamage(5.0f);
+        if (!mHasShownHungerWarning) {
+            mGame->ShowWarning("Ah nao! Voce esta sofrendo dano por fome. Busque comida.");
+            mHasShownHungerWarning = true;
+        }
+    });
+
+    mThirstComponent->SetDehydrationCallback([this]() {
+        mHealthComponent->TakeDamage(5.0f);
+        if (!mHasShownThirstWarning) {
+            mGame->ShowWarning("Ah nao! Voce esta sofrendo dano por sede. Busque agua para tomar.");
+            mHasShownThirstWarning = true;
+        }
+    });
+
+    // Debug: Start with high hunger/thirst to test warning
+    // mHungerComponent->SetCurrentHunger(95.0f);
+    // mThirstComponent->SetCurrentThirst(95.0f);
 
     // Create health bar UI attached to the player's HealthComponent
     // Initial position is (0,0) — we'll position it relative to the player each frame in OnDraw
@@ -199,6 +229,19 @@ void Player::OnProcessInput(const Uint8* keyState)
 
 void Player::OnUpdate(float deltaTime)
 {
+    // Check for hunger/thirst appearance (threshold > 0)
+    if (!mHasShownHungerWarning && mHungerComponent && mHungerComponent->GetCurrentHunger() >= 1.0f)
+    {
+        mGame->ShowWarning("Voce esta com fome! Nao deixe a barra amarela encher.");
+        mHasShownHungerWarning = true;
+    }
+
+    if (!mHasShownThirstWarning && mThirstComponent && mThirstComponent->GetCurrentThirst() >= 1.0f)
+    {
+        mGame->ShowWarning("Voce esta com sede! Nao deixe a barra azul encher.");
+        mHasShownThirstWarning = true;
+    }
+
     // Check for nearby items to pickup
     // Radius increased to 150px (approx 3-4 tiles) to make pickup easier
     const float PICKUP_RADIUS = 150.0f;
