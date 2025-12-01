@@ -46,6 +46,7 @@ public:
     
     // Pickup functionality
     void StartPickup(Actor* target);
+    void SetAutoPickup(Actor* target); // Set target for auto-pickup after spawn animation
     bool IsBeingPickedUp() const { return mIsBeingPickedUp; }
 
 protected:
@@ -79,6 +80,7 @@ private:
     // Pickup state
     bool mIsBeingPickedUp;
     Actor* mPickupTarget;
+    Actor* mAutoPickupTarget; // Target for auto-pickup
     float mPickupSpeed;
 
     std::string GetDisplayText() const;

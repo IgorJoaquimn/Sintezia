@@ -27,6 +27,7 @@ ItemActor::ItemActor(class Game* game, const Item& item)
     , mJumpHeight(20.0f)
     , mIsBeingPickedUp(false)
     , mPickupTarget(nullptr)
+    , mAutoPickupTarget(nullptr)
     , mPickupSpeed(400.0f)
 {
     // Generate random start offset for the jump
@@ -56,6 +57,7 @@ ItemActor::ItemActor(class Game* game, int itemId, const std::string& name, cons
     , mJumpHeight(20.0f)
     , mIsBeingPickedUp(false)
     , mPickupTarget(nullptr)
+    , mAutoPickupTarget(nullptr)
     , mPickupSpeed(400.0f)
 {
     // Generate random start offset for the jump
@@ -101,6 +103,11 @@ void ItemActor::StartPickup(Actor* target)
     }
 }
 
+void ItemActor::SetAutoPickup(Actor* target)
+{
+    mAutoPickupTarget = target;
+}
+
 void ItemActor::OnUpdate(float deltaTime)
 {
     if (mSpawnTimer < mSpawnDuration)
@@ -139,6 +146,12 @@ void ItemActor::OnUpdate(float deltaTime)
         {
             mSpawnScale = 1.0f;
             SetPosition(mBasePosition); // Ensure we land exactly on target
+            
+            // Trigger auto-pickup if set
+            if (mAutoPickupTarget)
+            {
+                StartPickup(mAutoPickupTarget);
+            }
         }
     }
     else if (mIsBeingPickedUp && mPickupTarget)

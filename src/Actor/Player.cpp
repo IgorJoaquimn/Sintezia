@@ -495,7 +495,7 @@ bool Player::CheckForGeneratorInteraction()
                                     itemActor->SetPosition(spawnPos);
                                     
                                     // Make it go to user
-                                    itemActor->StartPickup(this);
+                                    itemActor->SetAutoPickup(this);
                                     
                                     mGame->AddActor(std::move(itemActor));
                                     
