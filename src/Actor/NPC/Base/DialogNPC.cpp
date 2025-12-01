@@ -240,7 +240,7 @@ void DialogNPC::OnTalkSelected()
     }
     else
     {
-        mDialogUI->ShowMessage("I don't have much to say right now.");
+        mDialogUI->ShowMessage("Eu não tenho muito a dizer agora.");
     }
 }
 
@@ -299,7 +299,7 @@ void DialogNPC::OnTradeMenuSelected()
     }
     else
     {
-        mDialogUI->ShowMessage("I don't have anything to trade right now.");
+        mDialogUI->ShowMessage("Eu não tenho nada para trocar agora.");
     }
 }
 
@@ -366,7 +366,7 @@ void DialogNPC::OnTradeOptionSelected(int index)
         // If player doesn't have all items, show error message
         if (!hasAllItems)
         {
-            mDialogUI->ShowMessage("You don't have the required items!\nMissing: " + missingItems);
+            mDialogUI->ShowMessage("Você não tem os itens necessários!\nFaltando: " + missingItems);
             return;
         }
         
@@ -384,7 +384,7 @@ void DialogNPC::OnTradeOptionSelected(int index)
             
             if (success)
             {
-                std::string successMsg = "Trade successful!\nYou received: " +
+                std::string successMsg = "Troca realizada com sucesso!\nVocê recebeu: " +
                                         rewardItem->emoji + " " + rewardItem->name +
                                         " x" + std::to_string(trade.reward.quantity);
                 mDialogUI->ShowMessage(successMsg);
@@ -400,7 +400,7 @@ void DialogNPC::OnTradeOptionSelected(int index)
                         inventory->AddItem(*reqItem, req.quantity);
                     }
                 }
-                mDialogUI->ShowMessage("Your inventory is full! Trade cancelled.");
+                mDialogUI->ShowMessage("Seu inventário está cheio! Troca cancelada.");
             }
         }
         else
@@ -414,7 +414,7 @@ void DialogNPC::OnTradeOptionSelected(int index)
                     inventory->AddItem(*reqItem, req.quantity);
                 }
             }
-            mDialogUI->ShowMessage("Error: Invalid reward item! Trade cancelled.");
+            mDialogUI->ShowMessage("Erro: Item de recompensa inválido! Troca cancelada.");
         }
     }
 }
