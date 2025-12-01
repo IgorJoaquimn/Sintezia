@@ -9,13 +9,11 @@
 #include "../Actor/Player.hpp"
 #include "../UI/InventoryUI.hpp"
 #include "../Actor/NPC/Base/DialogNPC.hpp"
-#include "../Actor/NPC/Concrete/TestShopkeeperNPC.hpp"
-#include "../Actor/NPC/Concrete/TestPassivePatrolNPC.hpp"
-#include "../Actor/NPC/Concrete/TestAggressivePatrolNPC.hpp"
-#include "../Actor/NPC/Concrete/CatNPC.hpp"
-#include "../Actor/NPC/Concrete/CowNPC.hpp"
-#include "../Actor/NPC/Concrete/ChickenNPC.hpp"
-#include "../Actor/NPC/Concrete/PigNPC.hpp"
+#include "../Actor/NPC/Concrete/Aggressive/Skeleton.hpp"
+#include "../Actor/NPC/Concrete/Passive/CatNPC.hpp"
+#include "../Actor/NPC/Concrete/Passive/CowNPC.hpp"
+#include "../Actor/NPC/Concrete/Passive/ChickenNPC.hpp"
+#include "../Actor/NPC/Concrete/Passive/PigNPC.hpp"
 #include "../Map/TileMap.hpp"
 #include "../Core/Renderer/Renderer.hpp"
 #include "../Core/TextRenderer/TextRenderer.hpp"
@@ -28,7 +26,7 @@
 #include <algorithm>
 #include <fstream>
 #include <nlohmann/json.hpp>
-#include "../Actor/NPC/Concrete/GenericNPC.hpp"
+#include "../Actor/NPC/Concrete/Passive/GenericNPC.hpp"
 #include "../Component/MovementComponent.hpp"
 #include "../Component/HealthComponent.hpp"
 #include "../Component/HungerComponent.hpp"
@@ -91,6 +89,9 @@ bool Game::Initialize()
 
     // Initialize crafting system
     mCrafting = std::make_unique<Crafting>();
+
+    // Initialize warning popup
+    mWarningPopup = std::make_unique<WarningPopup>();
 
     // Load items and recipes from JSON
     if (!mCrafting->LoadItemsFromJson("assets/items.json"))
@@ -165,18 +166,9 @@ bool Game::Initialize()
                     // SDL_Log("Added starting items to player inventory");
     }
 
-    // Create test shopkeeper NPC (dialog NPC with trading)
-    auto testShopkeeperNPC = std::make_unique<TestShopkeeperNPC>(this);
-    RegisterNPC(testShopkeeperNPC.get());
-    AddActor(std::move(testShopkeeperNPC));
-
-    // Create test passive patrol NPC (patrols in a loop)
-    auto testPassivePatrolNPC = std::make_unique<TestPassivePatrolNPC>(this);
-    AddActor(std::move(testPassivePatrolNPC));
-
     // Create test aggressive patrol NPC (patrols and chases player)
-    auto testAggressivePatrolNPC = std::make_unique<TestAggressivePatrolNPC>(this);
-    AddActor(std::move(testAggressivePatrolNPC));
+    auto skeletonNPC = std::make_unique<SkeletonNPC>(this);
+    AddActor(std::move(skeletonNPC));
 
     // Create cat NPC (friendly dialog NPC with simple animation)
     auto catNPC = std::make_unique<CatNPC>(this);
@@ -380,6 +372,11 @@ void Game::UpdateGame()
     }
 
     UpdateComponents(deltaTime);
+
+    if (mWarningPopup)
+    {
+        mWarningPopup->Update(deltaTime);
+    }
 }
 
 void Game::GenerateOutput()
@@ -434,10 +431,21 @@ void Game::GenerateOutput()
         actor->OnDraw(mTextRenderer.get());
     }
 
+    // Reset camera for UI rendering
+    if (mSpriteRenderer)
+    {
+        mSpriteRenderer->SetCameraPosition(Vector2::Zero);
+    }
+
     // Render Player UI on top of everything
     if (mPlayer && mPlayer->GetInventoryUI())
     {
         mPlayer->GetInventoryUI()->Draw(mTextRenderer.get(), mRectRenderer.get(), mSpriteRenderer.get());
+    }
+
+    if (mWarningPopup)
+    {
+        mWarningPopup->Draw(mTextRenderer.get(), mRectRenderer.get(), mSpriteRenderer.get());
     }
 
     mRenderer->EndFrame();
@@ -477,6 +485,14 @@ void Game::RemoveActor(Actor* actor)
     if (pendingIt != mPendingActors.end())
     {
         mPendingActors.erase(pendingIt);
+    }
+}
+
+void Game::ShowWarning(const std::string& message)
+{
+    if (mWarningPopup)
+    {
+        mWarningPopup->Show(message);
     }
 }
 
@@ -610,13 +626,15 @@ void Game::UpdateComponents(float deltaTime)
 
         if (hunger)
         {
-            SDL_Log("Updating hunger for actor ID");
-            hunger->Update(deltaTime); // Update hunger periodically
+            // Hunger updates itself in its own Update method called by Actor::Update
+            // But here we might want to do global game logic if needed
+            // hunger->Update(deltaTime); 
         }
 
         if (thirst)
         {
-            thirst->IncreaseThirst(deltaTime * 0.1f); // Example rate
+            // Thirst updates itself in its own Update method called by Actor::Update
+            // thirst->IncreaseThirst(deltaTime * 0.1f); 
         }
 
         if (health && hunger && thirst)

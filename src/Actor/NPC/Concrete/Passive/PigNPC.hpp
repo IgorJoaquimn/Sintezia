@@ -1,5 +1,5 @@
 #pragma once
-#include "../Base/PassiveAnimalNPC.hpp"
+#include "../../Base/PassiveAnimalNPC.hpp"
 
 class PigNPC : public PassiveAnimalNPC
 {

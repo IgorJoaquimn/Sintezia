@@ -84,6 +84,11 @@ private:
     // Health bar UI
     std::unique_ptr<HealthBar> mHealthBar; // adicionado para desenhar a barra de vida
 
+    // Warning flags
+    bool mHasShownHungerWarning;
+    bool mHasShownThirstWarning;
+    bool mHasShownDamageWarning;
+
     // Animation constants
     static constexpr float ANIM_SPEED = 8.0f; // Frames per second
     static constexpr float ATTACK_DURATION = 0.3f; // Seconds

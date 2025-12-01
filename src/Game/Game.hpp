@@ -18,6 +18,7 @@
 #include "../Component/HungerComponent.hpp"
 #include "../Component/ThirstComponent.hpp"
 #include "../Component/HealthComponent.hpp"
+#include "../UI/WarningPopup.hpp"
 
 // Forward declarations
 class TileMap;
@@ -38,6 +39,9 @@ public:
     // Actor functions
     void AddActor(std::unique_ptr<Actor> actor);
     void RemoveActor(Actor* actor);
+
+    // Show warning popup
+    void ShowWarning(const std::string& message);
 
     // Get text renderer for measurements
     TextRenderer* GetTextRenderer() { return mTextRenderer.get(); }
@@ -127,6 +131,9 @@ private:
     std::unique_ptr<Camera> mCamera;
 
     AudioSystem* mAudio;
+
+    // Warning Popup
+    std::unique_ptr<WarningPopup> mWarningPopup;
 
     // Load NPCs from JSON
     void LoadNPCsFromJson(const std::string& filePath);

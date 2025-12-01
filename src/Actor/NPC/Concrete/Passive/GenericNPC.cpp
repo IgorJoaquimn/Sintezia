@@ -1,8 +1,8 @@
 #include "GenericNPC.hpp"
-#include "../../../Game/Game.hpp"
-#include "../../../Component/SpriteComponent.hpp"
-#include "../../../Component/AnimationComponent.hpp"
-#include "../../../Component/MovementComponent.hpp"
+#include "../../../../Game/Game.hpp"
+#include "../../../../Component/SpriteComponent.hpp"
+#include "../../../../Component/AnimationComponent.hpp"
+#include "../../../../Component/MovementComponent.hpp"
 #include <iostream>
 
 GenericNPC::GenericNPC(Game* game, const json& npcData)

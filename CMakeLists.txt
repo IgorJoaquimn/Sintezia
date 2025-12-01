@@ -48,14 +48,18 @@ set(SOURCES
     ${SRC_DIR}/Actor/NPC/Base/DialogNPC.cpp
     ${SRC_DIR}/Actor/NPC/Base/PatrolNPC.cpp
     ${SRC_DIR}/Actor/NPC/Base/PassiveAnimalNPC.cpp
-    ${SRC_DIR}/Actor/NPC/Concrete/TestShopkeeperNPC.cpp
-    ${SRC_DIR}/Actor/NPC/Concrete/TestPassivePatrolNPC.cpp
-    ${SRC_DIR}/Actor/NPC/Concrete/TestAggressivePatrolNPC.cpp
-    ${SRC_DIR}/Actor/NPC/Concrete/CatNPC.cpp
-    ${SRC_DIR}/Actor/NPC/Concrete/CowNPC.cpp
-    ${SRC_DIR}/Actor/NPC/Concrete/ChickenNPC.cpp
-    ${SRC_DIR}/Actor/NPC/Concrete/PigNPC.cpp
-    ${SRC_DIR}/Actor/NPC/Concrete/GenericNPC.cpp
+    ${SRC_DIR}/Actor/NPC/Base/AggressiveNPC.cpp
+    ${SRC_DIR}/Actor/NPC/Concrete/Aggressive/Skeleton.cpp
+    ${SRC_DIR}/Actor/NPC/Concrete/Aggressive/Flam.cpp
+    ${SRC_DIR}/Actor/NPC/Concrete/Aggressive/GoldenStatue.cpp
+    ${SRC_DIR}/Actor/NPC/Concrete/Aggressive/Shaman.cpp
+    ${SRC_DIR}/Actor/NPC/Concrete/Aggressive/Spirit.cpp
+    ${SRC_DIR}/Actor/NPC/Concrete/Aggressive/Statue.cpp
+    ${SRC_DIR}/Actor/NPC/Concrete/Passive/CatNPC.cpp
+    ${SRC_DIR}/Actor/NPC/Concrete/Passive/CowNPC.cpp
+    ${SRC_DIR}/Actor/NPC/Concrete/Passive/ChickenNPC.cpp
+    ${SRC_DIR}/Actor/NPC/Concrete/Passive/PigNPC.cpp
+    ${SRC_DIR}/Actor/NPC/Concrete/Passive/GenericNPC.cpp
     ${SRC_DIR}/Map/TileMap.cpp
     ${SRC_DIR}/Map/TiledParser.cpp
     ${SRC_DIR}/Component/Component.cpp
@@ -80,6 +84,7 @@ set(SOURCES
     ${SRC_DIR}/UI/NPCDialogUI.cpp
     ${SRC_DIR}/UI/InventoryUI.cpp
     ${SRC_DIR}/UI/MainMenu.cpp
+    ${SRC_DIR}/UI/WarningPopup.cpp
         src/UI/HealthBar.hpp
         src/UI/HealthBar.cpp
         src/AudioSystem/AudioSystem.cpp
