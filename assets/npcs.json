@@ -2,7 +2,7 @@
   "npcs": [
     {
       "id": 2,
-      "name": "Clara, a Náufraga",
+      "name": "Náufraga",
       "sprite": "Cavegirl",
       "faceset": "assets/third_party/Ninja Adventure - Asset Pack/Actor/Characters/Cavegirl/Faceset.png",
       "position": { "x": 31, "y": 73 },
@@ -16,7 +16,7 @@
         {
           "id": 201,
           "title": "Fome de Sobrevivência",
-          "description": "Clara precisa de comida. Traga Carne Assada.",
+          "description": "A Náufraga precisa de comida. Traga Carne Assada.",
           "required_items": [104],
           "reward_text": "Sua generosidade gera Esperança.",
           "reward_item": 106,
@@ -26,9 +26,9 @@
         {
           "id": 202,
           "title": "A Fuga",
-          "description": "Clara precisa de um barco para escapar.",
+          "description": "A Náufraga precisa de um barco para escapar.",
           "required_items": [109],
-          "reward_text": "Você e Clara escapam da ilha.",
+          "reward_text": "Você e a Náufraga escapam da ilha.",
           "reward_item": 110,
           "start_dialogue": "Você conseguiu um 'Barco ⛵'? Por favor, vamos sair dessa ilha!",
           "end_dialogue": "Conseguimos! Adeus ilha maldita!"
@@ -45,7 +45,8 @@
         "intro": [
           "Olá viajante.",
           "Você viu aquele tronco de madeira ali?",
-          "Se você tiver um machado, pode cortá-lo para obter madeira 🌲."
+          "Se você tiver um machado, pode cortá-lo para obter madeira 🌲.",
+          "Aperte 'I' para abrir o inventário e use o mouse para craftar."
         ]
       },
       "quests": []
@@ -71,7 +72,7 @@
           "reward_text": "O Espírito cria um barco para você.",
           "reward_item": 109,
           "start_dialogue": "Vejo que você quer partir. Traga-me 'Esperança ✨' e lhe darei um meio de transporte.",
-          "end_dialogue": "Aqui está o seu 'Barco ⛵'. Vá para a praia para escapar e vencer o jogo!"
+          "end_dialogue": "Aqui está o seu 'Barco ⛵'. Leve-o até a Náufraga para escaparem juntos!"
         }
       ]
     }
