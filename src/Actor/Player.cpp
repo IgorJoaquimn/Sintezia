@@ -201,13 +201,13 @@ void Player::OnProcessInput(const Uint8* keyState)
             mLastDirection = mInputComponent->GetDirection();
         }
 
-        // Handle Generator Interaction (K key)
+        // Handle Environment Interaction (K key)
         static bool kKeyPressed = false;
         if (keyState[SDL_SCANCODE_K])
         {
             if (!kKeyPressed)
             {
-                if (CheckForGeneratorInteraction())
+                if (CheckForEnvironmentInteraction())
                 {
                     kKeyPressed = true;
                     return; // Skip attack if interacted
@@ -445,7 +445,7 @@ void Player::StopMovement()
     mState = PlayerState::Idle;
 }
 
-bool Player::CheckForGeneratorInteraction()
+bool Player::CheckForEnvironmentInteraction()
 {
     auto* tileMap = mGame->GetTileMap();
     if (!tileMap) return false;
@@ -477,14 +477,67 @@ bool Player::CheckForGeneratorInteraction()
             if (col < 0 || col >= tileMap->GetWidth() || row < 0 || row >= tileMap->GetHeight())
                 continue;
 
-            // Check each generator layer
+            auto* mapData = tileMap->GetMapData();
+            if (!mapData) continue;
+
+            // 1. Check for "bloco_deitado_machado" interaction
+            for (auto& layer : mapData->layers)
+            {
+                if (layer.name == "bloco_deitado_machado")
+                {
+                    int index = row * layer.width + col;
+                    if (index >= 0 && index < static_cast<int>(layer.data.size()) && layer.data[index] != 0)
+                    {
+                        // Found a log!
+                        
+                        // Check if player has Machado (ID 102)
+                        if (mInventory && mInventory->HasItem(102, 1))
+                        {
+                            // Remove the log (set GID to 0)
+                            layer.data[index] = 0;
+
+                            // Remove collision and visual representation from other layers
+                            for (auto& otherLayer : mapData->layers)
+                            {
+                                if (otherLayer.name == "collision" || 
+                                    otherLayer.name == "structures" || 
+                                    otherLayer.name == "structures 2")
+                                {
+                                    if (index >= 0 && index < static_cast<int>(otherLayer.data.size()))
+                                    {
+                                        otherLayer.data[index] = 0;
+                                    }
+                                }
+                            }
+                            
+                            // Spawn "Madeira" (ID 100)
+                            const Item* woodItem = mGame->GetCrafting()->FindItemById(100);
+                            if (woodItem)
+                            {
+                                auto itemActor = std::make_unique<ItemActor>(mGame, *woodItem);
+                                Vector2 spawnPos(col * tileSize + tileSize / 2.0f, row * tileSize + tileSize / 2.0f);
+                                itemActor->SetPosition(spawnPos);
+                                itemActor->SetAutoPickup(this);
+                                mGame->AddActor(std::move(itemActor));
+                            }
+                            
+                            return true;
+                        }
+                        else
+                        {
+                            // Show warning
+                            mGame->ShowWarning("Tente bater nisso apos craftar o machado");
+                            return true; // Interaction handled (prevent attack)
+                        }
+                    }
+                }
+            }
+
+            // 2. Check each generator layer
             for (const auto& pair : generatorMap)
             {
                 std::string layerName = pair.first;
                 std::string itemName = pair.second;
-
-                auto* mapData = tileMap->GetMapData();
-                if (!mapData) continue;
 
                 for (const auto& layer : mapData->layers)
                 {

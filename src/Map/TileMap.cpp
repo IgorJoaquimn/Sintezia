@@ -262,7 +262,7 @@ void TileMap::DrawVisible(SpriteRenderer* spriteRenderer, const Vector2& cameraP
         if (layer.data.empty()) continue;
         
         // Skip special layers
-        if (layer.name == "collision" || layer.name.find("gerador_") == 0 || layer.name == "selected_icon")
+        if (layer.name == "collision" || layer.name.find("gerador_") == 0 || layer.name == "selected_icon" || layer.name == "bloco_deitado_machado")
             continue;
             
         // Draw visible tiles
@@ -472,7 +472,7 @@ void TileMap::CacheMap(SpriteRenderer* spriteRenderer)
         if (layer.data.empty()) continue;
         
         // Skip special layers
-        if (layer.name == "collision" || layer.name.find("gerador_") == 0 || layer.name == "selected_icon")
+        if (layer.name == "collision" || layer.name.find("gerador_") == 0 || layer.name == "selected_icon" || layer.name == "bloco_deitado_machado")
             continue;
         
         // Draw each tile in the layer
