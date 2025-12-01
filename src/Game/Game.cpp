@@ -10,6 +10,7 @@
 #include "../UI/InventoryUI.hpp"
 #include "../UI/WarningPopup.hpp"
 #include "../UI/ControlsUI.hpp"
+#include "../UI/GameOverUI.hpp"
 #include "../Actor/NPC/Base/DialogNPC.hpp"
 #include "../Actor/NPC/Concrete/Aggressive/Skeleton.hpp"
 #include "../Actor/NPC/Concrete/Aggressive/Flam.hpp"
@@ -57,6 +58,7 @@ Game::Game(SDL_Window* window, SDL_GLContext glContext)
     , mMousePos(Vector2::Zero)
     , mCamera(std::make_unique<Camera>(static_cast<float>(WINDOW_WIDTH), static_cast<float>(WINDOW_HEIGHT)))
     , mAudio(nullptr)
+    , mIsGameOver(false)
 {
 }
 
@@ -104,6 +106,9 @@ bool Game::Initialize()
     // Initialize controls UI
     mControlsUI = std::make_unique<ControlsUI>();
 
+    // Initialize game over UI
+    mGameOverUI = std::make_unique<GameOverUI>();
+
     // Load items and recipes from JSON
     if (!mCrafting->LoadItemsFromJson("assets/items.json"))
     {
@@ -115,6 +120,17 @@ bool Game::Initialize()
         SDL_Log("Warning: Failed to load recipes");
     }
 
+    LoadLevel();
+
+    // Set different text color for variety
+    mTextRenderer->SetTextColor(1.0f, 1.0f, 1.0f); // White
+    mTicksCount = SDL_GetTicks();
+
+    return true;
+}
+
+void Game::LoadLevel()
+{
     // Create tile map
     // Map is 90x80 tiles (3600x3200 pixels)
     mTileMap = std::make_unique<TileMap>(90, 80, 40);
@@ -125,17 +141,10 @@ bool Game::Initialize()
         SDL_Log("Warning: Failed to load custom map, using procedural generation");
     }
 
-    mAudio = new AudioSystem();
-
-    if (mAudio) {
+    if (!mAudio) {
+        mAudio = new AudioSystem();
         mAudio->PlaySound("background.ogg", true, 50);
     }
-
-    // NOTE: Items are no longer spawned automatically. They are generated
-    // when the player attacks resource blocks (gerador_agua, gerador_fogo, gerador_madeira)
-    // This is handled in AttackComponent::TryHarvestResource()
-    // ItemGenerator itemGenerator(this);
-    // itemGenerator.GenerateItemsFromMap(mTileMap.get());
 
     // Create player
     auto player = std::make_unique<Player>(this);
@@ -178,8 +187,6 @@ bool Game::Initialize()
             mPlayer->GetInventory()->AddItem(*fire, 5);   // 5 fire
         if (earth)
             mPlayer->GetInventory()->AddItem(*earth, 3);  // 3 earth
-
-                    // SDL_Log("Added starting items to player inventory");
     }
 
     // Create test aggressive patrol NPC (patrols and chases player)
@@ -208,19 +215,17 @@ bool Game::Initialize()
 
     // Debug: log current actor count and positions to verify enemies were added
     SDL_Log("Actor count after loading NPCs & enemies: %zu", mActors.size());
-    for (size_t i = 0; i < mActors.size(); ++i)
-    {
-        Actor* a = mActors[i].get();
-        Vector2 pos = a->GetPosition();
-        const char* tname = typeid(*a).name();
-        SDL_Log("Actor[%zu] type=%s pos=(%.2f, %.2f) state=%d", i, tname, pos.x, pos.y, static_cast<int>(a->GetState()));
-    }
+}
 
-    // Set different text color for variety
-    mTextRenderer->SetTextColor(1.0f, 1.0f, 1.0f); // White
-    mTicksCount = SDL_GetTicks();
-
-    return true;
+void Game::RestartGame()
+{
+    mIsGameOver = false;
+    mActors.clear();
+    mPendingActors.clear();
+    mNPCs.clear();
+    mInteractingNPC = nullptr;
+    
+    LoadLevel();
 }
 
 void Game::RunLoop()
@@ -279,6 +284,20 @@ void Game::ProcessInput()
 
     // Process keyboard state for player movement
     const Uint8* keyState = SDL_GetKeyboardState(nullptr);
+
+    // Handle Game Over Input
+    if (mIsGameOver)
+    {
+        if (keyState[SDL_SCANCODE_R])
+        {
+            RestartGame();
+        }
+        else if (keyState[SDL_SCANCODE_ESCAPE])
+        {
+            Quit();
+        }
+        return; // Don't process other inputs
+    }
 
     // Check for NPC interaction
     if (mInteractingNPC && mInteractingNPC->IsInteracting())
@@ -360,9 +379,10 @@ void Game::UpdateGame()
 
     
 
-    // Check if game is paused (interacting with NPC or Warning Popup)
+    // Check if game is paused (interacting with NPC or Warning Popup or Game Over)
     bool isPaused = (mInteractingNPC && mInteractingNPC->IsInteracting()) || 
-                    (mWarningPopup && mWarningPopup->IsVisible());
+                    (mWarningPopup && mWarningPopup->IsVisible()) ||
+                    mIsGameOver;
 
     // Update all actors
     mUpdatingActors = true;
@@ -495,6 +515,12 @@ void Game::GenerateOutput()
         mWarningPopup->Draw(mTextRenderer.get(), mRectRenderer.get(), mSpriteRenderer.get());
     }
 
+    // Draw Game Over UI
+    if (mIsGameOver && mGameOverUI)
+    {
+        mGameOverUI->Draw(mTextRenderer.get(), mRectRenderer.get(), mSpriteRenderer.get());
+    }
+
     mRenderer->EndFrame();
 
     SDL_GL_SwapWindow(mWindow);
@@ -540,6 +566,15 @@ void Game::ShowWarning(const std::string& message)
     if (mWarningPopup)
     {
         mWarningPopup->Show(message);
+    }
+}
+
+void Game::SetGameOver(bool gameOver)
+{
+    if (mIsGameOver != gameOver)
+    {
+        mIsGameOver = gameOver;
+        SDL_Log("Game Over state changed to: %s", gameOver ? "TRUE" : "FALSE");
     }
 }
 
