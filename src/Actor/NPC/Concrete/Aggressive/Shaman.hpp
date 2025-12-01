@@ -6,4 +6,6 @@ class ShamanNPC : public AggressiveNPC
 public:
     ShamanNPC(class Game* game);
     ~ShamanNPC();
+
+    void OnDeath() override;
 };

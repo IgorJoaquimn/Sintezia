@@ -6,5 +6,7 @@ class FlamNPC : public AggressiveNPC
 public:
     FlamNPC(class Game* game);
     ~FlamNPC();
+
+    void OnDeath() override;
 };
 

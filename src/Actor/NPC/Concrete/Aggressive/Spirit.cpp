@@ -1,5 +1,8 @@
 #include "Spirit.hpp"
 #include "../../../../Game/Game.hpp"
+#include "../../../../Actor/ItemActor.hpp"
+#include "../../../../Crafting/Crafting.hpp"
+#include "../../../../Crafting/Item.hpp"
 
 SpiritNPC::SpiritNPC(Game* game)
     : AggressiveNPC(game)
@@ -16,4 +19,23 @@ SpiritNPC::SpiritNPC(Game* game)
     SetMaxChaseDistance(280.0f);
 }
 
-SpiritNPC::~SpiritNPC() {}
+SpiritNPC::~SpiritNPC()
+{
+}
+
+void SpiritNPC::OnDeath()
+{
+    // Drop Water (ID 1)
+    if (mGame && mGame->GetCrafting())
+    {
+        const Item* water = mGame->GetCrafting()->FindItemById(1);
+        if (water)
+        {
+            auto itemActor = std::make_unique<ItemActor>(mGame, *water);
+            itemActor->SetPosition(GetPosition());
+            mGame->AddActor(std::move(itemActor));
+        }
+    }
+    
+    NPC::OnDeath();
+}

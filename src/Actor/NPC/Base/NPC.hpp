@@ -32,6 +32,9 @@ public:
     void OnUpdate(float deltaTime) override;
     void OnDraw(class TextRenderer* textRenderer) override;
 
+    // Called when health reaches 0
+    virtual void OnDeath();
+
 protected:
     // Helper to get direction from velocity
     int GetDirectionRow(const Vector2& velocity) const;

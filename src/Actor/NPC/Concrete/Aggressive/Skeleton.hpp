@@ -7,4 +7,6 @@ class SkeletonNPC : public PatrolNPC
 public:
     SkeletonNPC(class Game* game);
     ~SkeletonNPC();
+
+    void OnDeath() override;
 };

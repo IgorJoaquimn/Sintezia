@@ -1,52 +1,52 @@
 {
   "enemies": [
     {
-      "type": "Flam",
+      "type": "Pig",
       "x": 72,
       "y": 46
     },
     {
-      "type": "Flam",
+      "type": "Cow",
       "x": 68,
       "y": 42
     },
     {
-      "type": "Flam",
+      "type": "Chicken",
       "x": 65,
       "y": 43
     },
     {
-      "type": "Flam",
+      "type": "Pig",
       "x": 76,
       "y": 46
     },
     {
-      "type": "Shaman",
+      "type": "Cow",
       "x": 80,
       "y": 43
     },
     {
-      "type": "Shaman",
+      "type": "Chicken",
       "x": 79,
       "y": 53
     },
     {
-      "type": "Spirit",
+      "type": "Pig",
       "x": 67,
       "y": 55
     },
     {
-      "type": "Spirit",
+      "type": "Cow",
       "x": 69,
       "y": 53
     },
     {
-      "type": "Spirit",
+      "type": "Chicken",
       "x": 73,
       "y": 54
     },
     {
-      "type": "Spirit",
+      "type": "Pig",
       "x": 76,
       "y": 52
     },

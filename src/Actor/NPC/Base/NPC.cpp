@@ -61,13 +61,18 @@ NPC::NPC(Game* game)
         });
 
         mHealthComponent->SetDeathCallback([this]() {
-            SetState(ActorState::Destroy);
+            OnDeath();
         });
     }
 }
 
 NPC::~NPC()
 {
+}
+
+void NPC::OnDeath()
+{
+    SetState(ActorState::Destroy);
 }
 
 void NPC::OnUpdate(float deltaTime)

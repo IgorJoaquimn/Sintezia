@@ -1,8 +1,11 @@
 #include "Skeleton.hpp"
 #include "../../../../Game/Game.hpp"
+#include "../../../../Actor/ItemActor.hpp"
+#include "../../../../Crafting/Crafting.hpp"
+#include "../../../../Crafting/Item.hpp"
 
 SkeletonNPC::SkeletonNPC(Game* game)
-    : PatrolNPC(game, true)  // true = aggressive
+    : PatrolNPC(game, true) // true = aggressive
 {
     // Configure sprite to use Skeleton sprite sheet from tsx
     LoadSpriteSheetFromTSX("assets/tiled/tilesets/Skeleton.tsx");
@@ -27,4 +30,21 @@ SkeletonNPC::SkeletonNPC(Game* game)
 
 SkeletonNPC::~SkeletonNPC()
 {
+}
+
+void SkeletonNPC::OnDeath()
+{
+    // Drop Bone (ID 200)
+    if (mGame && mGame->GetCrafting())
+    {
+        const Item* bone = mGame->GetCrafting()->FindItemById(200);
+        if (bone)
+        {
+            auto itemActor = std::make_unique<ItemActor>(mGame, *bone);
+            itemActor->SetPosition(GetPosition());
+            mGame->AddActor(std::move(itemActor));
+        }
+    }
+    
+    NPC::OnDeath();
 }

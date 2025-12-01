@@ -738,6 +738,24 @@ void Game::LoadEnemiesFromJson(const std::string& filePath)
                 ptr->SetAnchorPosition(ptr->GetPosition());
                 enemyActor = std::move(ptr);
             }
+            else if (type == "Pig")
+            {
+                auto ptr = std::make_unique<PigNPC>(this);
+                ptr->SetGridPosition(x, y);
+                enemyActor = std::move(ptr);
+            }
+            else if (type == "Cow")
+            {
+                auto ptr = std::make_unique<CowNPC>(this);
+                ptr->SetGridPosition(x, y);
+                enemyActor = std::move(ptr);
+            }
+            else if (type == "Chicken")
+            {
+                auto ptr = std::make_unique<ChickenNPC>(this);
+                ptr->SetGridPosition(x, y);
+                enemyActor = std::move(ptr);
+            }
             else
             {
                 SDL_Log("Unknown enemy type: %s", type.c_str());

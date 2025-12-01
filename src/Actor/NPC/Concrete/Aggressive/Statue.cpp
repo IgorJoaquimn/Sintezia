@@ -1,5 +1,8 @@
 #include "Statue.hpp"
 #include "../../../../Game/Game.hpp"
+#include "../../../../Actor/ItemActor.hpp"
+#include "../../../../Crafting/Crafting.hpp"
+#include "../../../../Crafting/Item.hpp"
 
 StatueNPC::StatueNPC(Game* game)
     : AggressiveNPC(game)
@@ -16,5 +19,24 @@ StatueNPC::StatueNPC(Game* game)
     SetMaxChaseDistance(180.0f);
 }
 
-StatueNPC::~StatueNPC() {}
+StatueNPC::~StatueNPC()
+{
+}
+
+void StatueNPC::OnDeath()
+{
+    // Drop Stone (ID 12)
+    if (mGame && mGame->GetCrafting())
+    {
+        const Item* stone = mGame->GetCrafting()->FindItemById(12);
+        if (stone)
+        {
+            auto itemActor = std::make_unique<ItemActor>(mGame, *stone);
+            itemActor->SetPosition(GetPosition());
+            mGame->AddActor(std::move(itemActor));
+        }
+    }
+    
+    NPC::OnDeath();
+}
 

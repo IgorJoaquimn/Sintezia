@@ -3,6 +3,9 @@
 #include "../../../Component/SpriteComponent.hpp"
 #include "../../../Component/AnimationComponent.hpp"
 #include "../../../Component/MovementComponent.hpp"
+#include "../../../Actor/ItemActor.hpp"
+#include "../../../Crafting/Crafting.hpp"
+#include "../../../Crafting/Item.hpp"
 #include <cmath>
 
 PassiveAnimalNPC::PassiveAnimalNPC(Game* game, const std::string& spriteSheetPath)
@@ -26,6 +29,23 @@ PassiveAnimalNPC::PassiveAnimalNPC(Game* game, const std::string& spriteSheetPat
 
 PassiveAnimalNPC::~PassiveAnimalNPC()
 {
+}
+
+void PassiveAnimalNPC::OnDeath()
+{
+    // Drop Meat (ID 103)
+    if (mGame && mGame->GetCrafting())
+    {
+        const Item* meat = mGame->GetCrafting()->FindItemById(103);
+        if (meat)
+        {
+            auto itemActor = std::make_unique<ItemActor>(mGame, *meat);
+            itemActor->SetPosition(GetPosition());
+            mGame->AddActor(std::move(itemActor));
+        }
+    }
+    
+    NPC::OnDeath();
 }
 
 void PassiveAnimalNPC::OnUpdate(float deltaTime)

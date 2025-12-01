@@ -6,5 +6,7 @@ class StatueNPC : public AggressiveNPC
 public:
     StatueNPC(class Game* game);
     ~StatueNPC();
+
+    void OnDeath() override;
 };
 

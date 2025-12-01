@@ -1,5 +1,8 @@
 #include "Shaman.hpp"
 #include "../../../../Game/Game.hpp"
+#include "../../../../Actor/ItemActor.hpp"
+#include "../../../../Crafting/Crafting.hpp"
+#include "../../../../Crafting/Item.hpp"
 
 ShamanNPC::ShamanNPC(Game* game)
     : AggressiveNPC(game)
@@ -16,5 +19,24 @@ ShamanNPC::ShamanNPC(Game* game)
     SetMaxChaseDistance(300.0f);
 }
 
-ShamanNPC::~ShamanNPC() {}
+ShamanNPC::~ShamanNPC()
+{
+}
+
+void ShamanNPC::OnDeath()
+{
+    // Drop Ancient Scroll (ID 108)
+    if (mGame && mGame->GetCrafting())
+    {
+        const Item* scroll = mGame->GetCrafting()->FindItemById(108);
+        if (scroll)
+        {
+            auto itemActor = std::make_unique<ItemActor>(mGame, *scroll);
+            itemActor->SetPosition(GetPosition());
+            mGame->AddActor(std::move(itemActor));
+        }
+    }
+    
+    NPC::OnDeath();
+}
 

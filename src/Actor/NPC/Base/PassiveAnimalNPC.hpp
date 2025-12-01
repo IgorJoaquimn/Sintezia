@@ -8,6 +8,7 @@ public:
     virtual ~PassiveAnimalNPC();
 
     void OnUpdate(float deltaTime) override;
+    void OnDeath() override;
 
 protected:
     // Configuration parameters
