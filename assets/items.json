@@ -119,6 +119,21 @@
             "id": 110,
             "name": "Liberdade",
             "emoji": "🌅"
+        },
+        {
+            "id": 200,
+            "name": "Osso",
+            "emoji": "🦴"
+        },
+        {
+            "id": 201,
+            "name": "Fertilizante",
+            "emoji": "💩"
+        },
+        {
+            "id": 202,
+            "name": "Picareta",
+            "emoji": "⛏️"
         }
     ]
 }

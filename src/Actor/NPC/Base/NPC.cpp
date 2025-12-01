@@ -7,6 +7,8 @@
 #include "../../../Map/TiledParser.hpp"
 #include <cmath>
 
+#include "../../../Map/TileMap.hpp" // Include TileMap definition
+
 NPC::NPC(Game* game)
     : Actor(game)
     , mAnimationComponent(nullptr)
@@ -34,6 +36,14 @@ NPC::NPC(Game* game)
     mSpriteComponent = AddComponent<SpriteComponent>(200); // Higher update order for rendering
     mMovementComponent = AddComponent<MovementComponent>();
     mHealthComponent = AddComponent<HealthComponent>();
+
+    // Update movement bounds to match map size if available
+    if (mMovementComponent && game->GetTileMap())
+    {
+        float mapWidth = static_cast<float>(game->GetTileMap()->GetWidth() * game->GetTileMap()->GetTileSize());
+        float mapHeight = static_cast<float>(game->GetTileMap()->GetHeight() * game->GetTileMap()->GetTileSize());
+        mMovementComponent->SetBounds(16.0f, 16.0f, mapWidth - 16.0f, mapHeight - 16.0f);
+    }
 
     // Configure animation component with default values
     mAnimationComponent->SetFrameCount(mIdleFrames);
@@ -72,6 +82,64 @@ void NPC::OnUpdate(float deltaTime)
             {
                 mSpriteComponent->SetColor(Vector3(1.0f, 1.0f, 1.0f)); // Reset to white
             }
+        }
+    }
+
+    // Update animation and sprite frame
+    if (mSpriteComponent && mAnimationComponent)
+    {
+        // Update movement state and direction
+        if (mMovementComponent)
+        {
+            Vector2 velocity = mMovementComponent->GetVelocity();
+            if (velocity.LengthSq() > 1.0f)
+            {
+                mIsMoving = true;
+                mCurrentDirection = GetDirectionRow(velocity);
+            }
+            else
+            {
+                mIsMoving = false;
+            }
+        }
+
+        int frame = mAnimationComponent->GetCurrentFrame();
+        int row = 0;
+        int col = 0;
+
+        if (mUseColumnBasedDirection)
+        {
+            // Direction is column
+            // Animation frame is row
+            
+            // Get the column for the current direction
+            col = mIsMoving ? mWalkRows[mCurrentDirection] : mIdleRows[mCurrentDirection];
+            
+            // Row is the frame
+            row = frame;
+        }
+        else
+        {
+            // Direction is row
+            // Animation frame is column
+            
+            // Get the row for the current direction
+            row = mIsMoving ? mWalkRows[mCurrentDirection] : mIdleRows[mCurrentDirection];
+            
+            // Column is the frame
+            col = frame;
+        }
+        
+        mSpriteComponent->SetCurrentFrame(row, col);
+        
+        // Handle horizontal flip if needed
+        if (mUseHorizontalFlip && mCurrentDirection == 1) // Left
+        {
+             mSpriteComponent->SetFlipHorizontal(true);
+        }
+        else
+        {
+             mSpriteComponent->SetFlipHorizontal(false);
         }
     }
 }

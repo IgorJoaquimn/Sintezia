@@ -5,7 +5,7 @@ TestShopkeeperNPC::TestShopkeeperNPC(Game* game)
     : DialogNPC(game)
 {
     // Set position (can be adjusted as needed)
-    SetPosition(Vector2(400.0f, 400.0f));
+    SetPosition(Vector2(1800.0f, 2800.0f));
 
     // Configure sprite to use DemonGreen sprite sheet from tsx
     LoadSpriteSheetFromTSX("assets/tiled/tilesets/DemonGreen.tsx");

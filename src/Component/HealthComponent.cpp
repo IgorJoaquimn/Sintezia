@@ -64,6 +64,5 @@ void HealthComponent::SetCurrentHealth(float health)
 void HealthComponent::UpdateVitalityBar(float hunger, float thirst)
 {
     // Logic to update the vitality bar based on health, hunger, and thirst
-    SDL_Log("Updating vitality bar: Health=%f, Hunger=%f, Thirst=%f", mCurrentHealth, hunger, thirst);
 }
 

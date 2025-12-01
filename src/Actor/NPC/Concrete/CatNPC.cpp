@@ -8,7 +8,7 @@
 CatNPC::CatNPC(Game* game)
     : NPC(game)
     , mCurrentFrame(0)
-    , mHomePosition(600.0f, 300.0f)
+    , mHomePosition(1800.0f, 2900.0f)
     , mIsFleeing(false)
     , mFleeTimer(0.0f)
 {

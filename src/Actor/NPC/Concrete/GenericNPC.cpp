@@ -23,10 +23,15 @@ void GenericNPC::LoadFromJSON(const json& npcData)
 
     // 2. Position
     if (npcData.contains("position")) {
-        float x = npcData["position"]["x"];
-        float y = npcData["position"]["y"];
-        // Assuming map coordinates, multiply by tile size (40)
-        SetPosition(Vector2(x * 40.0f, y * 40.0f));
+        int x = npcData["position"]["x"].get<int>();
+        int y = npcData["position"]["y"].get<int>();
+        // Use grid positioning helper so NPCs align with tiles like the player
+        SetGridPosition(x, y);
+        // Log actual world position for debugging
+        Vector2 worldPos = GetPosition();
+        SDL_Log("GenericNPC: %s placed at grid=(%d,%d) world=(%.1f,%.1f)",
+                npcData.contains("name") ? npcData["name"].get<std::string>().c_str() : "(unknown)",
+                x, y, worldPos.x, worldPos.y);
     }
 
     // 3. Sprite

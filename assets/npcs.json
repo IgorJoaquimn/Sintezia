@@ -5,7 +5,7 @@
       "name": "Ancião de Sintézia",
       "sprite": "OldMan",
       "faceset": "assets/third_party/Ninja Adventure - Asset Pack/Actor/Characters/OldMan/Faceset.png",
-      "position": { "x": 10, "y": 10 },
+      "position": { "x": 42, "y": 70 },
       "dialogues": {
         "intro": [
           "Bem-vindo a Sintézia, jovem náufrago.",
@@ -41,7 +41,7 @@
       "name": "Clara, a Náufraga",
       "sprite": "Villager",
       "faceset": "assets/third_party/Ninja Adventure - Asset Pack/Actor/Characters/Villager/Faceset.png",
-      "position": { "x": 15, "y": 8 },
+      "position": { "x": 43, "y": 70 },
       "dialogues": {
         "intro": [
           "Ei! Você também sobreviveu?",
@@ -66,7 +66,7 @@
       "name": "Monge Silencioso",
       "sprite": "Monk",
       "faceset": "assets/third_party/Ninja Adventure - Asset Pack/Actor/Characters/Monk/Faceset.png",
-      "position": { "x": 5, "y": 20 },
+      "position": { "x": 44, "y": 70 },
       "dialogues": {
         "intro": [
           "...",
@@ -91,7 +91,7 @@
       "name": "Caçador de Relíquias",
       "sprite": "Hunter",
       "faceset": "assets/third_party/Ninja Adventure - Asset Pack/Actor/Characters/Hunter/Faceset.png",
-      "position": { "x": 25, "y": 15 },
+      "position": { "x": 46, "y": 70 },
       "dialogues": {
         "intro": [
           "Cuidado onde pisa. Esta ilha tem dentes.",
@@ -108,6 +108,56 @@
           "reward_item": 110,
           "start_dialogue": "Olhe este pergaminho... diz que é possível sair daqui. Mas precisamos de um 'Barco'. Se você construir um, podemos partir.",
           "end_dialogue": "Você conseguiu! Um 'Barco'! Vamos, a maré está subindo. Sintézia ficará para trás, mas o que aprendemos aqui... isso levaremos para sempre."
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "Esqueleto",
+      "sprite": "Skeleton",
+      "faceset": "assets/third_party/Ninja Adventure - Asset Pack/Actor/Characters/Skeleton/Faceset.png",
+      "position": { "x": 47, "y": 70 },
+      "dialogues": {
+        "intro": [
+          "Clack... Clack...",
+          "(Os ossos chacoalham)"
+        ]
+      },
+      "quests": [
+        {
+          "id": 501,
+          "title": "Troca de Ossos",
+          "description": "O esqueleto parece querer carne em troca de um de seus ossos.",
+          "required_items": [103],
+          "reward_text": "O esqueleto lhe entrega um osso.",
+          "reward_item": 200,
+          "start_dialogue": "Carne... Eu preciso de carne...",
+          "end_dialogue": "Isso... (Ele arranca uma costela e lhe entrega). Tome."
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "name": "Ferreiro da Vila",
+      "sprite": "Villager2",
+      "faceset": "assets/third_party/Ninja Adventure - Asset Pack/Actor/Characters/Villager2/Faceset.png",
+      "position": { "x": 48, "y": 70 },
+      "dialogues": {
+        "intro": [
+          "Eu costumava trabalhar na mina...",
+          "Mas perdi minha picareta."
+        ]
+      },
+      "quests": [
+        {
+          "id": 601,
+          "title": "Ferramenta de Trabalho",
+          "description": "O Ferreiro precisa de um osso resistente para consertar sua picareta.",
+          "required_items": [200],
+          "reward_text": "O Ferreiro lhe dá uma picareta nova.",
+          "reward_item": 202,
+          "start_dialogue": "Se eu tivesse um 'Osso' forte, poderia fazer um cabo novo para minha picareta.",
+          "end_dialogue": "Perfeito! Isso servirá. Aqui, fique com esta 'Picareta'. Eu farei outra."
         }
       ]
     }
