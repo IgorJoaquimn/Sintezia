@@ -10,6 +10,11 @@
 #include "../UI/InventoryUI.hpp"
 #include "../Actor/NPC/Base/DialogNPC.hpp"
 #include "../Actor/NPC/Concrete/Aggressive/Skeleton.hpp"
+#include "../Actor/NPC/Concrete/Aggressive/Flam.hpp"
+#include "../Actor/NPC/Concrete/Aggressive/GoldenStatue.hpp"
+#include "../Actor/NPC/Concrete/Aggressive/Shaman.hpp"
+#include "../Actor/NPC/Concrete/Aggressive/Spirit.hpp"
+#include "../Actor/NPC/Concrete/Aggressive/Statue.hpp"
 #include "../Actor/NPC/Concrete/Passive/CatNPC.hpp"
 #include "../Actor/NPC/Concrete/Passive/CowNPC.hpp"
 #include "../Actor/NPC/Concrete/Passive/ChickenNPC.hpp"
@@ -25,6 +30,7 @@
 #include "ItemGenerator.hpp"
 #include <algorithm>
 #include <fstream>
+#include <sstream>
 #include <nlohmann/json.hpp>
 #include "../Actor/NPC/Concrete/Passive/GenericNPC.hpp"
 #include "../Component/MovementComponent.hpp"
@@ -129,6 +135,11 @@ bool Game::Initialize()
     // Create player
     auto player = std::make_unique<Player>(this);
     mPlayer = player.get(); // Safe: player ownership transferred to mActors, pointer valid for game lifetime
+    // Log player spawn position (x, y)
+    if (mPlayer) {
+        Vector2 ppos = mPlayer->GetPosition();
+        SDL_Log("Player spawn position: (%.2f, %.2f)", ppos.x, ppos.y);
+    }
     AddActor(std::move(player));
 
     // Update player movement bounds to match map size
@@ -186,6 +197,19 @@ bool Game::Initialize()
 
     // Load NPCs from JSON
     LoadNPCsFromJson("assets/npcs.json");
+
+    // Load enemies from JSON
+    LoadEnemiesFromJson("assets/enemies.json");
+
+    // Debug: log current actor count and positions to verify enemies were added
+    SDL_Log("Actor count after loading NPCs & enemies: %zu", mActors.size());
+    for (size_t i = 0; i < mActors.size(); ++i)
+    {
+        Actor* a = mActors[i].get();
+        Vector2 pos = a->GetPosition();
+        const char* tname = typeid(*a).name();
+        SDL_Log("Actor[%zu] type=%s pos=(%.2f, %.2f) state=%d", i, tname, pos.x, pos.y, static_cast<int>(a->GetState()));
+    }
 
     // Set different text color for variety
     mTextRenderer->SetTextColor(1.0f, 1.0f, 1.0f); // White
@@ -613,6 +637,173 @@ void Game::LoadNPCsFromJson(const std::string& filePath)
     catch (const std::exception& e)
     {
         SDL_Log("Error parsing NPC JSON: %s", e.what());
+    }
+}
+
+// Load enemies from JSON file. Expected schema:
+// {
+//   "enemies": [
+//     { "type": "Flam", "x": 100, "y": 200, "movementSpeed": 70, "waypoints": [{"x":..,"y":..,"wait":..}, ...] },
+//     ...
+//   ]
+// }
+void Game::LoadEnemiesFromJson(const std::string& filePath)
+{
+    std::ifstream file(filePath);
+    if (!file.is_open())
+    {
+        SDL_Log("Failed to open enemies file: %s", filePath.c_str());
+        return;
+    }
+
+    try
+    {
+        nlohmann::json j;
+        file >> j;
+
+        if (!j.contains("enemies")) return;
+
+        int loadedCount = 0;
+
+        for (const auto& e : j["enemies"])
+        {
+            std::string type = e.value("type", "");
+            float x = e.value("x", 0.0f);
+            float y = e.value("y", 0.0f);
+
+            std::unique_ptr<Actor> enemyActor;
+
+            if (type == "Flam")
+            {
+                auto ptr = std::make_unique<FlamNPC>(this);
+                ptr->SetPosition(Vector2(x, y));
+                ptr->SetAnchorPosition(ptr->GetPosition());
+                enemyActor = std::move(ptr);
+            }
+            else if (type == "GoldenStatue")
+            {
+                auto ptr = std::make_unique<GoldenStatueNPC>(this);
+                ptr->SetPosition(Vector2(x, y));
+                ptr->SetAnchorPosition(ptr->GetPosition());
+                enemyActor = std::move(ptr);
+            }
+            else if (type == "Shaman")
+            {
+                auto ptr = std::make_unique<ShamanNPC>(this);
+                ptr->SetPosition(Vector2(x, y));
+                ptr->SetAnchorPosition(ptr->GetPosition());
+                enemyActor = std::move(ptr);
+            }
+            else if (type == "Spirit")
+            {
+                auto ptr = std::make_unique<SpiritNPC>(this);
+                ptr->SetPosition(Vector2(x, y));
+                ptr->SetAnchorPosition(ptr->GetPosition());
+                enemyActor = std::move(ptr);
+            }
+            else if (type == "Statue")
+            {
+                auto ptr = std::make_unique<StatueNPC>(this);
+                ptr->SetPosition(Vector2(x, y));
+                ptr->SetAnchorPosition(ptr->GetPosition());
+                enemyActor = std::move(ptr);
+            }
+            else if (type == "Skeleton")
+            {
+                auto ptr = std::make_unique<SkeletonNPC>(this);
+                ptr->SetPosition(Vector2(x, y));
+                ptr->SetAnchorPosition(ptr->GetPosition());
+                enemyActor = std::move(ptr);
+            }
+            else
+            {
+                SDL_Log("Unknown enemy type: %s", type.c_str());
+                continue;
+            }
+
+            // Optional overrides
+            if (e.contains("movementSpeed"))
+            {
+                auto* patrol = dynamic_cast<PatrolNPC*>(enemyActor.get());
+                if (patrol)
+                {
+                    patrol->SetMovementSpeed(e["movementSpeed"].get<float>());
+                }
+            }
+
+            if (e.contains("chaseSpeed"))
+            {
+                // PatrolNPC exposes SetChaseSpeed but we need to cast
+                auto* patrol = dynamic_cast<PatrolNPC*>(enemyActor.get());
+                if (patrol) patrol->SetChaseSpeed(e["chaseSpeed"].get<float>());
+            }
+
+            if (e.contains("aggroRange"))
+            {
+                auto* patrol = dynamic_cast<PatrolNPC*>(enemyActor.get());
+                if (patrol) patrol->SetAggroRange(e["aggroRange"].get<float>());
+            }
+
+            if (e.contains("deaggroRange"))
+            {
+                auto* patrol = dynamic_cast<PatrolNPC*>(enemyActor.get());
+                if (patrol) patrol->SetDeaggroRange(e["deaggroRange"].get<float>());
+            }
+
+            if (e.contains("maxChaseDistance"))
+            {
+                auto* patrol = dynamic_cast<PatrolNPC*>(enemyActor.get());
+                if (patrol) patrol->SetMaxChaseDistance(e["maxChaseDistance"].get<float>());
+            }
+
+            // Optional waypoints
+            if (e.contains("waypoints") && enemyActor)
+            {
+                PatrolNPC* patrol = dynamic_cast<PatrolNPC*>(enemyActor.get());
+                if (patrol)
+                {
+                    for (const auto& wp : e["waypoints"])
+                    {
+                        float wx = wp.value("x", 0.0f);
+                        float wy = wp.value("y", 0.0f);
+                        float wait = wp.value("wait", 0.0f);
+                        patrol->AddWaypoint(Vector2(wx, wy), wait);
+                    }
+                }
+            }
+
+            // Finally add actor to game
+            if (enemyActor)
+            {
+                // Build a log message with details about loaded enemy
+                int waypointCount = e.contains("waypoints") ? static_cast<int>(e["waypoints"].size()) : 0;
+                float mv = e.contains("movementSpeed") ? e["movementSpeed"].get<float>() : -1.0f;
+                float ch = e.contains("chaseSpeed") ? e["chaseSpeed"].get<float>() : -1.0f;
+                float ag = e.contains("aggroRange") ? e["aggroRange"].get<float>() : -1.0f;
+                float de = e.contains("deaggroRange") ? e["deaggroRange"].get<float>() : -1.0f;
+                float mx = e.contains("maxChaseDistance") ? e["maxChaseDistance"].get<float>() : -1.0f;
+
+                std::ostringstream oss;
+                oss << "Loaded enemy type=" << type << " pos=(" << x << "," << y << ")";
+                if (mv >= 0.0f) oss << " movementSpeed=" << mv;
+                if (ch >= 0.0f) oss << " chaseSpeed=" << ch;
+                if (ag >= 0.0f) oss << " aggroRange=" << ag;
+                if (de >= 0.0f) oss << " deaggroRange=" << de;
+                if (mx >= 0.0f) oss << " maxChaseDistance=" << mx;
+                oss << " waypoints=" << waypointCount;
+
+                SDL_Log("%s", oss.str().c_str());
+
+                ++loadedCount;
+                AddActor(std::move(enemyActor));
+            }
+        }
+
+        SDL_Log("Loaded %d enemies from %s", loadedCount, filePath.c_str());
+    }
+    catch (const std::exception& ex)
+    {
+        SDL_Log("Error parsing enemies JSON: %s", ex.what());
     }
 }
 
