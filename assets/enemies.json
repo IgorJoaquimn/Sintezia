@@ -2,8 +2,8 @@
   "enemies": [
     {
       "type": "Flam",
-      "x": 1800,
-      "y": 2800,
+      "x": 1900,
+      "y": 2600,
       "movementSpeed": 70.0,
       "chaseSpeed": 150.0,
       "aggroRange": 160.0,
@@ -17,8 +17,8 @@
 
     {
       "type": "Shaman",
-      "x": 1860,
-      "y": 2850,
+      "x": 1920,
+      "y": 2600,
       "chaseSpeed": 150.0,
       "aggroRange": 200.0,
       "maxChaseDistance": 300.0
@@ -26,8 +26,8 @@
 
     {
       "type": "Spirit",
-      "x": 1740,
-      "y": 2760,
+      "x": 1940,
+      "y": 2600,
       "movementSpeed": 90.0,
       "chaseSpeed": 170.0,
       "aggroRange": 170.0,
@@ -39,20 +39,20 @@
 
     {
       "type": "Statue",
-      "x": 1820,
-      "y": 2820
+      "x": 1960,
+      "y": 2600
     },
 
     {
       "type": "GoldenStatue",
-      "x": 1760,
-      "y": 2840
+      "x": 1980,
+      "y": 2600
     },
 
     {
       "type": "Skeleton",
-      "x": 1840,
-      "y": 2780,
+      "x": 2000,
+      "y": 2600,
       "waypoints": [
         { "x": 700, "y": 300, "wait": 1.0 },
         { "x": 750, "y": 300, "wait": 1.0 }
