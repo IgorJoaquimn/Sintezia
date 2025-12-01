@@ -86,6 +86,8 @@ set(SOURCES
     ${SRC_DIR}/UI/MainMenu.cpp
     ${SRC_DIR}/UI/WarningPopup.cpp
     ${SRC_DIR}/UI/ControlsUI.cpp
+    ${SRC_DIR}/UI/GameOverUI.cpp
+    ${SRC_DIR}/UI/VictoryUI.cpp
         src/UI/HealthBar.hpp
         src/UI/HealthBar.cpp
         src/AudioSystem/AudioSystem.cpp

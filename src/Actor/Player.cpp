@@ -49,8 +49,9 @@ Player::Player(Game* game)
     mHealthComponent->SetMaxHealth(100.0f);
     mHealthComponent->SetCurrentHealth(100.0f);
     mHealthComponent->SetDeathCallback([this]() {
-        // Player death - quit game
-        mGame->Quit();
+        // Player death - show game over screen
+        SDL_Log("PLAYER DIED! Triggering Game Over.");
+        mGame->SetGameOver(true);
     });
     
     mHealthComponent->SetOnDamageCallback([this](float damage) {
@@ -282,6 +283,12 @@ void Player::OnUpdate(float deltaTime)
     {
         mGame->ShowWarning("A sede esta lhe causando dano. Voce precisa beber.");
         mHasShownThirstWarning = true;
+    }
+
+    // Check for death
+    if (mHealthComponent && mHealthComponent->GetCurrentHealth() <= 0.0f)
+    {
+        mGame->SetGameOver(true);
     }
 
     // Check for nearby items to pickup

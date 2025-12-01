@@ -19,6 +19,8 @@
 #include "../Component/ThirstComponent.hpp"
 #include "../Component/HealthComponent.hpp"
 #include "../UI/WarningPopup.hpp"
+#include "../UI/GameOverUI.hpp"
+#include "../UI/VictoryUI.hpp"
 
 // Forward declarations
 class TileMap;
@@ -35,6 +37,17 @@ public:
     void RunLoop();
     void Shutdown();
     void Quit() { mIsRunning = false; }
+
+    // Game Over
+    void SetGameOver(bool gameOver);
+    bool IsGameOver() const { return mIsGameOver; }
+    
+    // Victory
+    void SetVictory(bool victory);
+    bool IsVictory() const { return mIsVictory; }
+
+    void RestartGame();
+    void LoadLevel();
 
     // Actor functions
     void AddActor(std::unique_ptr<Actor> actor);
@@ -137,6 +150,14 @@ private:
 
     // Controls UI
     std::unique_ptr<class ControlsUI> mControlsUI;
+
+    // Game Over UI
+    std::unique_ptr<GameOverUI> mGameOverUI;
+    bool mIsGameOver;
+
+    // Victory UI
+    std::unique_ptr<VictoryUI> mVictoryUI;
+    bool mIsVictory;
 
     // Load NPCs from JSON
     void LoadNPCsFromJson(const std::string& filePath);
