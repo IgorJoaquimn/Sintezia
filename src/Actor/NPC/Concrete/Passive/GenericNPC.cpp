@@ -14,6 +14,10 @@ GenericNPC::GenericNPC(Game* game, const json& npcData)
 void GenericNPC::LoadFromJSON(const json& npcData)
 {
     // 1. Basic Info
+    if (npcData.contains("id")) {
+        SetId(npcData["id"].get<int>());
+    }
+
     if (npcData.contains("name")) {
         // You might want to store the name in the NPC class if needed
         // For now, DialogNPC doesn't seem to have a name field exposed, 

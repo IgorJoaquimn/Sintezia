@@ -9,8 +9,8 @@
 WarningPopup::WarningPopup() : mDuration(0.0f), mTimer(0.0f), mIsVisible(false) {
     mBackgroundTexture = std::make_unique<Texture>();
     // Try loading from different paths
-    if (!mBackgroundTexture->Load("assets/third_party/Ninja Adventure - Asset Pack/Ui/Dialog/DialogBox.png")) {
-        mBackgroundTexture->Load("../assets/third_party/Ninja Adventure - Asset Pack/Ui/Dialog/DialogBox.png");
+    if (!mBackgroundTexture->Load("assets/third_party/Ninja Adventure - Asset Pack/Ui/Dialog/DialogueBoxSimple.png")) {
+        mBackgroundTexture->Load("../assets/third_party/Ninja Adventure - Asset Pack/Ui/Dialog/DialogueBoxSimple.png");
     }
 }
 

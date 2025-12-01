@@ -74,8 +74,13 @@ public:
     void AddDialogOption(const std::string& text, const std::string& response);
     void AddTradeOffer(const TradeOffer& offer);
 
+    void SetId(int id) { mId = id; }
+    int GetId() const { return mId; }
+
 protected:
     // NPC data
+    int mId = 0;
+    bool mGameEnding = false;
     std::string mGreeting;
     std::vector<DialogOption> mDialogOptions;
     std::vector<TradeOffer> mTradeOffers;
