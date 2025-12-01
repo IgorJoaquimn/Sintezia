@@ -54,6 +54,16 @@ void DialogNPC::OnUpdate(float deltaTime)
         mInteractionIndicator->Update(deltaTime);
     }
 
+    // Check for game end condition
+    if (mGameEnding)
+    {
+        // If dialog is closed or not in message state (meaning user dismissed it)
+        if (!mDialogUI->IsVisible() || mDialogUI->GetState() != DialogUIState::Message)
+        {
+            mGame->Quit();
+        }
+    }
+
     // NPCs are currently stationary, but this can be extended for moving NPCs
 }
 
@@ -387,6 +397,20 @@ void DialogNPC::OnTradeOptionSelected(int index)
                 std::string successMsg = "Troca realizada com sucesso!\nVocê recebeu: " +
                                         rewardItem->emoji + " " + rewardItem->name +
                                         " x" + std::to_string(trade.reward.quantity);
+                
+                // Check for Game End Condition (Clara + Boat)
+                if (mId == 2) // Clara
+                {
+                    for (const auto& req : trade.requirements)
+                    {
+                        if (req.itemId == 109) // Barco
+                        {
+                            mGameEnding = true;
+                            successMsg = "Você entregou o barco para Clara!\nVocês navegam para longe da ilha.\n\nFIM DE JOGO";
+                        }
+                    }
+                }
+
                 mDialogUI->ShowMessage(successMsg);
             }
             else
