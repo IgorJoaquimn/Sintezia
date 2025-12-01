@@ -3,12 +3,12 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "C:/Users/Vitin/UFMG/2025_2/jogos/TP_FINAL/Sintezia/assets/maps/mapa_de_teste.json",
+    "activeFile": "",
     "expandedProjectPaths": [
     ],
-    "file.lastUsedOpenFilter": "Todos os Ficheiros (*)",
+    "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
-        "//wsl.localhost/Ubuntu/home/joaquino/faculdade/jogos/infinite-craft-clone/assets/tiled/tilesets/TilesetDungeon.tsx": {
+        "/wsl.localhost/Ubuntu/home/joaquino/faculdade/jogos/infinite-craft-clone/assets/tiled/tilesets/TilesetDungeon.tsx": {
             "scaleInDock": 1,
             "scaleInEditor": 1
         },
@@ -63,7 +63,8 @@
         },
         "tilesets/DemonGreen.tsx": {
             "dynamicWrapping": false,
-            "scaleInDock": 1
+            "scaleInDock": 1,
+            "scaleInEditor": 1
         },
         "tilesets/DialogBoxFaceset.tsx": {
             "scaleInDock": 1
@@ -76,6 +77,14 @@
         "tilesets/FarmLand_Tile.tsx": {
             "dynamicWrapping": true,
             "scaleInDock": 1
+        },
+        "tilesets/Flam.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "tilesets/GoldenStatue.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
         },
         "tilesets/Oak_Tree.tsx": {
             "scaleInDock": 1
@@ -119,7 +128,7 @@
     },
     "last.exportedFilePath": "Z:/home/joaquino/faculdade/jogos/infinite-craft-clone/assets/maps",
     "last.externalTilesetPath": "//wsl.localhost/Ubuntu/home/joaquino/faculdade/jogos/infinite-craft-clone/assets/tiled/tilesets",
-    "last.imagePath": "C:/Users/Vitin/UFMG/2025_2/jogos/TP_FINAL/Sintezia/assets/third_party/Ninja Adventure - Asset Pack/Backgrounds/Tilesets",
+    "last.imagePath": "/Users/jlsilva/workspace/2025-2/Jogos/projeto/assets/third_party/Ninja Adventure - Asset Pack/Actor/Characters/GoldStatue",
     "lastUsedTilesetExportFilter": "Todos os Ficheiros (*)",
     "map.lastUsedExportFilter": "Todos os Ficheiros (*)",
     "map.lastUsedFormat": "json",
@@ -127,13 +136,15 @@
     "map.tileHeight": 16,
     "map.tileWidth": 16,
     "openFiles": [
-        "C:/Users/Vitin/UFMG/2025_2/jogos/TP_FINAL/Sintezia/assets/maps/mapa_de_teste.json"
     ],
     "project": "tp.tiled-project",
     "property.type": "bool",
     "recentFiles": [
+        "tilesets/GoldenStatue.tsx",
+        "tilesets/Flam.tsx",
+        "tilesets/DemonGreen.tsx",
         "C:/Users/Vitin/UFMG/2025_2/jogos/TP_FINAL/Sintezia/assets/maps/mapa_de_teste.json",
-        "//wsl.localhost/Ubuntu/home/joaquino/faculdade/jogos/infinite-craft-clone/assets/tiled/tilesets/TilesetDungeon.tsx",
+        "/wsl.localhost/Ubuntu/home/joaquino/faculdade/jogos/infinite-craft-clone/assets/tiled/tilesets/TilesetDungeon.tsx",
         "Z:/home/joaquino/faculdade/jogos/infinite-craft-clone/assets/maps/mapa_de_teste.json",
         "tilesets/Extra tiles.tsx"
     ],
