@@ -42,7 +42,7 @@ void ThirstComponent::SetCurrentThirst(float thirst)
 void ThirstComponent::Update(float deltaTime)
 {
     mTimeAccumulator += deltaTime;
-    if (mTimeAccumulator >= 5.0f)
+    if (mTimeAccumulator >= 120.0f) // 2 minutes
     {
         IncreaseThirst(1.0f);
         mTimeAccumulator = 0.0f;
