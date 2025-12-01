@@ -78,7 +78,20 @@ void DialogNPC::OnDraw(TextRenderer* textRenderer)
     // Draw dialog UI if active
     if (mDialogUI && mDialogUI->IsVisible())
     {
+        // Render UI in screen-space: temporarily reset sprite renderer camera to zero
+        auto* spriteRenderer = mGame->GetSpriteRenderer();
+        Vector2 prevCam = Vector2::Zero;
+        if (spriteRenderer) {
+            prevCam = spriteRenderer->GetCameraPosition();
+            spriteRenderer->SetCameraPosition(Vector2::Zero);
+        }
+
         mDialogUI->Draw(textRenderer, rectRenderer);
+
+        // Restore previous camera
+        if (spriteRenderer) {
+            spriteRenderer->SetCameraPosition(prevCam);
+        }
 
         // Reset OpenGL state after UI rendering
         glActiveTexture(GL_TEXTURE0);
@@ -418,14 +431,3 @@ void DialogNPC::OnTradeOptionSelected(int index)
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
