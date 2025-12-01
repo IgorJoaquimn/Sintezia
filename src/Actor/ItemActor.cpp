@@ -27,6 +27,7 @@ ItemActor::ItemActor(class Game* game, const Item& item)
     , mJumpHeight(20.0f)
     , mIsBeingPickedUp(false)
     , mPickupTarget(nullptr)
+    , mAutoPickupTarget(nullptr)
     , mPickupSpeed(400.0f)
 {
     // Generate random start offset for the jump
@@ -56,6 +57,7 @@ ItemActor::ItemActor(class Game* game, int itemId, const std::string& name, cons
     , mJumpHeight(20.0f)
     , mIsBeingPickedUp(false)
     , mPickupTarget(nullptr)
+    , mAutoPickupTarget(nullptr)
     , mPickupSpeed(400.0f)
 {
     // Generate random start offset for the jump
@@ -101,47 +103,14 @@ void ItemActor::StartPickup(Actor* target)
     }
 }
 
+void ItemActor::SetAutoPickup(Actor* target)
+{
+    mAutoPickupTarget = target;
+}
+
 void ItemActor::OnUpdate(float deltaTime)
 {
-    if (mIsBeingPickedUp && mPickupTarget)
-    {
-        Vector2 pos = GetPosition();
-        Vector2 targetPos = mPickupTarget->GetPosition();
-        
-        // Calculate direction to target
-        Vector2 diff = targetPos - pos;
-        float distSq = diff.LengthSq();
-        
-        // If close enough, add to inventory and destroy
-        if (distSq < 400.0f) // 20 pixels squared
-        {
-            // Try to cast target to Player to access inventory
-            Player* player = dynamic_cast<Player*>(mPickupTarget);
-            if (player)
-            {
-                player->PickupItem(mItem);
-            }
-            
-            SetState(ActorState::Destroy);
-            return;
-        }
-        
-        // Move towards target
-        diff.Normalize();
-        
-        // Accelerate towards player
-        mPickupSpeed += 1000.0f * deltaTime;
-        
-        pos += diff * mPickupSpeed * deltaTime;
-        SetPosition(pos);
-        
-        // Shrink while being picked up
-        if (mSpawnScale > 0.2f)
-        {
-            mSpawnScale -= 2.0f * deltaTime;
-        }
-    }
-    else if (mSpawnTimer < mSpawnDuration)
+    if (mSpawnTimer < mSpawnDuration)
     {
         // Capture the target position on the first frame of update
         if (mSpawnTimer == 0.0f)
@@ -177,6 +146,50 @@ void ItemActor::OnUpdate(float deltaTime)
         {
             mSpawnScale = 1.0f;
             SetPosition(mBasePosition); // Ensure we land exactly on target
+            
+            // Trigger auto-pickup if set
+            if (mAutoPickupTarget)
+            {
+                StartPickup(mAutoPickupTarget);
+            }
+        }
+    }
+    else if (mIsBeingPickedUp && mPickupTarget)
+    {
+        Vector2 pos = GetPosition();
+        Vector2 targetPos = mPickupTarget->GetPosition();
+        
+        // Calculate direction to target
+        Vector2 diff = targetPos - pos;
+        float distSq = diff.LengthSq();
+        
+        // If close enough, add to inventory and destroy
+        if (distSq < 400.0f) // 20 pixels squared
+        {
+            // Try to cast target to Player to access inventory
+            Player* player = dynamic_cast<Player*>(mPickupTarget);
+            if (player)
+            {
+                player->PickupItem(mItem);
+            }
+            
+            SetState(ActorState::Destroy);
+            return;
+        }
+        
+        // Move towards target
+        diff.Normalize();
+        
+        // Accelerate towards player
+        mPickupSpeed += 1000.0f * deltaTime;
+        
+        pos += diff * mPickupSpeed * deltaTime;
+        SetPosition(pos);
+        
+        // Shrink while being picked up
+        if (mSpawnScale > 0.2f)
+        {
+            mSpawnScale -= 2.0f * deltaTime;
         }
     }
 }void ItemActor::OnDraw(class TextRenderer* textRenderer)
