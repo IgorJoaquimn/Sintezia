@@ -16,6 +16,7 @@ class SpriteComponent;
 class HealthComponent;
 class HungerComponent;
 class ThirstComponent;
+class WeightComponent;
 class AttackComponent;
 class Texture;
 class Inventory;
@@ -70,6 +71,7 @@ private:
     HealthComponent* mHealthComponent;
     HungerComponent* mHungerComponent;
     ThirstComponent* mThirstComponent;
+    WeightComponent* mWeightComponent;
     AttackComponent* mAttackComponent;
 
     PlayerState mState;

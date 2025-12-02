@@ -83,5 +83,9 @@ private:
     Actor* mAutoPickupTarget; // Target for auto-pickup
     float mPickupSpeed;
 
+    // Despawn timer
+    float mLifeTime;
+    const float mMaxLifeTime = 5.0f;
+
     std::string GetDisplayText() const;
 };

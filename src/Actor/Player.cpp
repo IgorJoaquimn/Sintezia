@@ -8,6 +8,9 @@
 #include "../Component/AnimationComponent.hpp"
 #include "../Component/SpriteComponent.hpp"
 #include "../Component/HealthComponent.hpp"
+#include "../Component/HungerComponent.hpp"
+#include "../Component/ThirstComponent.hpp"
+#include "../Component/WeightComponent.hpp"
 #include "../Component/AttackComponent.hpp"
 #include "../Core/Texture/Texture.hpp"
 #include "../Map/TiledParser.hpp"
@@ -44,6 +47,8 @@ Player::Player(Game* game)
     mAttackComponent = AddComponent<AttackComponent>();
     mHungerComponent = AddComponent<HungerComponent>();
     mThirstComponent = AddComponent<ThirstComponent>();
+    mWeightComponent = AddComponent<WeightComponent>();
+    mWeightComponent->SetInventory(mInventory.get());
 
     // Configure health component
     mHealthComponent->SetMaxHealth(100.0f);
@@ -83,7 +88,7 @@ Player::Player(Game* game)
 
     // Create health bar UI attached to the player's HealthComponent
     // Initial position is (0,0) — we'll position it relative to the player each frame in OnDraw
-    mHealthBar = std::make_unique<HealthBar>(mHealthComponent, mHungerComponent, mThirstComponent, mGame->GetRectRenderer(), 0.0f, 0.0f, 100.0f, 12.0f);
+    mHealthBar = std::make_unique<HealthBar>(mHealthComponent, mHungerComponent, mThirstComponent, mWeightComponent, mGame->GetRectRenderer(), 0.0f, 0.0f, 100.0f, 12.0f);
 
     // Configure attack component
     AttackConfig attackConfig;
@@ -293,29 +298,29 @@ void Player::OnUpdate(float deltaTime)
 
     // Check for nearby items to pickup
     // Radius increased to 150px (approx 3-4 tiles) to make pickup easier
-    const float PICKUP_RADIUS = 150.0f;
-    const float PICKUP_RADIUS_SQ = PICKUP_RADIUS * PICKUP_RADIUS;
+    // const float PICKUP_RADIUS = 150.0f;
+    // const float PICKUP_RADIUS_SQ = PICKUP_RADIUS * PICKUP_RADIUS;
     
-    Vector2 myPos = GetPosition();
+    // Vector2 myPos = GetPosition();
     
-    for (const auto& actor : mGame->GetActors())
-    {
-        // Check if it's an ItemActor
-        ItemActor* item = dynamic_cast<ItemActor*>(actor.get());
-        if (item && item->GetState() == ActorState::Active && !item->IsBeingPickedUp())
-        {
-            // Calculate item center (ItemActor position is Left-Center)
-            Vector2 itemBounds = item->GetBounds();
-            Vector2 itemCenter = item->GetPosition() + Vector2(itemBounds.x / 2.0f, 0.0f);
+    // for (const auto& actor : mGame->GetActors())
+    // {
+    //     // Check if it's an ItemActor
+    //     ItemActor* item = dynamic_cast<ItemActor*>(actor.get());
+    //     if (item && item->GetState() == ActorState::Active && !item->IsBeingPickedUp())
+    //     {
+    //         // Calculate item center (ItemActor position is Left-Center)
+    //         Vector2 itemBounds = item->GetBounds();
+    //         Vector2 itemCenter = item->GetPosition() + Vector2(itemBounds.x / 2.0f, 0.0f);
 
-            // Check distance
-            float distSq = (itemCenter - myPos).LengthSq();
-            if (distSq < PICKUP_RADIUS_SQ)
-            {
-                item->StartPickup(this);
-            }
-        }
-    }
+    //         // Check distance
+    //         float distSq = (itemCenter - myPos).LengthSq();
+    //         if (distSq < PICKUP_RADIUS_SQ)
+    //         {
+    //             item->StartPickup(this);
+    //         }
+    //     }
+    // }
 
     // Update inventory UI
     if (mInventoryUI)
@@ -524,7 +529,7 @@ bool Player::CheckForEnvironmentInteraction()
                                 auto itemActor = std::make_unique<ItemActor>(mGame, *woodItem);
                                 Vector2 spawnPos(col * tileSize + tileSize / 2.0f, row * tileSize + tileSize / 2.0f);
                                 itemActor->SetPosition(spawnPos);
-                                itemActor->SetAutoPickup(this);
+                                // itemActor->SetAutoPickup(this);
                                 mGame->AddActor(std::move(itemActor));
                             }
                             
@@ -580,7 +585,7 @@ bool Player::CheckForEnvironmentInteraction()
                                     itemActor->SetPosition(spawnPos);
                                     
                                     // Make it go to user
-                                    itemActor->SetAutoPickup(this);
+                                    // itemActor->SetAutoPickup(this);
                                     
                                     mGame->AddActor(std::move(itemActor));
                                     

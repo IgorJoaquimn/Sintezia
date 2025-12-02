@@ -29,6 +29,7 @@ ItemActor::ItemActor(class Game* game, const Item& item)
     , mPickupTarget(nullptr)
     , mAutoPickupTarget(nullptr)
     , mPickupSpeed(400.0f)
+    , mLifeTime(0.0f)
 {
     // Generate random start offset for the jump
     // Random X between -16 and 16
@@ -59,6 +60,7 @@ ItemActor::ItemActor(class Game* game, int itemId, const std::string& name, cons
     , mPickupTarget(nullptr)
     , mAutoPickupTarget(nullptr)
     , mPickupSpeed(400.0f)
+    , mLifeTime(0.0f)
 {
     // Generate random start offset for the jump
     float randomX = (static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * 32.0f) - 16.0f;
@@ -190,6 +192,37 @@ void ItemActor::OnUpdate(float deltaTime)
         if (mSpawnScale > 0.2f)
         {
             mSpawnScale -= 2.0f * deltaTime;
+        }
+    }
+    else
+    {
+        // Update lifetime
+        if (!mIsDragging)
+        {
+            mLifeTime += deltaTime;
+            if (mLifeTime >= mMaxLifeTime)
+            {
+                SetState(ActorState::Destroy);
+                return;
+            }
+        }
+        else
+        {
+            mLifeTime = 0.0f; // Reset timer if dragged
+        }
+
+        // Idle state - Check for player proximity
+        Player* player = GetGame()->GetPlayer();
+        if (player)
+        {
+            Vector2 playerPos = player->GetPosition();
+            Vector2 myPos = GetPosition();
+            
+            // Distance check (e.g. 40 pixels)
+            if ((playerPos - myPos).LengthSq() < 1600.0f) 
+            {
+                StartPickup(player);
+            }
         }
     }
 }void ItemActor::OnDraw(class TextRenderer* textRenderer)

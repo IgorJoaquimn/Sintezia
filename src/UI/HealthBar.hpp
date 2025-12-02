@@ -5,6 +5,7 @@
 #include "../MathUtils.h"
 #include "../Component/HungerComponent.hpp"
 #include "../Component/ThirstComponent.hpp"
+#include "../Component/WeightComponent.hpp"
 
 class HealthComponent;
 class TextRenderer;
@@ -12,7 +13,7 @@ class RectRenderer;
 
 class HealthBar {
 public:
-    HealthBar(HealthComponent* health, HungerComponent* hunger, ThirstComponent* thirst, RectRenderer* rectRenderer, float x = 10.0f, float y = 10.0f, float width = 200.0f, float height = 20.0f);
+    HealthBar(HealthComponent* health, HungerComponent* hunger, ThirstComponent* thirst, WeightComponent* weight, RectRenderer* rectRenderer, float x = 10.0f, float y = 10.0f, float width = 200.0f, float height = 20.0f);
 
     void Update(float deltaTime);
     void Draw(TextRenderer* textRenderer, RectRenderer* rectRenderer);
@@ -24,6 +25,7 @@ private:
     HealthComponent* mHealth;
     HungerComponent* mHunger;
     ThirstComponent* mThirst;
+    WeightComponent* mWeight;
     float mX;
     float mY;
     float mW;

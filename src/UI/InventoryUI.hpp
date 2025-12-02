@@ -44,6 +44,10 @@ public:
     Vector2 GetDimensions() const;
     void CenterOnScreen(float screenWidth, float screenHeight);
 
+    // Drag and Drop
+    void HandleMouseUp(const Vector2& mousePos);
+    bool IsDragging() const { return mIsDragging; }
+
     // Callbacks
     void SetOnItemSelected(std::function<void(int itemId)> callback) { mOnItemSelected = callback; }
     void SetOnItemUsed(std::function<void(const Item& item)> callback) { mOnItemUsed = callback; }
@@ -71,10 +75,15 @@ private:
     // Input state
     bool mKeyPressed[10];
     Vector2 mCurrentMousePos;
+    
+    // Dragging state
+    bool mIsDragging;
+    int mDraggedSlotIndex;
+    Vector2 mDragStartPos;
 
     // Crafting state
-    int mCraftInputSlot1; // Index in inventory
-    int mCraftInputSlot2; // Index in inventory
+    std::unique_ptr<InventorySlot> mCraftInputSlot1; // Item in slot 1
+    std::unique_ptr<InventorySlot> mCraftInputSlot2; // Item in slot 2
     std::unique_ptr<Item> mCraftResult;
 
     // Crafting UI helpers

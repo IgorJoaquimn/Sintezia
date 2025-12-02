@@ -281,6 +281,17 @@ void Game::ProcessInput()
                     }
                 }
                 break;
+            case SDL_MOUSEBUTTONUP:
+                if (event.button.button == SDL_BUTTON_LEFT)
+                {
+                    mMousePos.x = static_cast<float>(event.button.x);
+                    mMousePos.y = static_cast<float>(event.button.y);
+                    if (mPlayer && mPlayer->GetInventoryUI())
+                    {
+                        mPlayer->GetInventoryUI()->HandleMouseUp(mMousePos);
+                    }
+                }
+                break;
             default:
                 // Ignore other events
                 break;

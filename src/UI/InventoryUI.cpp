@@ -4,6 +4,8 @@
 #include "../Core/RectRenderer/RectRenderer.hpp"
 #include "../Map/TileMap.hpp"
 #include "../Core/Texture/SpriteRenderer.hpp"
+#include "../Actor/ItemActor.hpp"
+#include "../Actor/Player.hpp"
 #include <SDL.h>
 #include <algorithm>
 
@@ -22,14 +24,17 @@ InventoryUI::InventoryUI(Game* game, Inventory* inventory)
     , mSlotHoverColor(0.4f, 0.4f, 0.45f)
     , mSlotSelectedColor(0.5f, 0.6f, 0.7f)
     , mTextColor(1.0f, 1.0f, 1.0f)
-    , mCraftInputSlot1(-1)
-    , mCraftInputSlot2(-1)
+    , mCraftInputSlot1(nullptr)
+    , mCraftInputSlot2(nullptr)
     , mCraftResult(nullptr)
     , mBackgroundMap(nullptr)
     , mMapScale(4.0f)
     , mSelectionCursorGID(0)
     , mMouseRightIcon(nullptr)
     , mCurrentMousePos(Vector2::Zero)
+    , mIsDragging(false)
+    , mDraggedSlotIndex(-1)
+    , mDragStartPos(Vector2::Zero)
 {
     // Initialize key states
     for (int i = 0; i < 10; i++)
@@ -102,6 +107,21 @@ void InventoryUI::Draw(TextRenderer* textRenderer, RectRenderer* rectRenderer, S
     DrawInventorySlots(textRenderer, rectRenderer, spriteRenderer);
     DrawCraftingPanel(textRenderer, rectRenderer, spriteRenderer);
     DrawConsumeCursor(textRenderer, rectRenderer, spriteRenderer);
+
+    // Draw dragged item
+    if (mIsDragging && mDraggedSlotIndex != -1 && mInventory)
+    {
+        const InventorySlot* slot = mInventory->GetSlot(mDraggedSlotIndex);
+        if (slot)
+        {
+            // Draw item at mouse position
+            float emojiScale = 0.8f;
+            Vector2 emojiSize = textRenderer->MeasureText(slot->item.emoji, emojiScale);
+            float emojiX = mCurrentMousePos.x - emojiSize.x / 2.0f;
+            float emojiY = mCurrentMousePos.y - emojiSize.y / 2.0f;
+            textRenderer->RenderText(slot->item.emoji, emojiX, emojiY, emojiScale);
+        }
+    }
 }
 
 void InventoryUI::HandleInput(const uint8_t* keyState)
@@ -136,56 +156,238 @@ void InventoryUI::HandleMouseClick(const Vector2& mousePos)
 
     // Check crafting slots first
     Vector2 resultPos = GetCraftingSlotPosition(2);
-    Vector2 input1Pos = GetCraftingSlotPosition(0);
-    Vector2 input2Pos = GetCraftingSlotPosition(1);
     float resultSize = mSlotSize * 1.5f;
 
-    // Check Result Slot
+    // Check Result Slot (Immediate action)
     if (IsPointInRect(mousePos, resultPos, Vector2(resultSize, resultSize)))
     {
         PerformCraft();
         return;
     }
 
-    // Check Input 1
+    // Check Input Slots (Start Drag)
+    // We use special indices for crafting slots: -100 for Input1, -101 for Input2
+    Vector2 input1Pos = GetCraftingSlotPosition(0);
     if (IsPointInRect(mousePos, input1Pos, Vector2(mSlotSize, mSlotSize)))
     {
-        mCraftInputSlot1 = -1;
-        UpdateCraftingResult();
+        if (mCraftInputSlot1)
+        {
+            mIsDragging = true;
+            mDraggedSlotIndex = -100; // Special index for Input 1
+            mDragStartPos = mousePos;
+        }
         return;
     }
 
-    // Check Input 2
+    Vector2 input2Pos = GetCraftingSlotPosition(1);
     if (IsPointInRect(mousePos, input2Pos, Vector2(mSlotSize, mSlotSize)))
     {
-        mCraftInputSlot2 = -1;
-        UpdateCraftingResult();
+        if (mCraftInputSlot2)
+        {
+            mIsDragging = true;
+            mDraggedSlotIndex = -101; // Special index for Input 2
+            mDragStartPos = mousePos;
+        }
         return;
     }
 
-    // Check Inventory Slots
+    // Check Inventory Slots (Start Drag)
     int clickedSlot = GetSlotAtPosition(mousePos);
     
     if (clickedSlot != -1 && clickedSlot < mInventory->GetUsedSlots())
     {
-        // Add to crafting slots
-        if (mCraftInputSlot1 == -1)
-        {
-            mCraftInputSlot1 = clickedSlot;
-        }
-        else if (mCraftInputSlot2 == -1)
-        {
-            mCraftInputSlot2 = clickedSlot;
-        }
-        else
-        {
-            // Both full, replace slot 1 (cycle)
-            mCraftInputSlot1 = mCraftInputSlot2;
-            mCraftInputSlot2 = clickedSlot;
-        }
-        UpdateCraftingResult();
+        mIsDragging = true;
+        mDraggedSlotIndex = clickedSlot;
+        mDragStartPos = mousePos;
     }
 }
+
+void InventoryUI::HandleMouseUp(const Vector2& mousePos)
+{
+    if (!mIsDragging) return;
+
+    mIsDragging = false;
+    float dragDist = (mousePos - mDragStartPos).Length();
+    bool isClick = dragDist < 5.0f;
+
+    // Identify source item
+    InventorySlot* sourceSlot = nullptr;
+    if (mDraggedSlotIndex >= 0)
+    {
+        sourceSlot = mInventory->GetSlot(mDraggedSlotIndex);
+    }
+    else if (mDraggedSlotIndex == -100 && mCraftInputSlot1)
+    {
+        sourceSlot = mCraftInputSlot1.get();
+    }
+    else if (mDraggedSlotIndex == -101 && mCraftInputSlot2)
+    {
+        sourceSlot = mCraftInputSlot2.get();
+    }
+
+    if (!sourceSlot) return;
+
+        // Helper lambda to move from inventory to crafting
+    auto moveFromInventoryToCrafting = [&](int invSlotIdx, std::unique_ptr<InventorySlot>& craftSlot) {
+        InventorySlot* s = mInventory->GetSlot(invSlotIdx);
+        if (!s) return;
+        
+        // If craft slot has item, return it to inventory first
+        if (craftSlot)
+        {
+            mInventory->AddItem(craftSlot->item, craftSlot->quantity);
+            craftSlot.reset();
+        }
+        
+        // Take 1 from inventory
+        Item item = s->item;
+        mInventory->RemoveItemAt(invSlotIdx, 1);
+        
+        // Put in crafting
+        craftSlot = std::make_unique<InventorySlot>(item, 1);
+        UpdateCraftingResult();
+    };
+
+    // Helper lambda to return from crafting to inventory
+    auto returnToInventory = [&](std::unique_ptr<InventorySlot>& craftSlot) {
+        if (!craftSlot) return;
+        mInventory->AddItem(craftSlot->item, craftSlot->quantity);
+        craftSlot.reset();
+        UpdateCraftingResult();
+    };
+
+    // If Click (not drag)
+    if (isClick)
+    {
+        if (mDraggedSlotIndex >= 0)
+        {
+            // Clicked Inventory Slot -> Move to Crafting
+            if (!mCraftInputSlot1) moveFromInventoryToCrafting(mDraggedSlotIndex, mCraftInputSlot1);
+            else if (!mCraftInputSlot2) moveFromInventoryToCrafting(mDraggedSlotIndex, mCraftInputSlot2);
+            else {
+                // Both full, replace 1
+                moveFromInventoryToCrafting(mDraggedSlotIndex, mCraftInputSlot1);
+            }
+        }
+        else if (mDraggedSlotIndex == -100)
+        {
+            // Clicked Input 1 -> Return to inventory
+            returnToInventory(mCraftInputSlot1);
+        }
+        else if (mDraggedSlotIndex == -101)
+        {
+            // Clicked Input 2 -> Return to inventory
+            returnToInventory(mCraftInputSlot2);
+        }
+        return;
+    }
+
+    // Check where it was dropped
+    
+    // Check Input 1
+    Vector2 input1Pos = GetCraftingSlotPosition(0);
+    if (IsPointInRect(mousePos, input1Pos, Vector2(mSlotSize, mSlotSize)))
+    {
+        if (mDraggedSlotIndex >= 0) // From Inventory
+        {
+            moveFromInventoryToCrafting(mDraggedSlotIndex, mCraftInputSlot1);
+        }
+        else if (mDraggedSlotIndex == -101) // From Input 2
+        {
+            if (mCraftInputSlot2)
+            {
+                if (mCraftInputSlot1) returnToInventory(mCraftInputSlot1); // Clear target
+                mCraftInputSlot1 = std::move(mCraftInputSlot2); // Move
+                UpdateCraftingResult();
+            }
+        }
+        return;
+    }
+
+    // Check Input 2
+    Vector2 input2Pos = GetCraftingSlotPosition(1);
+    if (IsPointInRect(mousePos, input2Pos, Vector2(mSlotSize, mSlotSize)))
+    {
+        if (mDraggedSlotIndex >= 0) // From Inventory
+        {
+            moveFromInventoryToCrafting(mDraggedSlotIndex, mCraftInputSlot2);
+        }
+        else if (mDraggedSlotIndex == -100) // From Input 1
+        {
+             if (mCraftInputSlot1)
+            {
+                if (mCraftInputSlot2) returnToInventory(mCraftInputSlot2); // Clear target
+                mCraftInputSlot2 = std::move(mCraftInputSlot1); // Move
+                UpdateCraftingResult();
+            }
+        }
+        return;
+    }
+
+    // Check Inventory Slots (Dropped back to inventory)
+    bool droppedInInventory = false;
+    if (mBackgroundMap)
+    {
+        Vector2 mapDims = GetDimensions();
+        if (IsPointInRect(mousePos, mPosition, mapDims))
+        {
+            droppedInInventory = true;
+        }
+    }
+    
+    if (droppedInInventory)
+    {
+        if (mDraggedSlotIndex == -100) returnToInventory(mCraftInputSlot1);
+        else if (mDraggedSlotIndex == -101) returnToInventory(mCraftInputSlot2);
+        return;
+    }
+
+    // Dropped outside UI -> Drop to world
+    if (!droppedInInventory)
+    {
+        // Get item data copy before removing
+        Item itemToDrop = sourceSlot->item;
+        
+        // Remove from source
+        if (mDraggedSlotIndex >= 0)
+        {
+            mInventory->RemoveItemAt(mDraggedSlotIndex, 1);
+        }
+        else if (mDraggedSlotIndex == -100)
+        {
+            mCraftInputSlot1.reset();
+            UpdateCraftingResult();
+        }
+        else if (mDraggedSlotIndex == -101)
+        {
+            mCraftInputSlot2.reset();
+            UpdateCraftingResult();
+        }
+
+        // Spawn Actor
+        if (mGame)
+        {
+            auto actor = std::make_unique<ItemActor>(mGame, itemToDrop);
+            
+            // Drop near player
+            if (mGame->GetPlayer())
+            {
+                float angle = (static_cast<float>(rand()) / RAND_MAX) * 6.283185f; // 2*PI
+                float distance = 60.0f + (static_cast<float>(rand()) / RAND_MAX) * 40.0f; // 60-100 units
+                
+                float offsetX = std::cos(angle) * distance;
+                float offsetY = std::sin(angle) * distance;
+                actor->SetPosition(mGame->GetPlayer()->GetPosition() + Vector2(offsetX, offsetY));
+            }
+            
+            mGame->AddActor(std::move(actor));
+            SDL_Log("Dropped item: %s", itemToDrop.name.c_str());
+        }
+        return;
+    }
+}
+
+
 
 void InventoryUI::HandleRightClick(const Vector2& mousePos)
 {
@@ -269,7 +471,7 @@ void InventoryUI::DrawInventorySlots(TextRenderer* textRenderer, RectRenderer* r
         
         // Only draw selection/hover highlight if using map
         // The map already has slot backgrounds
-        bool isSelected = (i == mSelectedSlot) || (i == mCraftInputSlot1) || (i == mCraftInputSlot2);
+        bool isSelected = (i == mSelectedSlot);
         
         if (isSelected)
         {
@@ -501,18 +703,38 @@ void InventoryUI::DrawCraftingPanel(TextRenderer* textRenderer, RectRenderer* re
     Vector2 input1Pos = GetCraftingSlotPosition(0);
     Vector2 input2Pos = GetCraftingSlotPosition(1);
     Vector2 resultPos = GetCraftingSlotPosition(2);
-    float resultSize = mSlotSize; // Use standard slot size for result too, or adjust if map has larger slot
+    float resultSize = mSlotSize; 
+
+    // Helper to draw item
+    auto drawItem = [&](const InventorySlot* slot, Vector2 pos) {
+        if (!slot) return;
+        float emojiScale = 0.8f;
+        Vector2 emojiSize = textRenderer->MeasureText(slot->item.emoji, emojiScale);
+        float emojiX = pos.x + (mSlotSize - emojiSize.x) / 2.0f;
+        float emojiY = pos.y + (mSlotSize / 2.0f) + (emojiSize.y / 2.0f) - 5.0f;
+        textRenderer->RenderText(slot->item.emoji, emojiX, emojiY, emojiScale);
+
+        if (slot->quantity > 1)
+        {
+            std::string quantityText = std::to_string(slot->quantity);
+            float quantityScale = 0.5f;
+            Vector2 quantitySize = textRenderer->MeasureText(quantityText, quantityScale);
+            float quantityX = pos.x + mSlotSize - quantitySize.x - 5.0f;
+            float quantityY = pos.y + mSlotSize - 5.0f;
+            textRenderer->RenderText(quantityText, quantityX, quantityY, quantityScale);
+        }
+    };
 
     // Draw Input 1 Item
-    if (mCraftInputSlot1 != -1)
+    if (mCraftInputSlot1)
     {
-        DrawItemInSlot(mCraftInputSlot1, input1Pos, textRenderer, rectRenderer, spriteRenderer);
+        drawItem(mCraftInputSlot1.get(), input1Pos);
     }
 
     // Draw Input 2 Item
-    if (mCraftInputSlot2 != -1)
+    if (mCraftInputSlot2)
     {
-        DrawItemInSlot(mCraftInputSlot2, input2Pos, textRenderer, rectRenderer, spriteRenderer);
+        drawItem(mCraftInputSlot2.get(), input2Pos);
     }
 
     // Draw Result Item if available
@@ -539,52 +761,30 @@ void InventoryUI::UpdateCraftingResult()
 {
     mCraftResult.reset();
 
-    if (mCraftInputSlot1 != -1 && mCraftInputSlot2 != -1)
+    if (mCraftInputSlot1 && mCraftInputSlot2)
     {
-        InventorySlot* slot1 = mInventory->GetSlot(mCraftInputSlot1);
-        InventorySlot* slot2 = mInventory->GetSlot(mCraftInputSlot2);
-
-        if (slot1 && slot2 && mGame && mGame->GetCrafting())
+        if (mGame && mGame->GetCrafting())
         {
-            mCraftResult = mGame->GetCrafting()->combine_items(slot1->item, slot2->item);
+            mCraftResult = mGame->GetCrafting()->combine_items(mCraftInputSlot1->item, mCraftInputSlot2->item);
         }
     }
 }
 
 void InventoryUI::PerformCraft()
 {
-    if (mCraftResult && mCraftInputSlot1 != -1 && mCraftInputSlot2 != -1)
+    if (mCraftResult && mCraftInputSlot1 && mCraftInputSlot2)
     {
-        // Remove items
-        bool removed = false;
-        if (mCraftInputSlot1 == mCraftInputSlot2)
-        {
-            // Same slot
-            removed = mInventory->RemoveItemAt(mCraftInputSlot1, 2);
-        }
-        else
-        {
-            // Different slots - remove higher index first
-            int first = std::max(mCraftInputSlot1, mCraftInputSlot2);
-            int second = std::min(mCraftInputSlot1, mCraftInputSlot2);
-            if (mInventory->RemoveItemAt(first, 1))
-            {
-                removed = mInventory->RemoveItemAt(second, 1);
-            }
-        }
-
-        if (removed)
-        {
-            mInventory->AddItem(*mCraftResult, 1);
-            ClearCraftingSlots();
-        }
+        // Items are already removed from inventory when placed in crafting slots
+        // Just consume them (clear slots) and add result
+        mInventory->AddItem(*mCraftResult, 1);
+        ClearCraftingSlots();
     }
 }
 
 void InventoryUI::ClearCraftingSlots()
 {
-    mCraftInputSlot1 = -1;
-    mCraftInputSlot2 = -1;
+    mCraftInputSlot1.reset();
+    mCraftInputSlot2.reset();
     mCraftResult.reset();
 }
 
