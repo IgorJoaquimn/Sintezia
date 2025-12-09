@@ -135,6 +135,11 @@ Player::Player(Game* game)
             mThirstComponent->DecreaseThirst(amount);
             consumed = true;
         }
+
+        if (item.healthRestoration > 0.0f && mHealthComponent) {
+            mHealthComponent->Heal(item.healthRestoration);
+            consumed = true;
+        }
         
         if (consumed) {
             mInventory->RemoveItem(item.id, 1);

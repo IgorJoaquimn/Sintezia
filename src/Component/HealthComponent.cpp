@@ -83,10 +83,6 @@ void HealthComponent::SetCurrentHealth(float health)
     }
 }
 
-void HealthComponent::UpdateVitalityBar(float hunger, float thirst)
-{
-    // Logic to update the vitality bar based on health, hunger, and thirst
-}
 
 void HealthComponent::Update(float deltaTime)
 {

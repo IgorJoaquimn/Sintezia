@@ -184,6 +184,7 @@ void Game::LoadLevel()
         const Item* water = mCrafting->FindItemById(1);  // Water
         const Item* fire = mCrafting->FindItemById(2);   // Fire
         const Item* earth = mCrafting->FindItemById(3);  // Earth
+        const Item* air = mCrafting->FindItemById(4);    // Air
 
         if (water)
             mPlayer->GetInventory()->AddItem(*water, 5);  // 5 water
@@ -191,6 +192,8 @@ void Game::LoadLevel()
             mPlayer->GetInventory()->AddItem(*fire, 5);   // 5 fire
         if (earth)
             mPlayer->GetInventory()->AddItem(*earth, 3);  // 3 earth
+        if (air)
+            mPlayer->GetInventory()->AddItem(*air, 5);    // 5 air
     }
 
     // Create test aggressive patrol NPC (patrols and chases player)

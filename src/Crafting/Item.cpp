@@ -12,6 +12,7 @@ Item Item::fromJson(const json& j) {
         j.at("name").get<std::string>(),
         j.value("emoji", "🔹"),  // Default emoji if not present
         j.value("hungerRestoration", 0.0f),
-        j.value("thirstRestoration", 0.0f)
+        j.value("thirstRestoration", 0.0f),
+        j.value("healthRestoration", 0.0f)
     );
 }

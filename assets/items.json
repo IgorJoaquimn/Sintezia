@@ -137,6 +137,27 @@
             "id": 202,
             "name": "Picareta",
             "emoji": "⛏️"
+        },
+        {
+            "id": 300,
+            "name": "Curativo",
+            "emoji": "🩹",
+            "healthRestoration": 30.0
+        },
+        {
+            "id": 301,
+            "name": "Planta",
+            "emoji": "🌿"
+        },
+        {
+            "id": 302,
+            "name": "Fibra",
+            "emoji": "🧶"
+        },
+        {
+            "id": 303,
+            "name": "Pasta Medicinal",
+            "emoji": "🍵"
         }
     ]
 }

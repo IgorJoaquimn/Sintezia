@@ -134,6 +134,26 @@
             "item1_id": 100,
             "item2_id": 1,
             "result_id": 109
+        },
+        {
+            "item1_id": 3,
+            "item2_id": 9,
+            "result_id": 301
+        },
+        {
+            "item1_id": 301,
+            "item2_id": 301,
+            "result_id": 302
+        },
+        {
+            "item1_id": 301,
+            "item2_id": 12,
+            "result_id": 303
+        },
+        {
+            "item1_id": 303,
+            "item2_id": 302,
+            "result_id": 300
         }
     ]
 }
