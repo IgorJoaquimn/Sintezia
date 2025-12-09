@@ -82,6 +82,14 @@ public:
     bool CanHarvestBlock(int col, int row, float currentTime, float cooldown = 5.0f) const;
     void SetBlockHarvestTime(int col, int row, float harvestTime);
     
+    // Harvest counting
+    int GetHarvestCount(int col, int row) const;
+    void IncrementHarvestCount(int col, int row);
+    void ResetHarvestCount(int col, int row);
+
+    // Force map redraw
+    void InvalidateCache() { mCachedMapTexture.reset(); }
+
 private:
     int mWidth;
     int mHeight;
@@ -93,6 +101,9 @@ private:
     // Track harvest cooldown for resource blocks
     // Key: "col,row", Value: last harvest timestamp
     mutable std::map<std::string, float> mBlockHarvestTimes;
+    
+    // Track harvest counts
+    std::map<std::string, int> mBlockHarvestCounts;
 
     // Cached rendering
     std::unique_ptr<Texture> mCachedMapTexture;

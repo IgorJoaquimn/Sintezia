@@ -808,3 +808,26 @@ void TileMap::SetBlockHarvestTime(int col, int row, float harvestTime)
     std::string key = std::to_string(col) + "," + std::to_string(row);
     mBlockHarvestTimes[key] = harvestTime;
 }
+
+int TileMap::GetHarvestCount(int col, int row) const
+{
+    std::string key = std::to_string(col) + "," + std::to_string(row);
+    auto it = mBlockHarvestCounts.find(key);
+    if (it != mBlockHarvestCounts.end())
+    {
+        return it->second;
+    }
+    return 0;
+}
+
+void TileMap::IncrementHarvestCount(int col, int row)
+{
+    std::string key = std::to_string(col) + "," + std::to_string(row);
+    mBlockHarvestCounts[key]++;
+}
+
+void TileMap::ResetHarvestCount(int col, int row)
+{
+    std::string key = std::to_string(col) + "," + std::to_string(row);
+    mBlockHarvestCounts.erase(key);
+}

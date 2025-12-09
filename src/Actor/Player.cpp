@@ -553,7 +553,8 @@ bool Player::CheckForEnvironmentInteraction()
                 std::string layerName = pair.first;
                 std::string itemName = pair.second;
 
-                for (const auto& layer : mapData->layers)
+                // Use reference to allow modification
+                for (auto& layer : mapData->layers)
                 {
                     if (layer.name == layerName)
                     {
@@ -593,6 +594,60 @@ bool Player::CheckForEnvironmentInteraction()
                                     
                                     // Set cooldown
                                     tileMap->SetBlockHarvestTime(col, row, mGame->GetGameTime());
+
+                                    // Limit wood harvest to 5 times
+                                    if (layerName == "gerador_madeira")
+                                    {
+                                        tileMap->IncrementHarvestCount(col, row);
+                                        if (tileMap->GetHarvestCount(col, row) >= 5)
+                                        {
+                                            SDL_Log("Tree depleted at %d, %d. Removing neighbors...", col, row);
+                                            
+                                            // Check 3x3 area to find connected tree parts (assuming 2x2 tree)
+                                            // This ensures we remove the whole tree (4 quadrants)
+                                            for (int dy = -1; dy <= 1; dy++)
+                                            {
+                                                for (int dx = -1; dx <= 1; dx++)
+                                                {
+                                                    int targetCol = col + dx;
+                                                    int targetRow = row + dy;
+                                                    
+                                                    // Check bounds
+                                                    if (targetCol < 0 || targetCol >= tileMap->GetWidth() || 
+                                                        targetRow < 0 || targetRow >= tileMap->GetHeight())
+                                                        continue;
+
+                                                    int targetIndex = targetRow * layer.width + targetCol;
+                                                    
+                                                    // Check if this neighbor is also a generator (part of the tree)
+                                                    if (targetIndex >= 0 && targetIndex < static_cast<int>(layer.data.size()) && layer.data[targetIndex] != 0)
+                                                    {
+                                                        // Remove from generator layer
+                                                        layer.data[targetIndex] = 0;
+                                                        tileMap->ResetHarvestCount(targetCol, targetRow);
+
+                                                        // Remove from visual layers
+                                                        for (auto& otherLayer : mapData->layers)
+                                                        {
+                                                            if (otherLayer.name == "structures" || 
+                                                                otherLayer.name == "structures 2" || 
+                                                                otherLayer.name == "collision" ||
+                                                                otherLayer.name == "trees" || 
+                                                                otherLayer.name == "vegetation")
+                                                            {
+                                                                if (targetIndex >= 0 && targetIndex < static_cast<int>(otherLayer.data.size()))
+                                                                {
+                                                                    otherLayer.data[targetIndex] = 0;
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+
+                                            tileMap->InvalidateCache(); // Force redraw
+                                        }
+                                    }
                                     
                                     // Only harvest one block per press
                                     return true;
