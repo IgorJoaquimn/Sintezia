@@ -30,4 +30,5 @@ private:
     float mMaxThirst;
     std::function<void()> mDehydrationCallback;
     float mTimeAccumulator;
+    float mDamageTimer;
 };

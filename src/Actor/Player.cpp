@@ -291,8 +291,10 @@ void Player::OnUpdate(float deltaTime)
     }
 
     // Check for death
-    if (mHealthComponent && mHealthComponent->GetCurrentHealth() <= 0.0f)
+    if (mHealthComponent && mHealthComponent->GetCurrentHealth() <= 0.5f)
     {
+        SDL_Log("Force Game Over from Player::OnUpdate");
+        mHealthComponent->SetCurrentHealth(0.0f);
         mGame->SetGameOver(true);
     }
 

@@ -98,6 +98,12 @@ void InventoryUI::Draw(TextRenderer* textRenderer, RectRenderer* rectRenderer, S
 {
     if (!mVisible || !mInventory) return;
 
+    // Ensure text color is set to the inventory's text color (white)
+    if (textRenderer)
+    {
+        textRenderer->SetTextColor(mTextColor.x, mTextColor.y, mTextColor.z);
+    }
+
     // Draw background map
     if (mBackgroundMap && spriteRenderer)
     {

@@ -18,7 +18,7 @@ void WeightComponent::Update(float deltaTime)
         float totalWeight = 0.0f;
         for (const auto& slot : mInventory->GetAllSlots())
         {
-            totalWeight += (float)slot.quantity * 20.0f;
+            totalWeight += (float)slot.quantity * 50.0f;
         }
         SetCurrentWeight(totalWeight);
         // Assume max stack size of 64 for weight calculation purposes

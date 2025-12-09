@@ -30,4 +30,5 @@ private:
     float mMaxHunger;
     std::function<void()> mStarvationCallback;
     float mTimeAccumulator;
+    float mDamageTimer;
 };

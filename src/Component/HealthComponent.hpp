@@ -28,10 +28,14 @@ public:
     // Damage callback - called when taking damage
     void SetOnDamageCallback(std::function<void(float)> callback) { mOnDamageCallback = callback; }
 
+    // Update loop
+    void Update(float deltaTime) override;
+
 private:
     float mCurrentHealth;
     float mMaxHealth;
     float mRecentDamage; // Tracks recent damage for the health bar
+    bool mDeathTriggered;
     std::function<void()> mDeathCallback;
     std::function<void(float)> mOnDamageCallback;
 

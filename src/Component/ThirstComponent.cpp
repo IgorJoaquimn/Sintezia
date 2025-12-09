@@ -8,6 +8,7 @@ ThirstComponent::ThirstComponent(Actor* owner, int updateOrder)
     , mMaxThirst(100.0f)
     , mDehydrationCallback(nullptr)
     , mTimeAccumulator(0.0f)
+    , mDamageTimer(0.0f)
 {
 }
 
@@ -46,5 +47,22 @@ void ThirstComponent::Update(float deltaTime)
     {
         IncreaseThirst(10.0f);
         mTimeAccumulator = 0.0f;
+    }
+
+    if (IsDehydrated())
+    {
+        mDamageTimer += deltaTime;
+        if (mDamageTimer >= 2.0f) // Damage every 2 seconds
+        {
+            if (mDehydrationCallback)
+            {
+                mDehydrationCallback();
+            }
+            mDamageTimer = 0.0f;
+        }
+    }
+    else
+    {
+        mDamageTimer = 0.0f;
     }
 }

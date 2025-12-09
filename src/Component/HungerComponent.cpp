@@ -9,6 +9,7 @@ HungerComponent::HungerComponent(Actor* owner, int updateOrder)
     , mMaxHunger(100.0f)
     , mStarvationCallback(nullptr)
     , mTimeAccumulator(0.0f)
+    , mDamageTimer(0.0f)
 {
 }
 
@@ -47,5 +48,22 @@ void HungerComponent::Update(float deltaTime)
     {
         IncreaseHunger(20.0f);
         mTimeAccumulator = 0.0f;
+    }
+
+    if (IsStarving())
+    {
+        mDamageTimer += deltaTime;
+        if (mDamageTimer >= 3.0f) // Damage every 3 seconds (starvation is slower than dehydration)
+        {
+            if (mStarvationCallback)
+            {
+                mStarvationCallback();
+            }
+            mDamageTimer = 0.0f;
+        }
+    }
+    else
+    {
+        mDamageTimer = 0.0f;
     }
 }
