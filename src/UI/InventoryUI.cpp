@@ -514,7 +514,7 @@ void InventoryUI::DrawItemInSlot(int slotIndex, const Vector2& slotPos, TextRend
     textRenderer->RenderText(slot->item.emoji, emojiX, emojiY, emojiScale);
 
     // Draw quantity in bottom-right corner
-    if (slot->quantity > 1)
+    if (slot->quantity >= 1)
     {
         std::string quantityText = std::to_string(slot->quantity);
         float quantityScale = 0.5f;
@@ -714,15 +714,12 @@ void InventoryUI::DrawCraftingPanel(TextRenderer* textRenderer, RectRenderer* re
         float emojiY = pos.y + (mSlotSize / 2.0f) + (emojiSize.y / 2.0f) - 5.0f;
         textRenderer->RenderText(slot->item.emoji, emojiX, emojiY, emojiScale);
 
-        if (slot->quantity > 1)
-        {
-            std::string quantityText = std::to_string(slot->quantity);
-            float quantityScale = 0.5f;
-            Vector2 quantitySize = textRenderer->MeasureText(quantityText, quantityScale);
-            float quantityX = pos.x + mSlotSize - quantitySize.x - 5.0f;
-            float quantityY = pos.y + mSlotSize - 5.0f;
-            textRenderer->RenderText(quantityText, quantityX, quantityY, quantityScale);
-        }
+        // Draw name above slot
+        float nameScale = 0.4f;
+        Vector2 nameSize = textRenderer->MeasureText(slot->item.name, nameScale);
+        float nameX = pos.x + (mSlotSize - nameSize.x) / 2.0f;
+        float nameY = pos.y - 2.0f;
+        textRenderer->RenderText(slot->item.name, nameX, nameY, nameScale);
     };
 
     // Draw Input 1 Item
@@ -740,20 +737,9 @@ void InventoryUI::DrawCraftingPanel(TextRenderer* textRenderer, RectRenderer* re
     // Draw Result Item if available
     if (mCraftResult)
     {
-        // Manually draw item since it's not in inventory
-        float emojiScale = 1.2f;
-        Vector2 emojiSize = textRenderer->MeasureText(mCraftResult->emoji, emojiScale);
-        float emojiX = resultPos.x + (resultSize - emojiSize.x) / 2.0f;
-        float emojiY = resultPos.y + (resultSize / 2.0f) + (emojiSize.y / 2.0f) - 5.0f;
-        textRenderer->RenderText(mCraftResult->emoji, emojiX, emojiY, emojiScale);
-        
-        // Draw name below result
-        float nameScale = 0.6f;
-        Vector2 nameSize = textRenderer->MeasureText(mCraftResult->name, nameScale);
-        float nameX = resultPos.x + (resultSize - nameSize.x) / 2.0f;
-        float nameY = resultPos.y - 20.0f;
-        
-        textRenderer->RenderText(mCraftResult->name, nameX, nameY, nameScale);
+        // Create temporary slot to use same drawing logic
+        InventorySlot tempSlot(*mCraftResult, 1);
+        drawItem(&tempSlot, resultPos);
     }
 }
 

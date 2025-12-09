@@ -147,7 +147,7 @@ void Game::LoadLevel()
 
     if (!mAudio) {
         mAudio = new AudioSystem();
-        mAudio->PlaySound("background.ogg", true, 50);
+        // mAudio->PlaySound("background.ogg", true, 50);
     }
 
     // Create player

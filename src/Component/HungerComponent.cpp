@@ -45,7 +45,7 @@ void HungerComponent::Update(float deltaTime)
     mTimeAccumulator += deltaTime;
     if (mTimeAccumulator >= 120.0f) // 2 minutes
     {
-        IncreaseHunger(1.0f);
+        IncreaseHunger(20.0f);
         mTimeAccumulator = 0.0f;
     }
 }

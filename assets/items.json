@@ -4,7 +4,7 @@
             "id": 1,
             "name": "Água",
             "emoji": "💧",
-            "thirstRestoration": 2.0
+            "thirstRestoration": 5.0
         },
         {
             "id": 2,
@@ -85,13 +85,13 @@
             "id": 103,
             "name": "Carne",
             "emoji": "🥩",
-            "hungerRestoration": 1.0
+            "hungerRestoration": 10.0
         },
         {
             "id": 104,
             "name": "Carne Assada",
             "emoji": "🍖",
-            "hungerRestoration": 2.0
+            "hungerRestoration": 20.0
         },
         {
             "id": 105,
