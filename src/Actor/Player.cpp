@@ -243,6 +243,7 @@ void Player::OnProcessInput(const Uint8* keyState)
         if (mInputComponent->IsAttacking() && mAttackComponent && mAttackComponent->CanAttack())
         {
             // Start attack in the current facing direction
+            mGame->GetAudioSystem()->PlaySound("punch.wav", false, 60);
             mAttackComponent->StartAttack(mLastDirection);
             return;
         }

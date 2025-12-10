@@ -29,7 +29,6 @@ void HealthComponent::TakeDamage(float damage)
 
     // Update recent damage
     mRecentDamage = damage;
-
     // Notify damage
     if (mOnDamageCallback)
     {

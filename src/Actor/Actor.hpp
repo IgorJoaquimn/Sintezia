@@ -58,8 +58,7 @@ public:
     // Model matrix
     Matrix4 GetModelMatrix() const;
     // Game getter
-    class Game* GetGame() { return mGame; }
-    const class Game* GetGame() const { return mGame; }
+    class Game* GetGame() const { return mGame; }
 
     // Components getter
     const std::vector<std::unique_ptr<Component>>& GetComponents() const { return mComponents; }
