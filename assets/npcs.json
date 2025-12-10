@@ -5,7 +5,10 @@
       "name": "Náufraga",
       "sprite": "Cavegirl",
       "faceset": "assets/third_party/Ninja Adventure - Asset Pack/Actor/Characters/Cavegirl/Faceset.png",
-      "position": { "x": 31, "y": 73 },
+      "position": {
+        "x": 31,
+        "y": 73
+      },
       "dialogues": {
         "intro": [
           "Ei! Você também sobreviveu?",
@@ -17,7 +20,9 @@
           "id": 201,
           "title": "Fome de Sobrevivência",
           "description": "A Náufraga precisa de comida. Traga Carne Assada.",
-          "required_items": [104],
+          "required_items": [
+            104
+          ],
           "reward_text": "Sua generosidade gera Esperança.",
           "reward_item": 106,
           "start_dialogue": "Eu não como há dias. Consegui caçar algo, mas não tenho como cozinhar. Se você me trouxer '🦴 Carne Assada 🍖', serei eternamente grata.",
@@ -27,7 +32,9 @@
           "id": 202,
           "title": "A Fuga",
           "description": "A Náufraga precisa de um barco para escapar.",
-          "required_items": [109],
+          "required_items": [
+            109
+          ],
           "reward_text": "Você e a Náufraga escapam da ilha.",
           "reward_item": 110,
           "start_dialogue": "Você conseguiu um 'Barco ⛵'? Por favor, vamos sair dessa ilha!",
@@ -40,13 +47,27 @@
       "name": "Sultão",
       "sprite": "Sultan",
       "faceset": "assets/third_party/Ninja Adventure - Asset Pack/Actor/Characters/Sultan/Faceset.png",
-      "position": { "x": 38, "y": 42 },
+      "position": {
+        "x": 38,
+        "y": 42
+      },
       "dialogues": {
         "intro": [
-          "Olá viajante.",
-          "Você viu aquele tronco de madeira ali?",
-          "Se você tiver um machado, pode cortá-lo para obter madeira 🌲.",
-          "Aperte 'I' para abrir o inventário e use o mouse para craftar."
+          "Olá, viajante! Estou procurando por um espírito que pode nos ajudar, mas não consigo passar pelos obstáculos no caminho."
+        ],
+        "info": [
+          {
+            "title": "Sobre o Machado",
+            "content": [
+              "Viu aqueles troncos caídos atrás de mim? Você precisa de um Machado 🪓 para quebrá-los. Para fazer um machado, você vai precisar de Madeira 🌲 e Pedra 🌑."
+            ]
+          },
+          {
+            "title": "Como Conseguir Madeira",
+            "content": [
+              "Interaja com as árvores pressionando 'K' para obter Madeira 🌲. Aperte 'I' para abrir o inventário e craftar itens!"
+            ]
+          }
         ]
       },
       "quests": []
@@ -56,7 +77,10 @@
       "name": "Espírito",
       "sprite": "Spirit",
       "faceset": "assets/third_party/Ninja Adventure - Asset Pack/Actor/Characters/Spirit/Faceset.png",
-      "position": { "x": 45, "y": 6 },
+      "position": {
+        "x": 45,
+        "y": 6
+      },
       "dialogues": {
         "intro": [
           "Eu sou o espírito destas águas.",
@@ -68,13 +92,114 @@
           "id": 801,
           "title": "O Chamado do Mar",
           "description": "O Espírito pode lhe conceder um barco em troca de esperança.",
-          "required_items": [106],
+          "required_items": [
+            106
+          ],
           "reward_text": "O Espírito cria um barco para você.",
           "reward_item": 109,
           "start_dialogue": "Vejo que você quer partir. Traga-me 'Esperança ✨' e lhe darei um meio de transporte.",
           "end_dialogue": "Aqui está o seu 'Barco ⛵'. Leve-o até a Náufraga para escaparem juntos!"
         }
       ]
+    },
+    {
+      "id": 9,
+      "name": "Velho",
+      "sprite": "OldMan2",
+      "faceset": "assets/third_party/Ninja Adventure - Asset Pack/Actor/Characters/OldMan2/Faceset.png",
+      "position": {
+        "x": 31,
+        "y": 66
+      },
+      "dialogues": {
+        "intro": [
+          "Cuidado com o mar.",
+          "Muitos tentaram escapar desta ilha, mas poucos conseguiram."
+        ],
+        "info": [
+          {
+            "title": "Como Coletar Água",
+            "content": [
+              "Veja aquela lagoa atrás de mim? Se você ficar perto dela e apertar 'K', poderá coletar água 💧. A água é essencial para sobreviver nesta ilha."
+            ]
+          }
+        ]
+      },
+      "quests": []
+    },
+    {
+      "id": 10,
+      "name": "Caçador",
+      "sprite": "Hunter",
+      "faceset": "assets/third_party/Ninja Adventure - Asset Pack/Actor/Characters/Hunter/Faceset.png",
+      "position": {
+        "x": 69,
+        "y": 49
+      },
+      "dialogues": {
+        "intro": [
+          "Sou uma caçadora experiente.",
+          "Nesta ilha há muitos animais que podem servir de alimento."
+        ],
+        "info": [
+          {
+            "title": "Como Caçar",
+            "content": [
+              "Para conseguir carne 🦴, ataque os animais da ilha. Quando derrotados, eles deixarão carne para coletar. Depois é só cozinhar para fazer Carne Assada 🍖!"
+            ]
+          }
+        ]
+      },
+      "quests": []
+    },
+    {
+      "id": 11,
+      "name": "Guardião do Fogo",
+      "sprite": "Flam",
+      "faceset": "assets/third_party/Ninja Adventure - Asset Pack/Actor/Characters/Flam/Faceset.png",
+      "position": {
+        "x": 58,
+        "y": 29
+      },
+      "dialogues": {
+        "intro": [
+          "O fogo é essencial para a sobrevivência.",
+          "Sem ele, não há comida cozida nem calor."
+        ],
+        "info": [
+          {
+            "title": "Como Coletar Fogo",
+            "content": [
+              "Veja aquela fogueira ao meu lado? Se você ficar perto dela e apertar 'K', poderá coletar fogo 🔥. Use o fogo para cozinhar carne e criar outros itens úteis."
+            ]
+          }
+        ]
+      },
+      "quests": []
+    },
+    {
+      "id": 12,
+      "name": "Xamã",
+      "sprite": "Shaman",
+      "faceset": "assets/third_party/Ninja Adventure - Asset Pack/Actor/Characters/Shaman/Faceset.png",
+      "position": {
+        "x": 33,
+        "y": 23
+      },
+      "dialogues": {
+        "intro": [
+          "Sinto uma presença espiritual muito forte por aqui. A caverna à frente guarda segredos antigos."
+        ],
+        "info": [
+          {
+            "title": "A Caverna",
+            "content": [
+              "Após aquela caverna existem muitos inimigos poderosos. Mas não se desespere! Um espírito ancestral habita esse lugar. Se você conseguir se aproximar dele, ele poderá ajudá-lo em sua jornada."
+            ]
+          }
+        ]
+      },
+      "quests": []
     }
   ]
 }
