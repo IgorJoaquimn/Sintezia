@@ -200,6 +200,37 @@
         ]
       },
       "quests": []
+    },
+    {
+      "id": 13,
+      "name": "Geólogo",
+      "sprite": "OldMan",
+      "faceset": "assets/third_party/Ninja Adventure - Asset Pack/Actor/Characters/OldMan/Faceset.png",
+      "position": {
+        "x": 15,
+        "y": 49
+      },
+      "dialogues": {
+        "intro": [
+          "Há tanto tempo estudando estas formações...",
+          "Quanto mais observo, menos compreendo este lugar."
+        ],
+        "info": [
+          {
+            "title": "Coleta de Pedras",
+            "content": [
+              "Vê aquela pedreira ao redor? Aproxime-se e pressione 'K' para coletar pedras 🌑. São fundamentais para ferramentas e armas."
+            ]
+          },
+          {
+            "title": "Ruínas Antigas",
+            "content": [
+              "Um arco perfeito que não leva a lugar algum. Apenas... vazio. E os três pilares? Parecem aguardar um evento desconhecido. Quem os ergueu? E por quê?"
+            ]
+          }
+        ]
+      },
+      "quests": []
     }
   ]
 }

@@ -522,7 +522,8 @@ bool Player::CheckForEnvironmentInteraction()
     std::map<std::string, std::string> generatorMap = {
         {"gerador_agua", "Água"},
         {"gerador_fogo", "Fogo"},
-        {"gerador_madeira", "Madeira"}
+        {"gerador_madeira", "Madeira"},
+        {"gerador_pedra", "Pedra"}
     };
 
     // Check surrounding tiles (including current)
