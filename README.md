@@ -1,5 +1,10 @@
 # Sintézia
 
+## Demo
+https://youtu.be/Qmqq3UhR_YM
+
+---
+
 ## Screenshots
 Abaixo estão capturas de tela representando os principais momentos e interfaces do jogo:
 
