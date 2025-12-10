@@ -2,6 +2,12 @@
 // Main entry point following the asteroids game architecture
 // ----------------------------------------------------------------
 
+
+#define SDL_MAIN_HANDLED 
+
+#include <SDL2/SDL.h>
+#include <iostream>
+
 #include "Game/Game.hpp"
 #include "UI/MainMenu.h"
 #include "Core/TextRenderer/TextRenderer.hpp"

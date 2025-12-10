@@ -84,6 +84,12 @@ void HealthComponent::SetCurrentHealth(float health)
 }
 
 
+void HealthComponent::UpdateVitalityBar(float hunger, float thirst)
+{
+    // This function updates the vitality bar based on hunger and thirst ratios
+    // Can be extended later to implement specific UI logic
+}
+
 void HealthComponent::Update(float deltaTime)
 {
     // Calculate total strain/damage from various sources

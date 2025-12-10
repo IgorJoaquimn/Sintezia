@@ -1,8 +1,15 @@
 #include "Texture.hpp"
 #include <SDL_image.h>
 #include <iostream>
-#include <unistd.h>
-#include <fcntl.h>
+
+#ifdef _WIN32
+    #include <io.h>
+    #include <fcntl.h>
+    #define STDERR_FILENO 2
+#else
+    #include <unistd.h>
+    #include <fcntl.h>
+#endif
 
 Texture::Texture()
     : mTextureID(0)
