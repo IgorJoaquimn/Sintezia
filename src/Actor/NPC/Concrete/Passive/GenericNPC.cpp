@@ -57,6 +57,18 @@ void GenericNPC::LoadFromJSON(const json& npcData)
         SetGreeting(greeting);
     }
 
+    // 6. Dialogues (Info) - Multiple info dialogues as array
+    if (npcData.contains("dialogues") && npcData["dialogues"].contains("info")) {
+        for (const auto& info : npcData["dialogues"]["info"]) {
+            std::string title = info["title"];
+            std::string infoDialog = "";
+            for (const auto& line : info["content"]) {
+                infoDialog += line.get<std::string>() + "\n";
+            }
+            AddDialogOption(title, infoDialog);
+        }
+    }
+
     // 6. Quests (Mapped to TradeOffers for now)
     if (npcData.contains("quests")) {
         for (const auto& quest : npcData["quests"]) {
