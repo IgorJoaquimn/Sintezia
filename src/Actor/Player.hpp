@@ -1,6 +1,7 @@
 #pragma once
 #include "Actor.hpp"
 #include "../MathUtils.h"
+#include "../AudioSystem/AudioSystem.h"
 #include <SDL.h>
 
 #include <map>
@@ -77,6 +78,13 @@ private:
     PlayerState mState;
     float mAttackTimer;
     int mLastDirection;
+
+    // Audio for walking
+    SoundHandle mWalkSoundHandle;
+    float mWalkSoundTimer;
+    int mWalkSoundCount;  // Track number of footsteps for variation
+    float mBreathingSoundTimer;
+    static constexpr float WALK_SOUND_INTERVAL = 0.35f; // Play walk sound every 0.35 seconds
 
     // Textures
     std::shared_ptr<Texture> mSpriteSheet;

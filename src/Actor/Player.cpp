@@ -35,6 +35,8 @@ Player::Player(Game* game)
     , mHasShownHungerWarning(false)
     , mHasShownThirstWarning(false)
     , mHasShownDamageWarning(false)
+    , mWalkSoundTimer(0.0f)
+    , mWalkSoundCount(0)
 {
     SetGridPosition(45, 70); // Start at (45, 70) tiles
     
@@ -296,11 +298,14 @@ void Player::OnUpdate(float deltaTime)
     }
 
     // Check for death
-    if (mHealthComponent && mHealthComponent->GetCurrentHealth() <= 0.5f)
+    if (mHealthComponent)
     {
-        SDL_Log("Force Game Over from Player::OnUpdate");
-        mHealthComponent->SetCurrentHealth(0.0f);
-        mGame->SetGameOver(true);
+        if (mHealthComponent->GetCurrentHealth() <= 0.5) {
+            SDL_Log("Force Game Over from Player::OnUpdate");
+            mHealthComponent->SetCurrentHealth(0.0f);
+            mGame->SetGameOver(true);
+        }
+        
     }
 
     // Check for nearby items to pickup
@@ -349,6 +354,41 @@ void Player::OnUpdate(float deltaTime)
         {
             mState = PlayerState::Idle;
         }
+    }
+
+    // Handle walk sound
+    if (mState == PlayerState::Walking && mGame)
+    {
+        mWalkSoundTimer -= deltaTime;
+        if (mWalkSoundTimer <= 0.0f)
+        {
+            mWalkSoundTimer = WALK_SOUND_INTERVAL;
+            if (mGame->GetAudioSystem())
+            {
+                // Random probability: 50% walk1, 30% walk2, 20% silence
+                float randomValue = static_cast<float>(rand()) / RAND_MAX;
+                
+                if (randomValue < 0.5f)
+                {
+                    // 50% - play walk1
+                    mWalkSoundHandle = mGame->GetAudioSystem()->PlaySound("walk1.wav", false, 15);
+                }
+                else if (randomValue < 0.8f)
+                {
+                    // 30% - play walk2 (from 0.5 to 0.8)
+                    mWalkSoundHandle = mGame->GetAudioSystem()->PlaySound("walk2.wav", false, 17);
+                }
+                // else: 20% - silence (no sound)
+                
+                mWalkSoundCount++;
+            }
+        }
+    }
+    else
+    {
+        // Reset timer and counter when not walking
+        mWalkSoundTimer = 0.0f;
+        mWalkSoundCount = 0;
     }
 
     // Reset recent damage over time
@@ -438,6 +478,8 @@ bool Player::PickupItem(const Item& item, int quantity)
     if (!mInventory)
         return false;
     
+    mGame->GetAudioSystem()->PlaySound("itempickup.wav", false);
+
     return mInventory->AddItem(item, quantity);
 }
 

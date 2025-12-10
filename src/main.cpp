@@ -13,6 +13,7 @@
 #include "Core/TextRenderer/TextRenderer.hpp"
 #include <SDL.h>
 #include <GL/glew.h>
+#include "AudioSystem/AudioSystem.h"
 
 int main(int argc, char** argv)
 {
@@ -48,11 +49,16 @@ int main(int argc, char** argv)
     // Inicializa TextRenderer
     TextRenderer textRenderer;
     textRenderer.Initialize(Game::WINDOW_WIDTH, Game::WINDOW_HEIGHT);
+    // Inicializa AudioSystem
+    AudioSystem* audioSystem = new AudioSystem();
+
     // Exibe o menu
     MainMenu menu(window, glContext, &textRenderer);
     menu.show();
     // Se o usuário escolher Iniciar Jogo
     if (menu.getSelection() == 0) {
+        audioSystem->PlaySound("Accept5.wav", false, 80);
+
         Game game(window, glContext);
         bool success = game.Initialize();
         if (success) {

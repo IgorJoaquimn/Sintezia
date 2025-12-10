@@ -136,7 +136,7 @@ bool Game::Initialize()
 void Game::LoadLevel()
 {
     // Create tile map
-    // Map is 90x80 tiles (3600x3200 pixels)
+    // Map is 90x80 tiles (3600x3200 pixels at 40px per tile)
     mTileMap = std::make_unique<TileMap>(90, 80, 40);
 
     // Load your custom Tiled map
@@ -147,7 +147,7 @@ void Game::LoadLevel()
 
     if (!mAudio) {
         mAudio = new AudioSystem();
-        // mAudio->PlaySound("background.ogg", true, 50);
+        mAudio->PlaySound("background.ogg", true, 1);
     }
 
     // Create player

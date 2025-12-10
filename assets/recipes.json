@@ -71,11 +71,6 @@
             "result_id": 107
         },
         {
-            "item1_id": 100,
-            "item2_id": 4,
-            "result_id": 109
-        },
-        {
             "item1_id": 200,
             "item2_id": 3,
             "result_id": 201
@@ -129,11 +124,6 @@
             "item1_id": 8,
             "item2_id": 1,
             "result_id": 7
-        },
-        {
-            "item1_id": 100,
-            "item2_id": 1,
-            "result_id": 109
         },
         {
             "item1_id": 3,
